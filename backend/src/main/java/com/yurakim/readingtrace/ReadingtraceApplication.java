@@ -1,0 +1,13 @@
+package com.yurakim.readingtrace;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ReadingtraceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ReadingtraceApplication.class, args);
+	}
+
+}
