@@ -8,6 +8,10 @@ import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import com.yurakim.readingtrace.user.service.IAuthService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,10 +27,19 @@ public class IAuthServiceImpl implements IAuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public String login(LoginDto loginDto) {
-        userDetailsService.loadUserByUsername(loginDto.getEmail());
+        //step1.temporary request object for authentication
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                loginDto.getEmail(),
+                loginDto.getPassword()
+        );
+        //step2.manager delegates authentication to provider -> go to AuthenticationProviderImpl
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        //step5.authentication object returned by AuthenticationProviderImpl saved in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return "Logged in";
     }
 
