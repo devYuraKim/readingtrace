@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.shared.config;
 
 import com.yurakim.readingtrace.shared.constant.ApiPath;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,16 @@ public class SecurityConfig {
                 .requestMatchers(ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", "/error", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
         );
+
+        http.logout(loc -> loc
+                .logoutUrl(ApiPath.AUTH+"/logout")
+                .logoutSuccessHandler((request, response, authentication)
+                        -> { response.setStatus(HttpServletResponse.SC_OK);
+                             response.getWriter().write("Logged out");
+                        })
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID"));
 
         http.httpBasic(Customizer.withDefaults());
 
