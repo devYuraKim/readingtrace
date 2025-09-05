@@ -1,0 +1,64 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: ${ERROR_STACKTRACE:never}
+    include-message: ${ERROR_MESSAGE:never}
+  shutdown: graceful
+
+spring:
+  application:
+    name: readingtrace
+  config:
+    activate:
+      on-profile: prod
+  output:
+    ansi:
+      enabled: ${ANSI_ENABLED:never}
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/readingtrace}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:false}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: ${JPA_FORMAT_SQL:false}
+
+#actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_ENDPOINTS:health,metrics}
+      base-path: ${ACTUATOR_BASE_PATH:/actuator}
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_DETAILS:never}
+    env:
+      show-values: ${ACTUATOR_SHOW_VALUES:never}
+    metrics:
+      enabled: ${ACTUATOR_METRICS:true}
+  security:
+    enabled: ${ACTUATOR_SECURITY:true}
+  metrics:
+    export:
+      prometheus:
+        enabled: ${PROMETHEUS_ENABLED:false}
+
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL:WARN}
+    org.springframework.security:  ${SECURITY_LOG_LEVEL:WARN}
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG:WARN}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${HIBERNATE_PARAM_LOG:WARN}
+    com.yurakim.readingtrace: ${APP_LOG_LEVEL:INFO}
+  file:
+    name: ${LOG_FILE:logs/readingtrace.log}
+    max-size: ${LOG_MAX_SIZE:100MB}
+    max-history: ${LOG_MAX_HISTORY:30}
+  pattern:
+    file: ${LOG_PATTERN:%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
+    console: ${CONSOLE_LOG_PATTERN:%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
