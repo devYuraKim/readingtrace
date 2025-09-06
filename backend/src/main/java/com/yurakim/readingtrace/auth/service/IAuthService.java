@@ -8,4 +8,5 @@ public interface IAuthService {
     String login (LoginDto loginDto);
 
     String register (RegisterDto registerDto);
+
 }

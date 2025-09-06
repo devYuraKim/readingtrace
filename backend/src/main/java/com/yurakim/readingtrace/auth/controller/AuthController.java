@@ -24,6 +24,7 @@ public class AuthController {
         return ResponseEntity.ok(message);
     }
 
+    //TODO: add validation for loginDto
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) {
         String message = iAuthService.login(loginDto);
