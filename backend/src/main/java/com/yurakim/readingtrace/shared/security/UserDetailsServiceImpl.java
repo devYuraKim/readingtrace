@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.shared.config;
+package com.yurakim.readingtrace.shared.security;
 
 import lombok.AllArgsConstructor;
 import com.yurakim.readingtrace.user.entity.User;
