@@ -1,12 +1,12 @@
-package com.yurakim.readingtrace.user.service.serviceImpl;
+package com.yurakim.readingtrace.auth.service.serviceImpl;
 
-import com.yurakim.readingtrace.user.dto.LoginDto;
-import com.yurakim.readingtrace.user.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.service.IAuthService;
+import com.yurakim.readingtrace.auth.dto.LoginDto;
+import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
-import com.yurakim.readingtrace.user.service.IAuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

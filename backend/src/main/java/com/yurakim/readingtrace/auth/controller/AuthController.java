@@ -1,9 +1,9 @@
-package com.yurakim.readingtrace.user.controller;
+package com.yurakim.readingtrace.auth.controller;
 
 import com.yurakim.readingtrace.shared.constant.ApiPath;
-import com.yurakim.readingtrace.user.dto.LoginDto;
-import com.yurakim.readingtrace.user.dto.RegisterDto;
-import com.yurakim.readingtrace.user.service.IAuthService;
+import com.yurakim.readingtrace.auth.dto.LoginDto;
+import com.yurakim.readingtrace.auth.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.service.IAuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
