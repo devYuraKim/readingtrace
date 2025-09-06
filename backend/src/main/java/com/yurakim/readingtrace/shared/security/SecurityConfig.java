@@ -1,7 +1,10 @@
-package com.yurakim.readingtrace.shared.config;
+package com.yurakim.readingtrace.shared.security;
 
 import com.yurakim.readingtrace.shared.constant.ApiPath;
+import com.yurakim.readingtrace.shared.exception.AccessDeniedHandlerImpl;
+import com.yurakim.readingtrace.shared.exception.AuthenticationEntryPointImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +19,12 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
 
+@AllArgsConstructor
 @Configuration
 public class SecurityConfig {
+
+    private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
+    private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -39,6 +46,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers(ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", "/error", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
+        );
+
+        http.exceptionHandling(e -> e
+                .authenticationEntryPoint(authenticationEntryPointImpl)
+                .accessDeniedHandler(accessDeniedHandlerImpl)
         );
 
         http.logout(loc -> loc
