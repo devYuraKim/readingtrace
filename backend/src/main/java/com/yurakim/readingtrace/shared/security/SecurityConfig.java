@@ -11,10 +11,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
@@ -29,8 +31,15 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
+        http.securityContext(context -> context
+                .requireExplicitSave(false))
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
+
         //CSRF
-        http.csrf(CsrfConfigurer::disable);
+        http.csrf(csrf -> csrf
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                .ignoringRequestMatchers("/error", "/actuator/**")
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
@@ -44,7 +53,7 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers(ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", "/error", "/actuator/**").permitAll()
+                .requestMatchers(ApiPath.AUTH+"/csrf",ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", "/error", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
         );
 
