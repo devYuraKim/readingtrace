@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.shared.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties({"createdAt", "createdBy", "updatedAt", "updatedBy"})
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @ToString
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
