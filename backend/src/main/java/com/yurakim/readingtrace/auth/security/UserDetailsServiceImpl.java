@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.shared.config;
+package com.yurakim.readingtrace.auth.security;
 
 import lombok.AllArgsConstructor;
 import com.yurakim.readingtrace.user.entity.User;
@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 ()-> new UsernameNotFoundException("User not found for " + email)
         );
-        Set<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName())).collect(Collectors.toSet());
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 }

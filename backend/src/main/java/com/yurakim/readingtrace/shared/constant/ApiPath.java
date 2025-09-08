@@ -2,7 +2,7 @@ package com.yurakim.readingtrace.shared.constant;
 
 public final class ApiPath {
 
-    public ApiPath() {}
+    private ApiPath() {}
 
     public static final String BASE = "/api/v1";
 
