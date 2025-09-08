@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.shared.security;
+package com.yurakim.readingtrace.auth.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;

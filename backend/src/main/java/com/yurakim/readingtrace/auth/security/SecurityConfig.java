@@ -1,9 +1,9 @@
-package com.yurakim.readingtrace.shared.security;
+package com.yurakim.readingtrace.auth.security;
 
 import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
-import com.yurakim.readingtrace.shared.exception.AccessDeniedHandlerImpl;
-import com.yurakim.readingtrace.shared.exception.AuthenticationEntryPointImpl;
+import com.yurakim.readingtrace.auth.exception.AccessDeniedHandlerImpl;
+import com.yurakim.readingtrace.auth.exception.AuthenticationEntryPointImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
