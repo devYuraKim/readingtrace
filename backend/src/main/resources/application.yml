@@ -36,6 +36,7 @@ spring:
 management:
   endpoints:
     web:
+      base-path: ${ACTUATOR_BASE_PATH:/api/v1/actuator}
       exposure:
         include: ${ACTUATOR_ENDPOINTS:*}
   endpoint:

@@ -28,6 +28,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
+    //TODO: set HTTPS configuration
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
@@ -53,7 +54,8 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers(ApiPath.AUTH+"/csrf",ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", "/error", "/actuator/**").permitAll()
+                .requestMatchers(ApiPath.AUTH+"/csrf",ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", ApiPath.BASE+"/error").permitAll()
+                .requestMatchers(ApiPath.BASE+"/actuator/info", ApiPath.BASE+"/actuator/health").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 
