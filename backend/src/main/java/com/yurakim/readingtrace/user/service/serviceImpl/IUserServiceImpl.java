@@ -1,0 +1,21 @@
+package com.yurakim.readingtrace.user.service.serviceImpl;
+
+import com.yurakim.readingtrace.user.entity.User;
+import com.yurakim.readingtrace.user.repository.UserRepository;
+import com.yurakim.readingtrace.user.service.IUserService;
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@AllArgsConstructor
+@Service
+public class IUserServiceImpl implements IUserService {
+
+    private final UserRepository userRepository;
+
+    @Override
+    public User getUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return user;
+    }
+}
