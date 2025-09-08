@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.auth.controller;
 
+import com.yurakim.readingtrace.auth.constant.JWT;
 import com.yurakim.readingtrace.auth.dto.LoginDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.auth.service.IAuthService;
@@ -24,8 +25,8 @@ public class AuthController {
     //TODO: add validation for loginDto
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) {
-        String message = iAuthService.login(loginDto);
-        return ResponseEntity.ok(message);
+        String jwt = iAuthService.login(loginDto);
+        return ResponseEntity.ok().header(JWT.JWT_HEADER, JWT.JWT_PREFIX + jwt).build();
     }
 
     @GetMapping("/csrf")

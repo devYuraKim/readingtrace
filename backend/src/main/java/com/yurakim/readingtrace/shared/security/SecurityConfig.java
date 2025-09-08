@@ -1,26 +1,30 @@
 package com.yurakim.readingtrace.shared.security;
 
+import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import com.yurakim.readingtrace.shared.exception.AccessDeniedHandlerImpl;
 import com.yurakim.readingtrace.shared.exception.AuthenticationEntryPointImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
 import java.util.Collections;
 
+@Slf4j
 @AllArgsConstructor
 @Configuration
 public class SecurityConfig {
@@ -32,15 +36,17 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.securityContext(context -> context
-                .requireExplicitSave(false))
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
+        http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         //CSRF
         http.csrf(csrf -> csrf
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 .ignoringRequestMatchers("/error", "/actuator/**")
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+
+        //TODO: check if filter sequence matter here
+        //JWT validation filter
+        http.addFilterBefore(new JWTTokenValidatorFilter(), AuthorizationFilter.class);
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
@@ -49,6 +55,7 @@ public class SecurityConfig {
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowCredentials(true);
             config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setExposedHeaders(Arrays.asList("Authorization"));
             config.setMaxAge(3600L);
             return config;
         }));
@@ -74,9 +81,14 @@ public class SecurityConfig {
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID"));
 
-        http.httpBasic(Customizer.withDefaults());
+        //TODO: remove filter listing
+        //check enabled filters
+        SecurityFilterChain chain = http.build();
+        log.info("===================Security Filter Chain===================");
+        chain.getFilters().forEach(filter ->
+                log.info("=== Filter: {}", filter.getClass().getSimpleName()));
 
-        return http.build();
+        return chain;
     }
 
     @Bean
@@ -88,4 +100,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
 }

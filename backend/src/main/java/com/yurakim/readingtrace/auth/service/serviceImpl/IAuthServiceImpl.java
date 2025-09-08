@@ -3,6 +3,7 @@ package com.yurakim.readingtrace.auth.service.serviceImpl;
 import com.yurakim.readingtrace.auth.dto.LoginDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.auth.service.IAuthService;
+import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
@@ -33,6 +34,7 @@ public class IAuthServiceImpl implements IAuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
 
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -58,9 +60,14 @@ public class IAuthServiceImpl implements IAuthService {
         try {
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            //CREATE JWT TOKEN
+            String jwt =jwtService.generateJwt(authentication);
+
             //RECORD LOGIN SUCCESS
             recordLoginSuccess(user);
-            return "Logged in";
+            
+            return jwt;
         } catch (AuthenticationException e) {
             recordLoginFailure(user, e);
             return String.format("Login failed (%d/%d)", user.getFailedLoginAttempts(), MAX_FAILED_ATTEMPTS);
