@@ -2,7 +2,7 @@ package com.yurakim.readingtrace.auth.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
-import com.yurakim.readingtrace.auth.service.IAuthService;
+import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
@@ -30,7 +30,7 @@ import java.util.Set;
 @Slf4j
 @AllArgsConstructor
 @Service
-public class IAuthServiceImpl implements IAuthService {
+public class AuthServiceImpl implements AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
 
@@ -66,7 +66,7 @@ public class IAuthServiceImpl implements IAuthService {
 
             //RECORD LOGIN SUCCESS
             recordLoginSuccess(user);
-            
+
             return jwt;
         } catch (AuthenticationException e) {
             recordLoginFailure(user, e);

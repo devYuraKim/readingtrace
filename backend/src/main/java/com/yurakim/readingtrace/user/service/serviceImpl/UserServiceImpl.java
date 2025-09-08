@@ -2,14 +2,14 @@ package com.yurakim.readingtrace.user.service.serviceImpl;
 
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.UserRepository;
-import com.yurakim.readingtrace.user.service.IUserService;
+import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
-public class IUserServiceImpl implements IUserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
