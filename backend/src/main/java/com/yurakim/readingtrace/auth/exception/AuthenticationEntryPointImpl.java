@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.shared.exception;
+package com.yurakim.readingtrace.auth.exception;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+//RESPONSE FOR AUTHENTICATION FAILURE
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
