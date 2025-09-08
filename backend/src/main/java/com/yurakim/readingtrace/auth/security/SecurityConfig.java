@@ -1,9 +1,9 @@
 package com.yurakim.readingtrace.auth.security;
 
-import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
-import com.yurakim.readingtrace.shared.constant.ApiPath;
 import com.yurakim.readingtrace.auth.exception.AccessDeniedHandlerImpl;
 import com.yurakim.readingtrace.auth.exception.AuthenticationEntryPointImpl;
+import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
+import com.yurakim.readingtrace.shared.constant.ApiPath;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 @Slf4j
@@ -55,7 +54,7 @@ public class SecurityConfig {
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowCredentials(true);
             config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setExposedHeaders(Arrays.asList("Authorization"));
+            config.setExposedHeaders(Collections.singletonList("Authorization"));
             config.setMaxAge(3600L);
             return config;
         }));
