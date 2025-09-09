@@ -28,10 +28,23 @@ import java.util.Collections;
 @Configuration
 public class SecurityConfig {
 
+    private static final String[] PUBLIC_ENDPOINTS = {
+            ApiPath.AUTH+"/csrf",
+            ApiPath.AUTH+"/register",
+            ApiPath.AUTH+"/login",
+            ApiPath.BASE+"/error",
+            ApiPath.BASE+"/actuator/health"
+    };
+
+    private static final String[] PROTECTED_ACTUATOR_ENDPOINTS = {
+            ApiPath.BASE+"/actuator/info"
+    };
+
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
     //TODO: set HTTPS configuration
+    //TODO: create a list for ignoreRequestMatchers
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
@@ -40,7 +53,7 @@ public class SecurityConfig {
         //CSRF
         http.csrf(csrf -> csrf
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                .ignoringRequestMatchers("/error", "/actuator/**")
+                .ignoringRequestMatchers(PUBLIC_ENDPOINTS)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
         //TODO: check if filter sequence matter here
@@ -60,8 +73,8 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers(ApiPath.AUTH+"/csrf",ApiPath.AUTH+"/register", ApiPath.AUTH+"/login", ApiPath.BASE+"/error").permitAll()
-                .requestMatchers(ApiPath.BASE+"/actuator/info", ApiPath.BASE+"/actuator/health").hasRole("ADMIN")
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(PROTECTED_ACTUATOR_ENDPOINTS).hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 
@@ -70,6 +83,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandlerImpl)
         );
 
+        //TODO: remove session based logout
         http.logout(loc -> loc
                 .logoutUrl(ApiPath.AUTH+"/logout")
                 .logoutSuccessHandler((request, response, authentication)
