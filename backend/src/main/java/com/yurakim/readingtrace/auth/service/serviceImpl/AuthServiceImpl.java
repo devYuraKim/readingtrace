@@ -33,6 +33,7 @@ import java.util.Set;
 public class AuthServiceImpl implements AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final String ROLE_USER = "USER";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -108,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByName("USER").get());
+        roles.add(roleRepository.findByName(ROLE_USER).get());
         user.setRoles(roles);
 
         userRepository.save(user);

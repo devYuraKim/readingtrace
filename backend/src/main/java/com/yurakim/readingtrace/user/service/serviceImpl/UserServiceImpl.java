@@ -17,7 +17,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponseDto getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        LoginResponseDto loginResponseDto = new LoginResponseDto(user.getEmail());
-        return loginResponseDto;
+        return new LoginResponseDto(user.getEmail());
     }
 }
