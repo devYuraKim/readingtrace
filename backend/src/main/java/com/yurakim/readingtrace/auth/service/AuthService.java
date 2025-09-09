@@ -1,11 +1,11 @@
 package com.yurakim.readingtrace.auth.service;
 
-import com.yurakim.readingtrace.auth.dto.LoginDto;
+import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 
 public interface AuthService {
 
-    String login (LoginDto loginDto);
+    String login (LoginRequestDto loginDto);
 
     String register (RegisterDto registerDto);
 

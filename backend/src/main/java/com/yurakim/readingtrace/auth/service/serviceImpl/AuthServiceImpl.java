@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.auth.service.serviceImpl;
 
-import com.yurakim.readingtrace.auth.dto.LoginDto;
+import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String login(LoginDto loginDto) {
+    public String login(LoginRequestDto loginDto) {
         //TODO: check if controller method has proper validation
         String email = loginDto.getEmail();
         String password = loginDto.getPassword();

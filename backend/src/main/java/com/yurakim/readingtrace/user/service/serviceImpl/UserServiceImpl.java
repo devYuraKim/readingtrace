@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.user.service.serviceImpl;
 
+import com.yurakim.readingtrace.auth.dto.LoginResponseDto;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import com.yurakim.readingtrace.user.service.UserService;
@@ -14,8 +15,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User getUser(Long id) {
+    public LoginResponseDto getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return user;
+        LoginResponseDto loginResponseDto = new LoginResponseDto(user.getEmail());
+        return loginResponseDto;
     }
 }

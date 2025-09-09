@@ -6,9 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class LoginDto {
+public class LoginResponseDto {
 
     private String email;
-    private String password;
 
 }
