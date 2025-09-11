@@ -4,6 +4,7 @@ import com.yurakim.readingtrace.auth.filter.JWTValidatorFilter;
 import com.yurakim.readingtrace.auth.handler.AccessDeniedHandlerImpl;
 import com.yurakim.readingtrace.auth.handler.AuthenticationEntryPointImpl;
 import com.yurakim.readingtrace.auth.handler.OAuth2LoginSuccessHandler;
+import com.yurakim.readingtrace.auth.security.AuthenticationProviderImpl;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -40,6 +42,7 @@ public class SecurityConfig {
             ApiPath.AUTH+"/register",
             ApiPath.AUTH+"/login",
             ApiPath.AUTH+"/forgot-password",
+            ApiPath.AUTH+"/reset-password",
             "/error",
             "/actuator/health",
             "/oauth2/**",
@@ -53,6 +56,7 @@ public class SecurityConfig {
     private final Environment environment;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
+    private UserDetailsService userDetailsService;
     @Lazy
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
@@ -61,7 +65,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider());
 
         //CSRF
         http.csrf(csrf -> csrf
@@ -115,6 +120,11 @@ public class SecurityConfig {
                 log.info("=== Filter: {}", filter.getClass().getSimpleName()));
 
         return chain;
+    }
+
+    @Bean
+    public AuthenticationProviderImpl authenticationProvider() {
+        return new AuthenticationProviderImpl(userDetailsService, passwordEncoder());
     }
 
     @Bean
