@@ -11,6 +11,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+//TODO: create OAuthAccount table
 //TODO: consider separating USER and AUTH entities (a dedicated auth related table)
 
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
@@ -63,5 +64,8 @@ public class User extends BaseEntity {
 
     @JsonIgnore
     private LocalDateTime accountUnlockedAt;
+
+    @JsonIgnore
+    private String signUpMethod;
 
 }

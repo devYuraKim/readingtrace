@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.auth.event;
+package com.yurakim.readingtrace.auth.config;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
