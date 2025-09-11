@@ -2,6 +2,8 @@ package com.yurakim.readingtrace.auth.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
+import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.user.entity.Role;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 //TODO: add method for unlocking account
 
@@ -40,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     @Transactional
@@ -115,5 +119,16 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return "User registered";
+    }
+
+    @Override
+    public String generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()->
+                new RuntimeException("User not found"));
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(60);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(token, expiryDate, user);
+        passwordResetTokenRepository.save(passwordResetToken);
+        return "Password reset token generated";
     }
 }

@@ -9,4 +9,6 @@ public interface AuthService {
 
     String register (RegisterDto registerDto);
 
+    String generatePasswordResetToken(String email);
+
 }

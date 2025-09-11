@@ -39,6 +39,7 @@ public class SecurityConfig {
             ApiPath.AUTH+"/csrf",
             ApiPath.AUTH+"/register",
             ApiPath.AUTH+"/login",
+            ApiPath.AUTH+"/reset-password",
             "/error",
             "/actuator/health",
             "/oauth2/**",
