@@ -4,7 +4,7 @@ import com.yurakim.readingtrace.auth.constant.JWT;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class JwtServiceImpl implements JwtService {
 
@@ -26,16 +26,20 @@ public class JwtServiceImpl implements JwtService {
     public String generateJwt(Authentication authentication) {
 
         if(authentication!=null && authentication.isAuthenticated()){
-            String secret = environment.getProperty(JWT.JWT_SECRET_KEY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
+
+            // Get JWT configuration from environment
+            String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
+            String issuer = environment.getProperty(JWT.JWT_ISSUER_PROPERTY, JWT.JWT_ISSUER_DEFAULT);
+            Long expiration = environment.getProperty(JWT.JWT_EXPIRATION_PROPERTY, Long.class, JWT.JWT_EXPIRATION_DEFAULT);
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
             String email = authentication.getName();
             List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
             Date now = new Date();
-            Date expiry = new Date(now.getTime() + JWT.JWT_EXPIRATION);
+            Date expiry = new Date(now.getTime() + expiration);
 
             return Jwts.builder()
-            .issuer(JWT.JWT_ISSUER)
+            .issuer(issuer)
             .subject(email)
             .claim("roles", roles)
             .issuedAt(now)

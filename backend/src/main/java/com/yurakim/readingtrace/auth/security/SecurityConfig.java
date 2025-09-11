@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,13 +41,16 @@ public class SecurityConfig {
             ApiPath.AUTH+"/login",
             "/error",
             "/actuator/health",
-            "/oauth2/**"
+            "/oauth2/**",
     };
 
-    private static final String[] PROTECTED_ACTUATOR_ENDPOINTS = {
-            "/actuator/info"
+    private static final String[] PROTECTED_ENDPOINTS = {
+            ApiPath.ADMIN+"/**",
+            "/actuator/info",
     };
 
+    private final Environment environment
+            ;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
@@ -68,7 +72,7 @@ public class SecurityConfig {
 
         //TODO: check if filter sequence matter here
         //JWT validation filter
-        http.addFilterBefore(new JWTTokenValidatorFilter(), AuthorizationFilter.class);
+        http.addFilterBefore(new JWTTokenValidatorFilter(environment), AuthorizationFilter.class);
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
@@ -83,9 +87,9 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(PROTECTED_ACTUATOR_ENDPOINTS).hasRole("ADMIN")
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated())
+                .requestMatchers(PROTECTED_ENDPOINTS).hasRole("ADMIN")
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .anyRequest().authenticated())
                 .oauth2Login(oa2 -> oa2.successHandler(oAuth2LoginSuccessHandler));
 
         http.exceptionHandling(e -> e
@@ -98,8 +102,8 @@ public class SecurityConfig {
                 .logoutUrl(ApiPath.AUTH+"/logout")
                 .logoutSuccessHandler((request, response, authentication)
                         -> { response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().write("Logged out");
-                })
+                             response.getWriter().write("Logged out");
+                        })
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID"));
@@ -132,8 +136,8 @@ public class SecurityConfig {
 
     private ClientRegistration googleClientRegistration() {
         return CommonOAuth2Provider.GOOGLE.getBuilder("google")
-                .clientId("")
-                .clientSecret("").build();
+                .clientId(environment.getProperty("oauth2.google.client-id"))
+                .clientSecret(environment.getProperty("oauth2.google.client-secret")).build();
     }
 
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,19 +24,24 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-//TODO: properly manage secret key
+@RequiredArgsConstructor
 @Component
 public class JWTTokenValidatorFilter extends OncePerRequestFilter {
+
+    private final Environment environment;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader(JWT.JWT_HEADER);
-        if(header != null && header.startsWith(JWT.JWT_PREFIX)){
-            String jwt = header.substring(JWT.JWT_PREFIX.length());
+        String header = JWT.JWT_HEADER;
+        String prefix = JWT.JWT_PREFIX;
+        String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
+
+        if(header != null && header.startsWith(prefix)){
+            String jwt = header.substring(prefix.length());
             try{
                 Environment env = getEnvironment();
                 if(env != null){
-                    String secret = env.getProperty(JWT.JWT_SECRET_KEY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
                     SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
                     if(secretKey != null){
                         Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jwt).getPayload();

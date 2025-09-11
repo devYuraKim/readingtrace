@@ -11,6 +11,7 @@ spring:
   config:
     activate:
       on-profile: prod
+    import: "optional:application-secret.yml"
   output:
     ansi:
       enabled: ${ANSI_ENABLED:never}
@@ -43,9 +44,9 @@ management:
       enabled: ${ACTUATOR_METRICS:true}
   security:
     enabled: ${ACTUATOR_SECURITY:true}
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: ${PROMETHEUS_ENABLED:false}
 
 logging:
