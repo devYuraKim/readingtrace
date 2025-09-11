@@ -47,9 +47,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             DefaultOAuth2User principal = (DefaultOAuth2User) authentication.getPrincipal();
             Map<String, Object> attributes = principal.getAttributes();
             String email = attributes.getOrDefault("email", "").toString();
-            String name = attributes.getOrDefault("name", "").toString();
             String idAttributeKey = "sub";
-            String id = attributes.get(idAttributeKey).toString();
 
             Authentication updatedAuthentication = userRepository.findByEmail(email)
                     .map(user -> {
