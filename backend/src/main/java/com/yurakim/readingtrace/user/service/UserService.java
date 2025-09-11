@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    LoginResponseDto getUser(Long id);
+    LoginResponseDto getUser(Long id, String email);
 
     List<UserDto> getAllUsers();
 

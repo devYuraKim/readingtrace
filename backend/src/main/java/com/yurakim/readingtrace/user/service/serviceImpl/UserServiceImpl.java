@@ -8,6 +8,7 @@ import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,9 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     @Override
-    public LoginResponseDto getUser(Long id) {
+    public LoginResponseDto getUser(Long id, String email) {
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (!user.getEmail().equals(email)) {throw new AccessDeniedException("Not authorized to access this user");}
         return new LoginResponseDto(user.getEmail());
     }
 
