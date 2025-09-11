@@ -49,11 +49,9 @@ public class SecurityConfig {
             "/actuator/info",
     };
 
-    private final Environment environment
-            ;
+    private final Environment environment;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
-
     @Lazy
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
