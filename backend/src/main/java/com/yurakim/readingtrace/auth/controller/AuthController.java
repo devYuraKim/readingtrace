@@ -34,7 +34,7 @@ public class AuthController {
         return ResponseEntity.ok("CSRF token");
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody String email){
         String message = authService.generatePasswordResetToken(email);
         return ResponseEntity.ok(message);
