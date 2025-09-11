@@ -31,12 +31,21 @@ spring:
       enabled: ${DEVTOOLS_RESTART:true}
     livereload:
       enabled: ${DEVTOOLS_LIVERELOAD:true}
+#TODO: choose either configuration or class definition
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            client-id: <your_client_id>
+#            client-secret: <your_client_secret>
+#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 
 #actuator
 management:
   endpoints:
     web:
-      base-path: ${ACTUATOR_BASE_PATH:/api/v1/actuator}
+      base-path: ${ACTUATOR_BASE_PATH:/actuator}
       exposure:
         include: ${ACTUATOR_ENDPOINTS:*}
   endpoint:

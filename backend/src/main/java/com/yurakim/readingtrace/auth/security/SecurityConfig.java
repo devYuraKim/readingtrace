@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.auth.security;
 
+import com.yurakim.readingtrace.auth.config.OAuth2LoginSuccessHandler;
 import com.yurakim.readingtrace.auth.exception.AccessDeniedHandlerImpl;
 import com.yurakim.readingtrace.auth.exception.AuthenticationEntryPointImpl;
 import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
@@ -9,12 +10,17 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -32,16 +38,20 @@ public class SecurityConfig {
             ApiPath.AUTH+"/csrf",
             ApiPath.AUTH+"/register",
             ApiPath.AUTH+"/login",
-            ApiPath.BASE+"/error",
-            ApiPath.BASE+"/actuator/health"
+            "/error",
+            "/actuator/health",
+            "/oauth2/**"
     };
 
     private static final String[] PROTECTED_ACTUATOR_ENDPOINTS = {
-            ApiPath.BASE+"/actuator/info"
+            "/actuator/info"
     };
 
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
+
+    @Lazy
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     //TODO: set HTTPS configuration
     //TODO: create a list for ignoreRequestMatchers
@@ -73,10 +83,10 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(PROTECTED_ACTUATOR_ENDPOINTS).hasRole("ADMIN")
-                .anyRequest().authenticated()
-        );
+                        .requestMatchers(PROTECTED_ACTUATOR_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(oa2 -> oa2.successHandler(oAuth2LoginSuccessHandler));
 
         http.exceptionHandling(e -> e
                 .authenticationEntryPoint(authenticationEntryPointImpl)
@@ -88,8 +98,8 @@ public class SecurityConfig {
                 .logoutUrl(ApiPath.AUTH+"/logout")
                 .logoutSuccessHandler((request, response, authentication)
                         -> { response.setStatus(HttpServletResponse.SC_OK);
-                             response.getWriter().write("Logged out");
-                        })
+                    response.getWriter().write("Logged out");
+                })
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID"));
@@ -112,6 +122,18 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    ClientRegistrationRepository clientRegistrationRepository() {
+        ClientRegistration google = googleClientRegistration();
+        return new InMemoryClientRegistrationRepository(google);
+    }
+
+    private ClientRegistration googleClientRegistration() {
+        return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+                .clientId("")
+                .clientSecret("").build();
     }
 
 }
