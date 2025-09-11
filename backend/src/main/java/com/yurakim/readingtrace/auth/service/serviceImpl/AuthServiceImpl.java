@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.auth.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
+import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
@@ -71,6 +72,9 @@ public class AuthServiceImpl implements AuthService {
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            user.setFailedLoginAttempts(0);
+            userRepository.save(user);
+
             //CREATE JWT TOKEN
             String jwt =jwtService.generateJwt(authentication);
 
@@ -139,4 +143,22 @@ public class AuthServiceImpl implements AuthService {
         emailService.sendPasswordRestEmail(user.getEmail(), resetUrl);
         return "Password reset token generated";
     }
+
+    @Override
+    public String resetPassword(PasswordResetDto passwordResetDto) {
+        String passwordResetToken = passwordResetDto.getPasswordResetToken();
+        String newPassword = passwordResetDto.getNewPassword();
+
+        PasswordResetToken token = passwordResetTokenRepository.findByToken(passwordResetToken).orElseThrow(() -> new RuntimeException("Invalid password reset token"));
+        if( !token.isUsed() && token.getExpiryDate().isAfter(LocalDateTime.now())){
+            User user = token.getUser();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            token.setUsed(true);
+            passwordResetTokenRepository.save(token);
+            return "Password reset successfully";
+        }
+        throw new RuntimeException("Password reset failed");
+    }
+
 }
