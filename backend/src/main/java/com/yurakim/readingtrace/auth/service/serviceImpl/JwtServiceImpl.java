@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +29,9 @@ public class JwtServiceImpl implements JwtService {
         if(authentication!=null && authentication.isAuthenticated()){
 
             // Get JWT configuration from environment
-            String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
-            String issuer = environment.getProperty(JWT.JWT_ISSUER_PROPERTY, JWT.JWT_ISSUER_DEFAULT);
-            Long expiration = environment.getProperty(JWT.JWT_EXPIRATION_PROPERTY, Long.class, JWT.JWT_EXPIRATION_DEFAULT);
+            String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY);
+            String issuer = environment.getProperty(JWT.JWT_ISSUER_PROPERTY);
+            Long expiration = Duration.ofHours(environment.getProperty(JWT.JWT_EXPIRATION_PROPERTY, Integer.class)).toMillis();
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
             String email = authentication.getName();

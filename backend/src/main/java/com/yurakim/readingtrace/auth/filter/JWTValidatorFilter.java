@@ -35,10 +35,11 @@ public class JWTValidatorFilter extends OncePerRequestFilter {
 
         String header = JWT.JWT_HEADER;
         String prefix = JWT.JWT_PREFIX;
-        String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
+        String headerValue = request.getHeader(header);
+        String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY);
 
-        if (header != null && header.startsWith(prefix)) {
-            String jwt = header.substring(prefix.length());
+        if (header != null && headerValue.startsWith(prefix)) {
+            String jwt = headerValue.substring(prefix.length());
             try {
                 SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
                 if (secretKey != null) {
