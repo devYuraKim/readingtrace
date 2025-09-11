@@ -1,33 +1,34 @@
-package com.yurakim.readingtrace.auth.exception;
+package com.yurakim.readingtrace.auth.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-//RESPONSE FOR AUTHORIZATION FAILURE
+
+//RESPONSE FOR AUTHENTICATION FAILURE
 @Component
-public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
+public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
 
         LocalDateTime timestamp = LocalDateTime.now();
-        int status = HttpStatus.FORBIDDEN.value();
-        String message = (accessDeniedException != null && accessDeniedException.getMessage() != null) ? accessDeniedException.getMessage() : "Authorization failed";
+        int status = HttpStatus.UNAUTHORIZED.value();
+        String message = (authException != null && authException.getMessage() != null) ? authException.getMessage() : "Authentication failed";
         String path = request.getRequestURI();
 
-        response.setHeader("Readtrace-Custom-Header", "Authorization failed");
+        response.setHeader("Readtrace-Custom-Header", "Authentication failed");
         response.setStatus(status);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String responseBody = String.format("{\"timestamp\": \"%s\", \"status\": \"%d\", \"error\": \"%s\", \"path\": \"%s\"}", timestamp, status, message, path);
         response.getWriter().write(responseBody);
 
-        }
+    }
 }

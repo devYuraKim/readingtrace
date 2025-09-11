@@ -1,7 +1,7 @@
 package com.yurakim.readingtrace.auth.filter;
 
-import com.yurakim.readingtrace.shared.constant.ApiPath;
 import com.yurakim.readingtrace.auth.constant.JWT;
+import com.yurakim.readingtrace.shared.constant.ApiPath;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-public class JWTTokenValidatorFilter extends OncePerRequestFilter {
+public class JWTValidatorFilter extends OncePerRequestFilter {
 
     private final Environment environment;
 
@@ -37,22 +37,19 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
         String prefix = JWT.JWT_PREFIX;
         String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY, JWT.JWT_SECRET_KEY_DEFAULT_VALUE);
 
-        if(header != null && header.startsWith(prefix)){
+        if (header != null && header.startsWith(prefix)) {
             String jwt = header.substring(prefix.length());
-            try{
-                Environment env = getEnvironment();
-                if(env != null){
-                    SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-                    if(secretKey != null){
-                        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jwt).getPayload();
-                        String email = claims.getSubject();
-                        List<String> roles = (List<String>) claims.get("roles");
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.createAuthorityList(roles));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+            try {
+                SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+                if (secretKey != null) {
+                    Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jwt).getPayload();
+                    String email = claims.getSubject();
+                    List<String> roles = (List<String>) claims.get("roles");
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.createAuthorityList(roles));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            }catch(Exception e){
-                throw new BadCredentialsException("Invalid Token received");
+            } catch (Exception e) {
+                throw new BadCredentialsException("Invalid token received: ", e);
             }
         }
         filterChain.doFilter(request, response);

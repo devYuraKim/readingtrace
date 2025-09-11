@@ -1,9 +1,9 @@
-package com.yurakim.readingtrace.auth.security;
+package com.yurakim.readingtrace.auth.config;
 
-import com.yurakim.readingtrace.auth.config.OAuth2LoginSuccessHandler;
-import com.yurakim.readingtrace.auth.exception.AccessDeniedHandlerImpl;
-import com.yurakim.readingtrace.auth.exception.AuthenticationEntryPointImpl;
-import com.yurakim.readingtrace.auth.filter.JWTTokenValidatorFilter;
+import com.yurakim.readingtrace.auth.handler.OAuth2LoginSuccessHandler;
+import com.yurakim.readingtrace.auth.handler.AccessDeniedHandlerImpl;
+import com.yurakim.readingtrace.auth.handler.AuthenticationEntryPointImpl;
+import com.yurakim.readingtrace.auth.filter.JWTValidatorFilter;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -72,7 +72,7 @@ public class SecurityConfig {
 
         //TODO: check if filter sequence matter here
         //JWT validation filter
-        http.addFilterBefore(new JWTTokenValidatorFilter(environment), AuthorizationFilter.class);
+        http.addFilterBefore(new JWTValidatorFilter(environment), AuthorizationFilter.class);
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
