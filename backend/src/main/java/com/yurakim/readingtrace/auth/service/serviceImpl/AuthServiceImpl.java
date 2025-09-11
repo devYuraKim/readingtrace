@@ -6,12 +6,14 @@ import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
+import com.yurakim.readingtrace.shared.util.EmailService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,7 +45,10 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    @Lazy
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    @Lazy
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -129,6 +134,9 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(60);
         PasswordResetToken passwordResetToken = new PasswordResetToken(token, expiryDate, user);
         passwordResetTokenRepository.save(passwordResetToken);
+
+        String resetUrl = "http://localhost:8080/forgot-password?token=" + token;
+        emailService.sendPasswordRestEmail(user.getEmail(), resetUrl);
         return "Password reset token generated";
     }
 }
