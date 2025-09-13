@@ -2,6 +2,7 @@ package com.yurakim.readingtrace.auth.controller;
 
 import com.yurakim.readingtrace.auth.constant.JWT;
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
+import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
@@ -22,6 +23,7 @@ public class AuthController {
         return ResponseEntity.ok(message);
     }
 
+    //TODO: fix return type
     //TODO: add validation for loginDto
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginRequestDto loginDto) {
@@ -32,6 +34,18 @@ public class AuthController {
     @GetMapping("/csrf")
     public ResponseEntity<String> getCsrfToken() {
         return ResponseEntity.ok("CSRF token");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody String email){
+        String message = authService.generatePasswordResetToken(email);
+        return ResponseEntity.ok(message);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDto passwordResetDto){
+        String message = authService.resetPassword(passwordResetDto);
+        return ResponseEntity.ok(message);
     }
 
 }

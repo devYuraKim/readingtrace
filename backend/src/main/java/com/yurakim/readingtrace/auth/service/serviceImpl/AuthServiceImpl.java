@@ -1,15 +1,20 @@
 package com.yurakim.readingtrace.auth.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
+import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
+import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
+import com.yurakim.readingtrace.shared.util.EmailService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 //TODO: add method for unlocking account
 
@@ -40,6 +46,10 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    @Lazy
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    @Lazy
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -61,6 +71,9 @@ public class AuthServiceImpl implements AuthService {
         try {
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            user.setFailedLoginAttempts(0);
+            userRepository.save(user);
 
             //CREATE JWT TOKEN
             String jwt =jwtService.generateJwt(authentication);
@@ -116,4 +129,36 @@ public class AuthServiceImpl implements AuthService {
 
         return "User registered";
     }
+
+    @Override
+    public String generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()->
+                new RuntimeException("User not found"));
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(60);
+        PasswordResetToken passwordResetToken = new PasswordResetToken(token, expiryDate, user);
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        String resetUrl = "http://localhost:8080/forgot-password?token=" + token;
+        emailService.sendPasswordRestEmail(user.getEmail(), resetUrl);
+        return "Password reset token generated";
+    }
+
+    @Override
+    public String resetPassword(PasswordResetDto passwordResetDto) {
+        String passwordResetToken = passwordResetDto.getPasswordResetToken();
+        String newPassword = passwordResetDto.getNewPassword();
+
+        PasswordResetToken token = passwordResetTokenRepository.findByToken(passwordResetToken).orElseThrow(() -> new RuntimeException("Invalid password reset token"));
+        if( !token.isUsed() && token.getExpiryDate().isAfter(LocalDateTime.now())){
+            User user = token.getUser();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            token.setUsed(true);
+            passwordResetTokenRepository.save(token);
+            return "Password reset successfully";
+        }
+        throw new RuntimeException("Password reset failed");
+    }
+
 }
