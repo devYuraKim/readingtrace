@@ -39,7 +39,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             ApiPath.AUTH+"/csrf",
-            ApiPath.AUTH+"/register",
+            ApiPath.AUTH+"/signup",
             ApiPath.AUTH+"/login",
             ApiPath.AUTH+"/forgot-password",
             ApiPath.AUTH+"/reset-password",

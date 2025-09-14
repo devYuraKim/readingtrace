@@ -59,6 +59,6 @@ public class JWTValidatorFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         //exclude login and reset password
-        return request.getServletPath().equals(ApiPath.AUTH+"/login") || request.getServletPath().equals(ApiPath.AUTH+"/forgot-password") || request.getServletPath().equals(ApiPath.AUTH+"/register") || request.getServletPath().equals(ApiPath.AUTH+"/reset-password")   ;
+        return request.getServletPath().equals(ApiPath.AUTH+"/login") || request.getServletPath().equals(ApiPath.AUTH+"/forgot-password") || request.getServletPath().equals(ApiPath.AUTH+"/signup") || request.getServletPath().equals(ApiPath.AUTH+"/reset-password")   ;
     }
 }
