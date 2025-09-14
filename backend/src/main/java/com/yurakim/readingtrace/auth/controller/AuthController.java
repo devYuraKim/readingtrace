@@ -3,7 +3,7 @@ package com.yurakim.readingtrace.auth.controller;
 import com.yurakim.readingtrace.auth.constant.JWT;
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
-import com.yurakim.readingtrace.auth.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.AllArgsConstructor;
@@ -17,9 +17,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterDto registerDto) {
-        String message = authService.register(registerDto);
+    @PostMapping("/signup")
+    public ResponseEntity<String> registerUser(@RequestBody SignupDto signupDto) {
+        String message = authService.signup(signupDto);
         return ResponseEntity.ok(message);
     }
 
