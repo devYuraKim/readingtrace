@@ -2,7 +2,7 @@ package com.yurakim.readingtrace.auth.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
-import com.yurakim.readingtrace.auth.dto.RegisterDto;
+import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
@@ -112,14 +112,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String register(RegisterDto registerDto) {
-        if (userRepository.existsByEmail(registerDto.getEmail())) {
+    public String signup(SignupDto signupDto) {
+        if (userRepository.existsByEmail(signupDto.getEmail())) {
             throw new RuntimeException("User already exists");
         }
 
         User user = new User();
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        user.setEmail(signupDto.getEmail());
+        user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
 
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(ROLE_USER).get());
