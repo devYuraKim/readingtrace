@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -113,6 +113,12 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    font-size: 16px; /* Set the base font size for the page (used by rem units) */
+    -webkit-text-size-adjust: 100%; /* Prevent Safari on iOS/Mac from automatically scaling text */
+    -ms-text-size-adjust: 100%; /* Prevent older IE/Edge from auto-scaling text */
+    text-size-adjust: 100%; /* Standard property for controlling browser text scaling */
   }
   body {
     @apply bg-background text-foreground;

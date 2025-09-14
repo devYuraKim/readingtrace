@@ -1,0 +1,6 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<!-- Black rounded-corner square background -->
+<rect x="0" y="0" width="256" height="256" rx="40" fill="black"/>
+<!-- "RT" text centered in the square -->
+<text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Futura, sans-serif" font-weight="bold" font-size="160" fill="white">RT</text>
+</svg>
