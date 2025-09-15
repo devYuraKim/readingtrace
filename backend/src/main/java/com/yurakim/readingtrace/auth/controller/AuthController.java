@@ -17,6 +17,11 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping("/csrf")
+    public ResponseEntity<Void> getCsrfToken() {
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@RequestBody SignupDto signupDto) {
         String message = authService.signup(signupDto);
@@ -31,10 +36,6 @@ public class AuthController {
         return ResponseEntity.ok().header(JWT.JWT_HEADER, JWT.JWT_PREFIX + jwt).build();
     }
 
-    @GetMapping("/csrf")
-    public ResponseEntity<String> getCsrfToken() {
-        return ResponseEntity.ok("CSRF token");
-    }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody String email){
