@@ -24,8 +24,9 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
-    return response;
+    return response; // pass successful responses through
   },
+  //Axios attaches the original request’s config to the error object
   (error) => {
     if (
       error.response.status === 403 &&
@@ -33,7 +34,10 @@ apiClient.interceptors.response.use(
     ) {
       apiClient.get('/auth/csrf');
 
+      // dynamically adding a custom property(_retry) to an existing object(error.config)
       if (!error.config._retry) {
+        //in JavaScript, accessing a non-existent property returns undefined, which is falsy.
+        // config: the original request configuration object that was used to make the HTTP request
         error.config._retry = true;
         return apiClient(error.config);
       }
