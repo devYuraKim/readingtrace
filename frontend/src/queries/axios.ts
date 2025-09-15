@@ -22,6 +22,26 @@ apiClient.interceptors.request.use(
   },
 );
 
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (
+      error.response.status === 403 &&
+      error.response.data.error.includes('CSRF')
+    ) {
+      apiClient.get('/auth/csrf');
+
+      if (!error.config._retry) {
+        error.config._retry = true;
+        return apiClient(error.config);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 function getCookie(name: string) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);

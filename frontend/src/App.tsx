@@ -4,16 +4,8 @@ import { RouterProvider } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import router from './router/router';
 import './App.css';
-import { apiClient } from './queries/axios';
 
 const queryClient = new QueryClient();
-queryClient.prefetchQuery({
-  queryKey: ['csrf-token'],
-  queryFn: () => {
-    console.log(document.cookie);
-    return apiClient.get('/auth/csrf');
-  },
-});
 
 function App() {
   return (
