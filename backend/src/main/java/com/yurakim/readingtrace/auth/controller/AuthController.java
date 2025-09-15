@@ -1,11 +1,14 @@
 package com.yurakim.readingtrace.auth.controller;
 
 import com.yurakim.readingtrace.auth.constant.JWT;
+import com.yurakim.readingtrace.auth.dto.AccessRefreshDto;
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +34,19 @@ public class AuthController {
     //TODO: fix return type
     //TODO: add validation for loginDto
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequestDto loginDto) {
-        String jwt = authService.login(loginDto);
-        return ResponseEntity.ok().header(JWT.JWT_HEADER, JWT.JWT_PREFIX + jwt).build();
+    public ResponseEntity<Void> loginUser(@RequestBody LoginRequestDto loginDto, HttpServletResponse response) {
+        AccessRefreshDto tokens = authService.login(loginDto);
+        String accessToken = tokens.getAccessToken();
+        String refreshToken = tokens.getRefreshToken();
+
+        Cookie refreshTokenCookie = new Cookie(JWT.REFRESH_TOKEN_COOKIE_NAME, refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+//        refreshTokenCookie.setPath(ApiPath.AUTH+"/refresh");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.ok().header(JWT.JWT_HEADER, JWT.JWT_PREFIX + accessToken).build();
     }
 
 

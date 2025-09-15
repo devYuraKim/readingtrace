@@ -1,10 +1,13 @@
 package com.yurakim.readingtrace.auth.service.serviceImpl;
 
+import com.yurakim.readingtrace.auth.dto.AccessRefreshDto;
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
+import com.yurakim.readingtrace.auth.entity.entity.RefreshToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
+import com.yurakim.readingtrace.auth.repository.RefreshTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.util.EmailService;
@@ -27,9 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 //TODO: add method for unlocking account
 
@@ -42,10 +43,11 @@ public class AuthServiceImpl implements AuthService {
     private static final String ROLE_USER = "USER";
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     @Lazy
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     @Lazy
@@ -53,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String login(LoginRequestDto loginDto) {
+    public AccessRefreshDto login(LoginRequestDto loginDto) {
         //TODO: check if controller method has proper validation
         String email = loginDto.getEmail();
         String password = loginDto.getPassword();
@@ -75,13 +77,26 @@ public class AuthServiceImpl implements AuthService {
             user.setFailedLoginAttempts(0);
             userRepository.save(user);
 
-            //CREATE JWT TOKEN
-            String jwt =jwtService.generateJwt(authentication);
+            String accessToken = jwtService.generateAccessToken(authentication);
+            String refreshToken;
+
+            List<RefreshToken> existingTokens = refreshTokenRepository.findAllByUserId(user.getId());
+            Optional<RefreshToken> validToken = existingTokens.stream()
+                    .filter(t -> !t.isExpired() && !t.getExpiryDate().isBefore(LocalDateTime.now()))
+                    .findFirst();
+
+            //TODO: do a background job to clean up expired refresh tokens
+            if(validToken.isPresent() ) {
+                refreshToken = validToken.get().getTokenId();
+            }else{
+                 refreshToken = jwtService.generateRefreshToken(user);
+            }
 
             //RECORD LOGIN SUCCESS
             recordLoginSuccess(user);
 
-            return jwt;
+            AccessRefreshDto accessRefreshDto = new AccessRefreshDto(accessToken, refreshToken);
+            return accessRefreshDto;
         } catch (AuthenticationException e) {
             recordLoginFailure(user, e);
             throw new RuntimeException(String.format("Login failed (%d/%d)", user.getFailedLoginAttempts(), MAX_FAILED_ATTEMPTS));

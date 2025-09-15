@@ -87,3 +87,5 @@ logging:
 jwt:
   issuer: readingtrace
   expiration-hours: 12
+  access-expiration-minutes: 15
+  refresh-expiration-days: 7
