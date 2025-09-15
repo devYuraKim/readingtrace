@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
             return jwt;
         } catch (AuthenticationException e) {
             recordLoginFailure(user, e);
-            return String.format("Login failed (%d/%d)", user.getFailedLoginAttempts(), MAX_FAILED_ATTEMPTS);
+            throw new RuntimeException(String.format("Login failed (%d/%d)", user.getFailedLoginAttempts(), MAX_FAILED_ATTEMPTS));
         }
     }
 
