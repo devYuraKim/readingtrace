@@ -91,6 +91,7 @@ export function SignupForm({
                             <FormLabel>Email</FormLabel>
                             <FormControl>
                               <Input
+                                type="email"
                                 placeholder="Enter your email"
                                 {...field}
                               />
@@ -108,19 +109,11 @@ export function SignupForm({
                       render={({ field }) => (
                         <FormItem>
                           <div className="grid gap-3">
-                            <div className="flex items-center">
-                              <FormLabel>Password</FormLabel>
-                              <NavLink
-                                to="#"
-                                className="ml-auto text-sm underline-offset-4 hover:underline"
-                              >
-                                Forgot your password?
-                              </NavLink>
-                            </div>
+                            <FormLabel>Password</FormLabel>
                             <FormControl>
                               <Input
                                 type="password"
-                                placeholder="Enter your password"
+                                placeholder="Must be at least 6 characters"
                                 {...field}
                               />
                             </FormControl>
