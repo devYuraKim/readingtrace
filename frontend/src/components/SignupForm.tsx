@@ -1,4 +1,4 @@
-import { axiosApi } from '@/queries/axios';
+import { apiClient } from '@/queries/axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -58,7 +58,7 @@ export function SignupForm({
 
   const { mutateAsync } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const { data } = await axiosApi.post('/auth/signup', {
+      const { data } = await apiClient.post('/auth/signup', {
         email: values.email,
         password: values.password,
       });
