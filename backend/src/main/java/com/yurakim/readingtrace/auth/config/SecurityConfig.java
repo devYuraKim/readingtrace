@@ -43,6 +43,7 @@ public class SecurityConfig {
             ApiPath.AUTH+"/login",
             ApiPath.AUTH+"/forgot-password",
             ApiPath.AUTH+"/reset-password",
+            ApiPath.AUTH+"/refresh",
             "/error",
             "/actuator/health",
             "/oauth2/**",
