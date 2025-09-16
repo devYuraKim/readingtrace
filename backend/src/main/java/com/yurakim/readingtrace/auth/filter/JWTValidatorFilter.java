@@ -36,14 +36,14 @@ public class JWTValidatorFilter extends OncePerRequestFilter {
         String header = JWT.JWT_HEADER;
         String prefix = JWT.JWT_PREFIX;
         String headerValue = request.getHeader(header);
-        String secret = environment.getProperty(JWT.JWT_SECRET_KEY_PROPERTY);
+        String secret = environment.getProperty(JWT.ACCESS_SECRET_KEY_PROPERTY);
 
-        if (header != null && headerValue.startsWith(prefix)) {
-            String jwt = headerValue.substring(prefix.length());
+        if (headerValue != null && headerValue.startsWith(prefix)) {
+            String accessToken = headerValue.substring(prefix.length());
             try {
                 SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
                 if (secretKey != null) {
-                    Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jwt).getPayload();
+                    Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
                     String email = claims.getSubject();
                     List<String> roles = (List<String>) claims.get("roles");
                     Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.createAuthorityList(roles));
@@ -63,6 +63,7 @@ public class JWTValidatorFilter extends OncePerRequestFilter {
             || request.getServletPath().equals(ApiPath.AUTH+"/forgot-password")
             || request.getServletPath().equals(ApiPath.AUTH+"/signup")
             || request.getServletPath().equals(ApiPath.AUTH+"/reset-password")
-            || request.getServletPath().equals(ApiPath.AUTH+"/csrf");
+            || request.getServletPath().equals(ApiPath.AUTH+"/csrf")
+            || request.getServletPath().equals(ApiPath.AUTH+"/refresh");
     }
 }

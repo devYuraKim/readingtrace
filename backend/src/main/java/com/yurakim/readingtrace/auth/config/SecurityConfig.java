@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
@@ -42,6 +43,7 @@ public class SecurityConfig {
             ApiPath.AUTH+"/login",
             ApiPath.AUTH+"/forgot-password",
             ApiPath.AUTH+"/reset-password",
+            ApiPath.AUTH+"/refresh",
             "/error",
             "/actuator/health",
             "/oauth2/**",
@@ -69,6 +71,7 @@ public class SecurityConfig {
 
         //CSRF
         http.csrf(csrf -> csrf
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
         //TODO: check if filter sequence matter here
