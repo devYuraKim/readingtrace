@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.user.service.serviceImpl;
 
 import com.yurakim.readingtrace.auth.dto.LoginResponseDto;
+import com.yurakim.readingtrace.user.dto.AuthenticatedUserDto;
 import com.yurakim.readingtrace.user.dto.UserDto;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
@@ -77,5 +78,15 @@ public class UserServiceImpl implements UserService {
         userDto.setSignUpMethod(user.getSignUpMethod());
 
         return userDto;
+    }
+
+    @Override
+    public AuthenticatedUserDto getAuthenticatedUser(String email) {
+        User userRecord = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        AuthenticatedUserDto user = new AuthenticatedUserDto();
+        user.setId(userRecord.getId());
+        user.setEmail(userRecord.getEmail());
+        user.setRoles(userRecord.getRoles());
+        return user;
     }
 }
