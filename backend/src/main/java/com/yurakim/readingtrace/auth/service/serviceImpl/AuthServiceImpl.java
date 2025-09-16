@@ -82,14 +82,14 @@ public class AuthServiceImpl implements AuthService {
 
             List<RefreshToken> existingTokens = refreshTokenRepository.findAllByUserId(user.getId());
             Optional<RefreshToken> validToken = existingTokens.stream()
-                    .filter(t -> !t.isExpired() && !t.getExpiryDate().isBefore(LocalDateTime.now()))
+                    .filter(t -> !t.isRevoked() && !t.getExpiresAt().isBefore(LocalDateTime.now()))
                     .findFirst();
 
             //TODO: do a background job to clean up expired refresh tokens
             if(validToken.isPresent() ) {
-                refreshToken = validToken.get().getTokenId();
+                refreshToken = validToken.get().getTokenHash();
             }else{
-                 refreshToken = jwtService.generateRefreshToken(user);
+                 refreshToken = jwtService.generateRefreshToken(user, null);
             }
 
             //RECORD LOGIN SUCCESS
