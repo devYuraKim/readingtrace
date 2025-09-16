@@ -1,5 +1,6 @@
 import GoogleLogo from '@/assets/google.png';
 import { apiClient } from '@/queries/axios';
+import { useAuthStore } from '@/store/useAuthStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -53,6 +54,7 @@ export function LoginForm({
   }
 
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const { mutateAsync } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
@@ -61,12 +63,11 @@ export function LoginForm({
         password: values.password,
       });
     },
-    onSuccess: (data) => {
-      const authorization = data.headers['authorization'];
-      if (authorization) {
-        console.log(authorization);
-        localStorage.setItem('token', authorization);
-      }
+    onSuccess: (res) => {
+      const accessToken = res.headers['authorization'];
+      const user = res.data;
+      setAuth(user, accessToken);
+      console.log(useAuthStore.getState());
     },
   });
 
