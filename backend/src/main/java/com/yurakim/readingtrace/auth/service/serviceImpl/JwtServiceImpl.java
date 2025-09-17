@@ -117,7 +117,8 @@ public class JwtServiceImpl implements JwtService {
         String userEmail = this.getSubject(rawRefreshToken);
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userEmail, null, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName())).collect(Collectors.toList()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userEmail, null,
+                user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName())).collect(Collectors.toList()));
         String newAccessToken = this.generateAccessToken(authentication);
         return newAccessToken;
     }
@@ -129,7 +130,6 @@ public class JwtServiceImpl implements JwtService {
         RefreshToken existingRecord = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(
                 () -> new RefreshTokenException(JWT.INVALID_REFRESH_TOKEN, "Refresh token not found in DB")
         );
-
         //2.Check revocation
         if(existingRecord.isRevoked()) {
             throw new RefreshTokenException(JWT.REVOKED_REFRESH_TOKEN, "Refresh token has been revoked due to: "+existingRecord.getInvalidationCause());
@@ -151,7 +151,8 @@ public class JwtServiceImpl implements JwtService {
             existingRecord.setRevoked(true);
             existingRecord.setInvalidationCause(InvalidationCause.COMPROMISED);
             refreshTokenRepository.save(existingRecord);
-            log.warn("Refresh token has been compromised: JWT signature invalid || userId: {}, refreshTokenId: {}, refreshToken: {}, timestamp: {}", existingRecord.getUserId(), existingRecord.getId(), existingRecord.getTokenHash(), LocalDateTime.now());
+            log.warn("Refresh token has been compromised: JWT signature invalid || userId: {}, refreshTokenId: {}, refreshToken: {}, timestamp: {}",
+                    existingRecord.getUserId(), existingRecord.getId(), existingRecord.getTokenHash(), LocalDateTime.now());
             throw new RefreshTokenException(JWT.COMPROMISED_REFRESH_TOKEN, "Refresh token has been compromised");
         }
         //4.Verify hash
@@ -159,7 +160,8 @@ public class JwtServiceImpl implements JwtService {
             existingRecord.setRevoked(true);
             existingRecord.setInvalidationCause(InvalidationCause.COMPROMISED);
             refreshTokenRepository.save(existingRecord);
-            log.warn("Refresh token has been compromised: Hash mismatch || userId: {}, refreshTokenId: {}, refreshToken: {}, timestamp: {}", existingRecord.getUserId(), existingRecord.getId(), existingRecord.getTokenHash(), LocalDateTime.now());
+            log.warn("Refresh token has been compromised: Hash mismatch || userId: {}, refreshTokenId: {}, refreshToken: {}, timestamp: {}",
+                    existingRecord.getUserId(), existingRecord.getId(), existingRecord.getTokenHash(), LocalDateTime.now());
             throw new RefreshTokenException(JWT.COMPROMISED_REFRESH_TOKEN, "Refresh token has been compromised");
         }
         //TODO: validate user
@@ -179,14 +181,16 @@ public class JwtServiceImpl implements JwtService {
         String userEmail = this.getSubject(oldRefreshToken);
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
         //4. generate new refresh token and revoke old one
-        String newRefreshTokenStr = this.generateRefreshToken(user, originalExpiry);
-        String hashedRefreshToken = Sha256Hashing.generateSHA256Hash(newRefreshTokenStr);
-        RefreshToken newRefreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(() -> new RefreshTokenException(JWT.INVALID_REFRESH_TOKEN, "Refresh token not found in DB"));
+        String newRawRefreshToken = this.generateRefreshToken(user, originalExpiry);
+        String hashedRefreshToken = Sha256Hashing.generateSHA256Hash(newRawRefreshToken);
+        RefreshToken newRefreshTokenRecord = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
+                .orElseThrow(() -> new RefreshTokenException(JWT.INVALID_REFRESH_TOKEN, "Refresh token not found in DB"));
         existingToken.setRevoked(true);
-        existingToken.setReplacedById(newRefreshToken.getId());
+        existingToken.setInvalidationCause(InvalidationCause.ROTATED);
+        existingToken.setReplacedById(newRefreshTokenRecord.getId());
         refreshTokenRepository.save(existingToken);
 
-        return newRefreshTokenStr;
+        return newRawRefreshToken;
     }
 
     @Deprecated
