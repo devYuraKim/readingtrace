@@ -8,14 +8,9 @@ import java.time.LocalDateTime;
 
 public interface JwtService {
 
-    @Deprecated
-    String generateJwt(Authentication authentication);
-
     String generateAccessToken(Authentication authentication);
 
     String generateRefreshToken(User user, LocalDateTime rotateExpiry);
-
-    Boolean isValidRefreshToken(String refreshToken);
 
     String getSubject(String token);
 
@@ -24,4 +19,10 @@ public interface JwtService {
     String refreshAccessToken(String refreshToken);
 
     String rotateRefreshToken(String oldRefreshToken);
+
+    @Deprecated
+    String generateJwt(Authentication authentication);
+
+    @Deprecated
+    Boolean isValidRefreshToken(String refreshToken);
 }

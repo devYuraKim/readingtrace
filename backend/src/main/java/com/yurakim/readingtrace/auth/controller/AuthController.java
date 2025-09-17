@@ -5,6 +5,7 @@ import com.yurakim.readingtrace.auth.dto.AccessRefreshDto;
 import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.SignupDto;
+import com.yurakim.readingtrace.auth.exception.RefreshTokenException;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
@@ -64,7 +65,12 @@ public class AuthController {
 
         @PostMapping("/refresh")
         public ResponseEntity<Void> refreshToken(@CookieValue(JWT.REFRESH_TOKEN_COOKIE_NAME) String refreshToken, HttpServletResponse response){
-            if (refreshToken == null || !jwtService.isValidRefreshToken(refreshToken)){
+            if (refreshToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            try {
+                jwtService.validateRefreshToken(refreshToken);
+            } catch (RefreshTokenException e) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 

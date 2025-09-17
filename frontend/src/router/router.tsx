@@ -13,15 +13,14 @@ import {
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Landing />} />
       </Route>
 
-      {/* Protected routes */}
-      <Route path="/something" element={<PrivateLayout />}>
+      <Route path="/:id" element={<PrivateLayout />}>
         <Route index element={<MainPage />} />
       </Route>
     </>,
