@@ -5,7 +5,6 @@ import com.yurakim.readingtrace.auth.dto.LoginRequestDto;
 import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
-import com.yurakim.readingtrace.auth.entity.entity.RefreshToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.repository.RefreshTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
@@ -30,7 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 //TODO: add method for unlocking account
 
@@ -77,25 +78,14 @@ public class AuthServiceImpl implements AuthService {
             user.setFailedLoginAttempts(0);
             userRepository.save(user);
 
+            //when loggin in, generate new access and refresh tokens
             String accessToken = jwtService.generateAccessToken(authentication);
-            String refreshToken;
-
-            List<RefreshToken> existingTokens = refreshTokenRepository.findAllByUserId(user.getId());
-            Optional<RefreshToken> validToken = existingTokens.stream()
-                    .filter(t -> !t.isRevoked() && !t.getExpiresAt().isBefore(LocalDateTime.now()))
-                    .findFirst();
-
-            //TODO: do a background job to clean up expired refresh tokens
-            if(validToken.isPresent() ) {
-                refreshToken = validToken.get().getTokenHash();
-            }else{
-                 refreshToken = jwtService.generateRefreshToken(user, null);
-            }
+            String rawRefreshToken  = jwtService.generateRefreshToken(user, null);
 
             //RECORD LOGIN SUCCESS
             recordLoginSuccess(user);
 
-            AccessRefreshDto accessRefreshDto = new AccessRefreshDto(accessToken, refreshToken);
+            AccessRefreshDto accessRefreshDto = new AccessRefreshDto(accessToken, rawRefreshToken);
             return accessRefreshDto;
         } catch (AuthenticationException e) {
             recordLoginFailure(user, e);
