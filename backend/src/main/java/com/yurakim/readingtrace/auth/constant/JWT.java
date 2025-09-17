@@ -21,5 +21,6 @@ public final class JWT {
     public static final String INVALID_REFRESH_TOKEN = "invalid_refresh_token";
     public static final String EXPIRED_REFRESH_TOKEN = "expired_refresh_token";
     public static final String REVOKED_REFRESH_TOKEN = "revoked_refresh_token";
+    public static final String COMPROMISED_REFRESH_TOKEN = "compromised_refresh_token";
 
 }

@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.auth.entity.entity;
 
+import com.yurakim.readingtrace.auth.enums.InvalidationCause;
 import com.yurakim.readingtrace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,6 +32,10 @@ public class RefreshToken extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isRevoked = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvalidationCause invalidationCause = InvalidationCause.NONE;
 
     private Long replacedById;
 
