@@ -2,13 +2,13 @@ import PrivateLayout from '@/layouts/PrivateLayout';
 import PublicLayout from '@/layouts/PublicLayout';
 import Landing from '@/pages/Landing';
 import LoginPage from '@/pages/LoginPage';
-import MainPage from '@/pages/MainPage';
 import SignupPage from '@/pages/SignupPage';
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
+import MainPage from '@/components/Main';
 
 const router = createBrowserRouter(
   createRoutesFromElements(

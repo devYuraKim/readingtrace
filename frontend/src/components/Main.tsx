@@ -18,14 +18,14 @@ interface bookType {
   title: string;
   authors: string;
   imageLinks: string;
-  //   publisher: string;
+  publisher: string;
   publishedDate: string;
-  //   description: string;
-  //   isbn_10: string;
-  //   isbn_13: string;
+  description: string;
+  isbn_10: string;
+  isbn_13: string;
 }
 
-const MainPage = () => {
+const Main = () => {
   //static
   const books = [
     {
@@ -49,8 +49,15 @@ const MainPage = () => {
     {
       id: '4',
       title: 'Of Human Bondage',
-      authors: 'Somerset Maugham',
+      authors: 'W. Somerset Maugham',
       imageLinks: '/of_human_bondage.jpg',
+      description: `A masterpiece of modern literature that mirrors Maugham's own career. 
+      
+      Of Human Bondage is the first and most autobiographical of Maugham's novels. It is the story of Philip Carey, an orphan eager for life, love and adventure. After a few months studying in Heidelberg, and a brief spell in Paris as a would-be artist, Philip settles in London to train as a doctor. And that is where he meets Mildred, the loud but irresistible waitress with whom he plunges into a formative, tortured and masochistic affair which very nearly ruins him.`,
+      publishedDate: 'February 23, 2010',
+      publisher: 'Random House',
+      isbn_10: '1407016458',
+      isbn_13: '9781407016450',
     },
     {
       id: '5',
@@ -147,4 +154,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage;
+export default Main;
