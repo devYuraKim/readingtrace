@@ -1,3 +1,10 @@
+import React from 'react';
+import { apiClient } from '@/queries/axios';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useMutation } from '@tanstack/react-query';
+import { ChevronsUpDown } from 'lucide-react';
+import { toast } from 'sonner';
+import z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,22 +15,43 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import BookRatingSelect from './BookRatingSelect';
+import BookStatusSelect from './BookStatusSelect';
+import BookVisibilitySelect from './BookVisibilitySelect';
 
 interface bookType {
   id: string;
   title: string;
   authors: string;
   imageLinks: string;
-  //   publisher: string;
-  //   publishedDate: string;
-  //   description: string;
-  //   isbn_10: string;
-  //   isbn_13: string;
+  publisher: string;
+  publishedDate: string;
+  description: string;
+  isbn_10: string;
+  isbn_13: string;
 }
 
-export default function BookStartDialog({
+const formSchema = z.object({
+  status: z.enum(
+    ['wantToRead', 'alreadyRead', 'currentlyReading', 'neverFinished'],
+    { message: 'Please select a reading status.' },
+  ),
+  visibility: z.enum(['public', 'private', 'friends'], {
+    message: 'Please select a visibility option.',
+  }),
+  rating: z.number({ message: 'Please provide a rating.' }).min(0).max(5),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+type FormValuesWithPlaceholder = {
+  status: FormValues['status'] | '';
+  visibility: FormValues['visibility'] | '';
+  rating: FormValues['rating'] | '';
+};
+
+const BookStartDialog = ({
   open,
   onOpenChange,
   book,
@@ -31,39 +59,157 @@ export default function BookStartDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   book: bookType;
-}) {
-  console.log(book.id);
+}) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const defaultFormValues: FormValuesWithPlaceholder = {
+    status: '',
+    visibility: '',
+    rating: '',
+  };
+
+  const [formValues, setFormValues] =
+    React.useState<FormValuesWithPlaceholder>(defaultFormValues);
+
+  // TODO: Fix value type any
+  const handleChange = (field: keyof FormValues, value: any) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+  const handleReset = () => {
+    setFormValues(defaultFormValues);
+    onOpenChange(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const result = formSchema.safeParse(formValues);
+    const payload = {
+      userId: useAuthStore.getState().user?.id,
+      bookId: book.id,
+      status: formValues.status,
+      visibility: formValues.visibility,
+      rating: formValues.rating,
+    };
+    console.log('payload', payload);
+
+    apiClient.post('/book/add', payload);
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0].toString();
+        const message = issue.message;
+        toast.error(`${fieldName}: ${message}`);
+      });
+    } else {
+      console.log(result.data);
+      setFormValues(defaultFormValues);
+      onOpenChange(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <form>
-        <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] md:max-w-[600px]">
+        <form onSubmit={handleSubmit}>
           <DialogHeader className="grid grid-cols-3">
             <div>
-              <img src={book.imageLinks} alt={book.title} className="w-full" />
+              {book.imageLinks ? (
+                <img
+                  src={book.imageLinks}
+                  alt={book.title}
+                  className="w-full"
+                />
+              ) : (
+                <div className="w-full h-full flex justify-center items-center text-sm text-muted-foreground">
+                  Image N/A
+                </div>
+              )}
             </div>
-            <div className="col-span-2 flex flex-col">
-              <DialogTitle>{book.title}</DialogTitle>
-              <DialogDescription>By {book.authors}</DialogDescription>
+            <div className="col-span-2 flex flex-col h-full gap-y-1.5">
+              <div>
+                <DialogTitle>{book.title ?? 'Title N/A'}</DialogTitle>
+                <DialogDescription>
+                  By {book.authors ?? 'Authors N/A'}
+                </DialogDescription>
+              </div>
+
+              <div className="flex flex-col gap-y-0.5 text-muted-foreground opacity-80 text-xs">
+                <div>
+                  {book.publisher ?? 'Publisher N/A'} &nbsp;
+                  {book.publishedDate ?? 'Published date N/A'}
+                </div>
+                <div>
+                  {book.isbn_10 ?? 'ISBN10 N/A'} |{' '}
+                  {book.isbn_13 ?? 'ISBN10 N/A'}
+                </div>
+              </div>
+
+              <div className="text-muted-foreground text-xs">
+                <div
+                  className={`break-normal hyphens-auto
+                  ${isExpanded ? 'line-clamp-none' : 'line-clamp-5'}
+                `}
+                >
+                  {book.description ?? 'Description N/A'}
+                </div>
+
+                <div
+                  className="flex flex-row justify-end items-center gap-1 mt-1 cursor-pointer"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                >
+                  {book.description ? (
+                    <>
+                      <ChevronsUpDown className="w-3 h-3" />
+                      {isExpanded ? 'Show less' : 'Show more'}
+                    </>
+                  ) : (
+                    ''
+                  )}
+                </div>
+              </div>
             </div>
           </DialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" defaultValue={book.title} />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="author">Author</Label>
-              <Input id="author" name="author" defaultValue={book.authors} />
+          <div className="my-4">
+            <div className="grid grid-cols-2 gap-2 items-center">
+              <Label className="text-right">Reading Status</Label>
+              <BookStatusSelect
+                value={formValues.status}
+                onChange={(value: string) => handleChange('status', value)}
+              />
+
+              <Label className="text-right">Visibility</Label>
+              <BookVisibilitySelect
+                value={formValues.visibility}
+                onChange={(value: string) => handleChange('visibility', value)}
+              />
+
+              <Label className="text-right">My Rating</Label>
+              <BookRatingSelect
+                value={formValues.rating}
+                onChange={(value: number) => handleChange('rating', value)}
+              />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="!justify-between">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                className="cursor-pointer justify-end"
+                onClick={handleReset}
+              >
+                Cancel
+              </Button>
             </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" className="cursor-pointer">
+              Add Book
+            </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default BookStartDialog;
