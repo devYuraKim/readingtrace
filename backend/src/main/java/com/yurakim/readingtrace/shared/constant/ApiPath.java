@@ -9,5 +9,6 @@ public final class ApiPath {
     public static final String USER = BASE + "/user";
     public static final String AUTH = BASE + "/auth";
     public static final String ADMIN = BASE + "/admin";
+    public static final String BOOK = BASE + "/book";
 
 }

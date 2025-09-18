@@ -1,0 +1,29 @@
+package com.yurakim.readingtrace.book.entity;
+
+import com.yurakim.readingtrace.shared.entity.BaseEntity;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@ToString(callSuper = true)
+@Entity
+public class UserBook extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long Id;
+
+    @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
+    private String bookId;
+
+    @Column(nullable = false)
+    private String status;
+
+    @Column(nullable = false)
+    private String visibility;
+
+    private Integer rating;
+}
