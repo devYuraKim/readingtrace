@@ -5,10 +5,9 @@ import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(ApiPath.BOOK)
@@ -23,4 +22,14 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<UserBookDto>> getUserBooks(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String visibility,
+            @RequestParam(required = false) Integer rating
+    ) {
+        List<UserBookDto> userBookList = bookService.getUserBooks(userId, status, visibility, rating);
+        return ResponseEntity.ok(userBookList);
+    }
 }
