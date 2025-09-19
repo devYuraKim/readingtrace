@@ -54,13 +54,13 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                         user.setLastLoginAt(LocalDateTime.now());
                         userRepository.save(user);
                         DefaultOAuth2User oauth2User = new DefaultOAuth2User(
-                                user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()),
+                                user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()),
                                 attributes,
                                 idAttributeKey
                         );
                         return new OAuth2AuthenticationToken(
                                 oauth2User,
-                                user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()),
+                                user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()),
                                 oAuth2AuthenticationToken.getAuthorizedClientRegistrationId()
                         );
                     })
@@ -75,13 +75,13 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                         userRepository.save(newUser);
 
                         DefaultOAuth2User oauth2User = new DefaultOAuth2User(
-                                newUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()),
+                                newUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()),
                                 attributes,
                                 idAttributeKey
                         );
                         return new OAuth2AuthenticationToken(
                                 oauth2User,
-                                newUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()),
+                                newUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()),
                                 oAuth2AuthenticationToken.getAuthorizedClientRegistrationId()
                         );
                     });

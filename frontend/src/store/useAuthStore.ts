@@ -1,7 +1,8 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 type User = {
-  id: number;
+  userId: number;
   email: string;
   roles: string[];
 };
@@ -13,9 +14,14 @@ type AuthState = {
   clearAuth: () => void;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  accessToken: null,
-  setAuth: (user, token) => set({ user, accessToken: token }),
-  clearAuth: () => set({ user: null, accessToken: null }),
-}));
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      setAuth: (user, token) => set({ user, accessToken: token }),
+      clearAuth: () => set({ user: null, accessToken: null }),
+    }),
+    { name: 'AuthStore' },
+  ), // optional name for Redux DevTools
+);

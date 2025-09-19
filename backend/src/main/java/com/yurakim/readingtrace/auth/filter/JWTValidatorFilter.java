@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.auth.filter;
 
 import com.yurakim.readingtrace.auth.constant.JWT;
+import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -45,8 +46,12 @@ public class JWTValidatorFilter extends OncePerRequestFilter {
                 if (secretKey != null) {
                     Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
                     String email = claims.getSubject();
+                    Number userIdNumber = (Number) claims.get("userId");
+                    Long userId = userIdNumber.longValue();
                     List<String> roles = (List<String>) claims.get("roles");
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.createAuthorityList(roles));
+
+                    UserDetailsImpl userDetails = new UserDetailsImpl(userId, email, null, AuthorityUtils.createAuthorityList(roles));
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception e) {

@@ -63,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Long userId = user.getId();
 
         //CHECK IF ACCOUNT IS LOCKED
         if (user.getIsAccountLocked()) {
@@ -70,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         }
         //IF ACCOUNT IS NOT LOCKED, CONTINUE WITH LOGIN PROCESS
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(email, password);
+                new UsernamePasswordAuthenticationToken(email, password); //simple data container for authentication
         try {
             Authentication authentication = authenticationManager.authenticate(authToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import axios from 'axios';
+import { decodeAccessToken } from '@/lib/jwt';
 
 export const apiClient = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
@@ -24,12 +25,11 @@ apiClient.interceptors.request.use(
     if (xsrfToken) {
       config.headers['X-XSRF-TOKEN'] = xsrfToken;
     }
-
     const token = useAuthStore.getState().accessToken;
     if (token) {
       config.headers['Authorization'] = getBearerToken(token);
     }
-
+    console.log('api, request', useAuthStore.getState());
     return config;
   },
   (error) => {
@@ -86,13 +86,27 @@ apiClient.interceptors.response.use(
           '',
         );
         if (newAccessToken) {
-          useAuthStore
-            .getState()
-            .setAuth(useAuthStore.getState().user, newAccessToken);
-          apiClient.defaults.headers.common['Authorization'] =
-            getBearerToken(newAccessToken);
-          error.config.headers['Authorization'] =
-            getBearerToken(newAccessToken);
+          const payload = decodeAccessToken(newAccessToken);
+          if (payload) {
+            useAuthStore.getState().setAuth(
+              {
+                userId: payload.userId,
+                email: payload.email,
+                roles: payload.roles,
+              },
+              newAccessToken,
+            );
+
+            apiClient.defaults.headers.common['Authorization'] =
+              getBearerToken(newAccessToken);
+            error.config.headers['Authorization'] =
+              getBearerToken(newAccessToken);
+
+            console.log(
+              'new access token issued, useAuthStore.getState(): ',
+              useAuthStore.getState(),
+            );
+          }
         }
         //retry original request with new token
         return apiClient(error.config);
@@ -100,7 +114,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-
+    console.log('api, response', useAuthStore.getState());
     return Promise.reject(error);
   },
 );
