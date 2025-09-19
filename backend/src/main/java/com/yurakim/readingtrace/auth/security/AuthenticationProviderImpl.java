@@ -6,7 +6,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
         //step3.provider checks user details with UserDetailsServiceImpl and PasswordEncoder(SecurityConfig)
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
         // TODO: additional rules beyond username/password with a custom UserDetails implementation
         if(passwordEncoder.matches(password, userDetails.getPassword())) {
             //step4.provider returns authenticated object -> back to IAuthServiceImpl

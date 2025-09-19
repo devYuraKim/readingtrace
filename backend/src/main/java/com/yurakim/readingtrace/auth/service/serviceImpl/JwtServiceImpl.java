@@ -5,6 +5,7 @@ import com.yurakim.readingtrace.auth.entity.entity.RefreshToken;
 import com.yurakim.readingtrace.auth.enums.InvalidationCause;
 import com.yurakim.readingtrace.auth.exception.RefreshTokenException;
 import com.yurakim.readingtrace.auth.repository.RefreshTokenRepository;
+import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.auth.util.Sha256Hashing;
 import com.yurakim.readingtrace.user.entity.User;
@@ -29,7 +30,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,14 +50,17 @@ public class JwtServiceImpl implements JwtService {
         Long expiration = Duration.ofMinutes(Long.parseLong(environment.getProperty(JWT.ACCESS_EXPIRATION_MINUTES_PROPERTY))).toMillis();
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
-        String email = authentication.getName();
-        List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = principal.getId();
+        String email = principal.getEmail();
+        Set<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .issuer(issuer)
                 .subject(email)
+                .claim("userId", userId)
                 .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiry)
@@ -80,6 +84,7 @@ public class JwtServiceImpl implements JwtService {
         String rawRefreshToken = Jwts.builder()
                 .issuer(issuer)
                 .subject(user.getEmail())
+                .claim("userId", user.getId())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(secretKey)
@@ -116,9 +121,10 @@ public class JwtServiceImpl implements JwtService {
         }
         String userEmail = this.getSubject(rawRefreshToken);
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
+        Long userId = user.getId();
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userEmail, null,
-                user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName())).collect(Collectors.toList()));
+        UserDetailsImpl userDetails = new UserDetailsImpl(userId, userEmail, null, user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName())).collect(Collectors.toSet()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String newAccessToken = this.generateAccessToken(authentication);
         return newAccessToken;
     }
@@ -206,7 +212,7 @@ public class JwtServiceImpl implements JwtService {
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
             String email = authentication.getName();
-            List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+            Set<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
             Date now = new Date();
             Date expiry = new Date(now.getTime() + expiration);
 
