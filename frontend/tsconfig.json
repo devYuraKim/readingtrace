@@ -9,7 +9,6 @@
     "allowSyntheticDefaultImports": true, //allow default imports without a default export
     "skipLibCheck": true, //skips type checking for external libraries
     "forceConsistentCasingInFileNames": true,
-    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] } //
   },
