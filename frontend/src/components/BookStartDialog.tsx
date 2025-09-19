@@ -86,7 +86,7 @@ const BookStartDialog = ({
     e.preventDefault();
     const result = formSchema.safeParse(formValues);
     const payload = {
-      userId: useAuthStore.getState().user?.id,
+      userId: useAuthStore.getState().user?.userId,
       bookId: book.id,
       status: formValues.status,
       visibility: formValues.visibility,
@@ -129,20 +129,27 @@ const BookStartDialog = ({
             </div>
             <div className="col-span-2 flex flex-col h-full gap-y-1.5">
               <div>
-                <DialogTitle>{book.title ?? 'Title N/A'}</DialogTitle>
+                <DialogTitle>
+                  {book.title.trim() === '' ? 'Title N/A' : book.title}
+                </DialogTitle>
                 <DialogDescription>
-                  By {book.authors ?? 'Authors N/A'}
+                  By {book.authors.trim() === '' ? 'Authors N/A' : book.authors}
                 </DialogDescription>
               </div>
 
               <div className="flex flex-col gap-y-0.5 text-muted-foreground opacity-80 text-xs">
                 <div>
-                  {book.publisher ?? 'Publisher N/A'} &nbsp;
-                  {book.publishedDate ?? 'Published date N/A'}
+                  {book.publisher.trim() === ''
+                    ? 'Publisher N/A'
+                    : book.publisher}
+                  &nbsp;
+                  {book.publishedDate.trim() === ''
+                    ? 'Published Date N/A'
+                    : book.publishedDate}
                 </div>
                 <div>
-                  {book.isbn_10 ?? 'ISBN10 N/A'} |{' '}
-                  {book.isbn_13 ?? 'ISBN10 N/A'}
+                  {book.isbn_10.trim() === '' ? 'ISBN 10 N/A' : book.isbn_10} |{' '}
+                  {book.isbn_13.trim() === '' ? 'ISBN 13 N/A' : book.isbn_13}
                 </div>
               </div>
 
@@ -152,14 +159,16 @@ const BookStartDialog = ({
                   ${isExpanded ? 'line-clamp-none' : 'line-clamp-5'}
                 `}
                 >
-                  {book.description ?? 'Description N/A'}
+                  {book.description.trim() === ''
+                    ? 'Description N/A'
+                    : book.description}
                 </div>
 
                 <div
                   className="flex flex-row justify-end items-center gap-1 mt-1 cursor-pointer"
                   onClick={() => setIsExpanded(!isExpanded)}
                 >
-                  {book.description ? (
+                  {book.description.trim() !== '' ? (
                     <>
                       <ChevronsUpDown className="w-3 h-3" />
                       {isExpanded ? 'Show less' : 'Show more'}
