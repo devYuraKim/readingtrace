@@ -10,15 +10,17 @@ import {
 interface BookVisibilitySelectProps {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
 }
 
 const BookVisibilitySelect = ({
   value,
   onChange,
+  className,
 }: BookVisibilitySelectProps) => {
   return (
     <Select value={value} onValueChange={(value) => onChange(value)}>
-      <SelectTrigger>
+      <SelectTrigger className={className}>
         <SelectValue placeholder="Visibility" />
       </SelectTrigger>
       <SelectContent>

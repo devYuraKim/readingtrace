@@ -10,12 +10,17 @@ import {
 interface BookVisibilitySelectProps {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
 }
 
-const BookStatusSelect = ({ value, onChange }: BookVisibilitySelectProps) => {
+const BookStatusSelect = ({
+  value,
+  onChange,
+  className,
+}: BookVisibilitySelectProps) => {
   return (
     <Select value={value} onValueChange={(value) => onChange(value)}>
-      <SelectTrigger>
+      <SelectTrigger className={className}>
         <SelectValue placeholder="Reading Status" />
       </SelectTrigger>
       <SelectContent>

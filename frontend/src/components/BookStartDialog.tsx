@@ -1,7 +1,7 @@
+import { start } from 'repl';
 import React from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useMutation } from '@tanstack/react-query';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import BookRatingSelect from './BookRatingSelect';
 import BookStatusSelect from './BookStatusSelect';
 import BookVisibilitySelect from './BookVisibilitySelect';
+import { SingleDatePicker } from './SingleDatePicker';
 
 interface bookType {
   id: string;
@@ -41,6 +42,8 @@ const formSchema = z.object({
     message: 'Please select a visibility option.',
   }),
   rating: z.number({ message: 'Please provide a rating.' }).min(0).max(5),
+  startDate: z.date().nullish(),
+  endDate: z.date().nullish(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,6 +52,8 @@ type FormValuesWithPlaceholder = {
   status: FormValues['status'] | '';
   visibility: FormValues['visibility'] | '';
   rating: FormValues['rating'] | '';
+  startDate: FormValues['startDate'] | '';
+  endDate: FormValues['endDate'] | '';
 };
 
 const BookStartDialog = ({
@@ -65,6 +70,8 @@ const BookStartDialog = ({
     status: '',
     visibility: '',
     rating: '',
+    startDate: '',
+    endDate: '',
   };
 
   const [formValues, setFormValues] =
@@ -72,11 +79,18 @@ const BookStartDialog = ({
 
   // TODO: Fix value type any
   const handleChange = (field: keyof FormValues, value: any) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormValues((prev) => {
+      const updated = { ...prev, [field]: value };
+      const { startDate, endDate } = updated;
+      if (startDate && endDate && startDate > endDate) {
+        toast.error('Start date should be before end date');
+        return prev; // reject the change
+      }
+
+      return updated;
+    });
   };
+
   const handleReset = () => {
     setFormValues(defaultFormValues);
     onOpenChange(true);
@@ -91,10 +105,12 @@ const BookStartDialog = ({
       status: formValues.status,
       visibility: formValues.visibility,
       rating: formValues.rating,
+      startDate: formValues.startDate,
+      endDate: formValues.endDate,
     };
     console.log('payload', payload);
 
-    apiClient.post('/book/add', payload);
+    // apiClient.post('/book/add', payload);
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {
@@ -181,31 +197,66 @@ const BookStartDialog = ({
             </div>
           </DialogHeader>
           <div className="my-4">
-            <div className="grid grid-cols-2 gap-2 items-center">
-              <Label className="text-right">Reading Status</Label>
-              <BookStatusSelect
-                value={formValues.status}
-                onChange={(value: string) => handleChange('status', value)}
-              />
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_20px_minmax(0,1fr)_minmax(0,1fr)] gap-2 items-center">
+              <div className="flex col-start-1 col-span-2">
+                <Label className="w-2/5 text-right">Reading Status</Label>
+                <BookStatusSelect
+                  className="w-3/5 text-xs"
+                  value={formValues.status}
+                  onChange={(value: string) => handleChange('status', value)}
+                />
+              </div>
 
-              <Label className="text-right">Visibility</Label>
-              <BookVisibilitySelect
-                value={formValues.visibility}
-                onChange={(value: string) => handleChange('visibility', value)}
-              />
+              <div className="flex col-start-4 col-span-2">
+                <Label className="w-2/5 text-right">Visibility</Label>
+                <BookVisibilitySelect
+                  className="w-3/5 text-xs"
+                  value={formValues.visibility}
+                  onChange={(value: string) =>
+                    handleChange('visibility', value)
+                  }
+                />
+              </div>
 
-              <Label className="text-right">My Rating</Label>
-              <BookRatingSelect
-                value={formValues.rating}
-                onChange={(value: number) => handleChange('rating', value)}
-              />
+              <div className="flex col-start-1 col-span-2">
+                <Label className="w-2/5 text-right">My Rating</Label>
+                <BookRatingSelect
+                  className="w-3/5 text-xs"
+                  value={formValues.rating}
+                  onChange={(value: number) => handleChange('rating', value)}
+                />
+              </div>
+
+              <div className="flex col-start-1 col-span-2">
+                <Label className="w-2/5 text-right">Start Date</Label>
+                <div className="w-3/5 text-xs">
+                  <SingleDatePicker
+                    value={formValues.startDate || null}
+                    onChange={(date: Date | null) =>
+                      handleChange('startDate', date)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex col-start-4 col-span-2">
+                <Label className="w-2/5 text-right">End Date</Label>
+                <div className="w-3/5 text-xs">
+                  <SingleDatePicker
+                    value={formValues.endDate || null}
+                    onChange={(date: Date | null) =>
+                      handleChange('endDate', date)
+                    }
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter className="!justify-between">
             <DialogClose asChild>
               <Button
                 variant="outline"
-                className="cursor-pointer justify-end"
+                className="cursor-pointer"
                 onClick={handleReset}
               >
                 Cancel
