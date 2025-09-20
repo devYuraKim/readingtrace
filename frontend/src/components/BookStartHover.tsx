@@ -9,18 +9,18 @@ interface bookType {
   title: string;
   authors: string;
   imageLinks: string;
-  //   publisher: string;
+  publisher: string;
   publishedDate: string;
-  //   description: string;
-  //   isbn_10: string;
-  //   isbn_13: string;
+  description: string;
+  isbn_10: string;
+  isbn_13: string;
 }
 
 export default function BookStartHover({ book }: { book: bookType }) {
   return (
     <HoverCard openDelay={0} closeDelay={1}>
       <HoverCardTrigger asChild>
-        <img src={book.imageLinks} alt={book.title} />
+        <img className="rounded-sm" src={book.imageLinks} alt={book.title} />
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="flex justify-between gap-4">

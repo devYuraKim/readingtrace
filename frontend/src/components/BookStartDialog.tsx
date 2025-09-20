@@ -135,7 +135,7 @@ const BookStartDialog = ({
                 <img
                   src={book.imageLinks}
                   alt={book.title}
-                  className="w-full"
+                  className="w-full rounded-sm"
                 />
               ) : (
                 <div className="w-full h-full flex justify-center items-center text-sm text-muted-foreground">
