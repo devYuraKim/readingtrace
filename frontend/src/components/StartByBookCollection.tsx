@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import BookStartDialog from '@/components/BookStartDialog';
 import BookStartHover from '@/components/BookStartHover';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,8 +10,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { Label } from '@/components/ui/label';
-import { SidebarInput } from '@/components/ui/sidebar';
 
 interface bookType {
   id: string;
@@ -25,7 +23,7 @@ interface bookType {
   isbn_13: string;
 }
 
-const Main = () => {
+const StartByBookCollection = () => {
   //static
   const books = [
     {
@@ -135,18 +133,23 @@ const Main = () => {
   const [selectedBook, setSelectedBook] = React.useState<bookType | null>(null);
 
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center">
-      <div className="relative z-1 flex flex-col items-center justify-center gap-5">
+    <div className="relative flex flex-1 flex-col items-center justify-start mt-20">
+      <div className="relative z-1 flex flex-col items-center justify-center">
         {/* TODO: Conditional rendering based on data availability */}
-        <h2 className="!m-0 !p-0 text-center !text-3xl leading-none !font-bold text-black">
+        <h2 className="mb-10 !p-0 text-center !text-3xl leading-none !font-bold text-black">
           Start your reading journey
         </h2>
+
+        <div className="mb-7">
+          Select a book from our curated collection — popular, trending, or
+          editor’s choice.
+        </div>
 
         <Carousel
           opts={{
             align: 'start',
           }}
-          className="w-full max-w-xl"
+          className="w-full max-w-xl mb-15"
         >
           <CarouselContent className="h-full">
             {books.map((book) => (
@@ -176,20 +179,27 @@ const Main = () => {
           />
         )}
 
-        <div className="relative">
-          <Label htmlFor="search" className="sr-only">
-            Search
-          </Label>
-          <SidebarInput
-            id="search"
-            placeholder="Search the docs..."
-            className="pl-8"
-          />
-          <Search className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 opacity-50 select-none" />
-        </div>
+        <NavLink to="searchBook">
+          <div className="mt-4 flex items-center gap-2 font-medium hover:underline cursor-pointer">
+            <span>Or search for any book you like</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+        </NavLink>
       </div>
     </div>
   );
 };
 
-export default Main;
+export default StartByBookCollection;

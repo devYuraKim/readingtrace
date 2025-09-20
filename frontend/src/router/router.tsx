@@ -8,7 +8,8 @@ import {
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
-import MainPage from '@/components/Main';
+import StartByBookCollection from '@/components/StartByBookCollection';
+import StartByBookSearch from '@/components/StartByBookSearch';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,7 +22,8 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="/:id" element={<PrivateLayout />}>
-        <Route index element={<MainPage />} />
+        <Route index element={<StartByBookCollection />} />
+        <Route path="searchBook" element={<StartByBookSearch />} />
       </Route>
     </>,
   ),
