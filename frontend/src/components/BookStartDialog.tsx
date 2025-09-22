@@ -1,6 +1,4 @@
-import { start } from 'repl';
 import React from 'react';
-import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,13 +22,13 @@ import { SingleDatePicker } from './SingleDatePicker';
 interface bookType {
   id: string;
   title: string;
-  authors: string;
-  imageLinks: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn_10: string;
-  isbn_13: string;
+  authors: string | null;
+  imageLinks: string | null;
+  publisher: string | null;
+  publishedDate: string | null;
+  description: string | null;
+  isbn10: string | null;
+  isbn13: string | null;
 }
 
 const formSchema = z.object({
@@ -131,41 +129,34 @@ const BookStartDialog = ({
         <form onSubmit={handleSubmit}>
           <DialogHeader className="grid grid-cols-3">
             <div>
-              {book.imageLinks ? (
-                <img
-                  src={book.imageLinks}
-                  alt={book.title}
-                  className="w-full rounded-sm"
-                />
-              ) : (
-                <div className="w-full h-full flex justify-center items-center text-sm text-muted-foreground">
-                  Image N/A
-                </div>
-              )}
+              <img
+                src={
+                  !book.imageLinks?.trim()
+                    ? '/placeholder.png'
+                    : book.imageLinks
+                }
+                alt={book.title}
+                className="w-full object-cover text-xs text-muted-foreground rounded-xs"
+              />
             </div>
             <div className="col-span-2 flex flex-col h-full gap-y-1.5">
               <div>
-                <DialogTitle>
-                  {book.title.trim() === '' ? 'Title N/A' : book.title}
-                </DialogTitle>
+                <DialogTitle>{book.title}</DialogTitle>
                 <DialogDescription>
-                  By {book.authors.trim() === '' ? 'Authors N/A' : book.authors}
+                  By {!book.authors?.trim() ? 'Author N/A' : book.authors}
                 </DialogDescription>
               </div>
 
               <div className="flex flex-col gap-y-0.5 text-muted-foreground opacity-80 text-xs">
                 <div>
-                  {book.publisher.trim() === ''
-                    ? 'Publisher N/A'
-                    : book.publisher}
-                  &nbsp;
-                  {book.publishedDate.trim() === ''
+                  {!book.publisher?.trim() ? 'Publisher N/A' : book.publisher} |{' '}
+                  {!book.publishedDate?.trim()
                     ? 'Published Date N/A'
                     : book.publishedDate}
                 </div>
                 <div>
-                  {book.isbn_10.trim() === '' ? 'ISBN 10 N/A' : book.isbn_10} |{' '}
-                  {book.isbn_13.trim() === '' ? 'ISBN 13 N/A' : book.isbn_13}
+                  {!book.isbn10?.trim() ? 'ISBN10 N/A' : book.isbn10} |{' '}
+                  {!book.isbn13?.trim() ? 'ISBN13 N/A' : book.isbn13}
                 </div>
               </div>
 
@@ -175,7 +166,7 @@ const BookStartDialog = ({
                   ${isExpanded ? 'line-clamp-none' : 'line-clamp-5'}
                 `}
                 >
-                  {book.description.trim() === ''
+                  {!book.description?.trim()
                     ? 'Description N/A'
                     : book.description}
                 </div>
@@ -184,7 +175,7 @@ const BookStartDialog = ({
                   className="flex flex-row justify-end items-center gap-1 mt-1 cursor-pointer"
                   onClick={() => setIsExpanded(!isExpanded)}
                 >
-                  {book.description.trim() !== '' ? (
+                  {book.description?.trim() !== '' ? (
                     <>
                       <ChevronsUpDown className="w-3 h-3" />
                       {isExpanded ? 'Show less' : 'Show more'}
