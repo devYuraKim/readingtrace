@@ -25,7 +25,7 @@ interface bookType {
   isbn13: string;
 }
 
-const StartByBookSearchReactive = () => {
+const StartByBookSearch = () => {
   const [searchType, setSearchType] = React.useState('title');
   const [searchWord, setSearchWord] = React.useState('');
   const [results, setResults] = React.useState<bookType[]>([]);
@@ -47,7 +47,7 @@ const StartByBookSearchReactive = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1/book/searchBook?searchType=${searchType}&searchWord=${searchWord}`,
+        `http://localhost:8080/api/v1/book/reactive/searchBook?searchType=${searchType}&searchWord=${searchWord}`,
         {
           headers: {
             Authorization: accessToken,
@@ -151,4 +151,4 @@ const StartByBookSearchReactive = () => {
   );
 };
 
-export default StartByBookSearchReactive;
+export default StartByBookSearch;
