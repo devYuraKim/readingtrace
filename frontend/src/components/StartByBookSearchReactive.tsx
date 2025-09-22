@@ -1,0 +1,154 @@
+import React from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Search } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from './ui/input';
+
+interface bookType {
+  bookId: string;
+  title: string;
+  authors: string;
+  imageLinks: string;
+  publisher: string;
+  publishedDate: string;
+  description: string;
+  isbn10: string;
+  isbn13: string;
+}
+
+const StartByBookSearchReactive = () => {
+  const [searchType, setSearchType] = React.useState('title');
+  const [searchWord, setSearchWord] = React.useState('');
+  const [results, setResults] = React.useState<bookType[]>([]);
+
+  const handleSearch = async (searchType: string, searchWord: string) => {
+    const normalizedSearchWord = searchWord
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toLowerCase();
+
+    if (normalizedSearchWord === '') {
+      toast.error('Please enter a search word');
+      return;
+    }
+
+    const accessToken = useAuthStore.getState().accessToken ?? '';
+    const csrfToken = useAuthStore.getState().csrfToken ?? '';
+    console.log('tokens from global state', accessToken, csrfToken);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/book/searchBook?searchType=${searchType}&searchWord=${searchWord}`,
+        {
+          headers: {
+            Authorization: accessToken,
+            'X-XSRF-TOKEN': csrfToken,
+            Accept: 'text/event-stream',
+          },
+          credentials: 'include',
+        },
+      );
+
+      if (!response.ok) {
+        console.log('response', response);
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const reader = response?.body?.getReader();
+      if (!reader) {
+        console.log('reader', reader);
+        throw new Error('Unable to get stream reader');
+      }
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || ''; // keep incomplete event for next iteration
+
+        for (const event of events) {
+          if (event.startsWith('data:')) {
+            const jsonStr = event.replace(/^data:\s*/, '');
+            try {
+              const book = JSON.parse(jsonStr) as bookType;
+              setResults((prev) => [...prev, book]);
+            } catch (err) {
+              console.error('JSON parse error:', err, jsonStr);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Stream error:', error);
+    }
+  };
+
+  return (
+    <div className="relative flex flex-1 flex-col items-center justify-start mt-10">
+      <div className="relative z-1 flex flex-col items-center justify-center gap-5">
+        <div className="relative flex items-center w-full max-w-xl border border-gray-300 rounded-lg overflow-hidden">
+          <Select onValueChange={(value) => setSearchType(value)}>
+            <SelectTrigger className="w-30 rounded-none rounded-l-lg">
+              <SelectValue placeholder="Title" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Search by</SelectLabel>
+                <SelectItem value="title">Title</SelectItem>
+                <SelectItem value="author">Author</SelectItem>
+                <SelectItem value="isbn">ISBN</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          {/* Input */}
+          <Input
+            id="searchWord"
+            placeholder="Search"
+            className="flex-1 w-md rounded-none rounded-r-lg pl-3"
+            value={searchWord}
+            onChange={(e) => setSearchWord(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch(searchType, searchWord);
+              }
+            }}
+          />
+
+          {/* Search icon */}
+          <Search
+            className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 opacity-50 select-none"
+            onClick={() => handleSearch(searchType, searchWord)}
+          />
+        </div>
+      </div>
+
+      <div>
+        {results.map((book) => (
+          <div key={book.bookId} className="p-2 border-b">
+            <h3 className="font-bold">{book.title}</h3>
+            <p>{book.authors}</p>
+            <p className="text-sm text-gray-500">
+              {book.publisher} ({book.publishedDate})
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default StartByBookSearchReactive;

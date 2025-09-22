@@ -1,20 +1,33 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
+import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBooksResponseDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.entity.UserBook;
 import com.yurakim.readingtrace.book.repository.UserBookRepository;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.book.spec.UserBookSpecs;
+import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final UserBookRepository userBookRepository;
+    private final WebClient webClient;
+    private final Environment env;
 
     @Override
     public void addUserBook(UserBookDto userBookDto) {
@@ -47,6 +60,73 @@ public class BookServiceImpl implements BookService {
                     return userBookDto;
                 })
                 .toList();
+    }
+
+    @Override
+    public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
+        String normalizedSearchword = URLEncoder.encode(searchWord.trim().replaceAll("\\s+", " "), StandardCharsets.UTF_8);
+        String searchPrefix;
+
+        switch (searchType) {
+            case "author":
+                searchPrefix = "inauthor:";
+                break;
+            case "isbn":
+                searchPrefix = "isbn:";
+                break;
+            default:
+                searchPrefix = "intitle:";
+                break;
+        }
+
+        String url = ApiPath.GOOGLE_BOOK_BASE
+                + "?key=" + env.getProperty("api.google.books.key")
+                + "&printType=" + "books"
+                + "&q=" + searchPrefix + normalizedSearchword;
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response ->
+                        Mono.error(new RuntimeException("**********Google Books API error: " + response.statusCode())))
+                .bodyToMono(GoogleBooksResponseDto.class)
+                .timeout(Duration.ofSeconds(30))
+                .flatMapMany(response -> {
+                    if (response.getItems() == null || response.getItems().isEmpty()) {
+                        return Flux.empty();
+                    }
+
+                    // Convert to Flux and emit one by one
+                    return Flux.fromIterable(response.getItems())
+                            .map(this::mapToBookDto)
+                            .doOnNext(book -> System.out.println("**********Service emitting: " + book.getTitle()));
+                })
+                .onErrorResume(Exception.class, ex -> {
+                    System.err.println("**********Error in searchBooks: " + ex.getMessage());
+                    ex.printStackTrace();
+                    return Flux.empty();
+                });
+
+    }
+
+    private BookDto mapToBookDto(GoogleBooksResponseDto.BookItem item){
+        GoogleBooksResponseDto.VolumeInfo vi = item.getVolumeInfo();
+
+        List<String> authors = vi.getAuthors() != null ? vi.getAuthors() : List.of();
+        List<GoogleBooksResponseDto.IndustryIdentifier> ids =
+                vi.getIndustryIdentifiers() != null ? vi.getIndustryIdentifiers() : List.of();
+
+        return new BookDto(
+                item.getId(),
+                vi.getTitle(),
+                String.join(", ", authors),
+                vi.getImageLinks() != null ? vi.getImageLinks().getThumbnail() : "",
+                vi.getPublisher(),
+                vi.getPublishedDate(),
+                vi.getDescription(),
+                ids.size() > 0 ? ids.get(0).getIdentifier() : "",
+                ids.size() > 1 ? ids.get(1).getIdentifier() : ""
+        );
     }
 
 }

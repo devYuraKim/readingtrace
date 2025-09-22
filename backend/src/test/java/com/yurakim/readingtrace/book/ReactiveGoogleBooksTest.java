@@ -10,14 +10,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class GoogleBooksTest {
+public class ReactiveGoogleBooksTest {
 
     @Autowired
     private BookService bookService;
 
     @Test
     void testSearchBooks() {
-        bookService.searchBooks("title", "the divine comedy")
+        bookService.reactiveSearchBook("title", "the divine comedy")
                 .doOnNext(book -> System.out.println(book.getTitle() + " | " + book.getBookId()))
                 .blockLast();
     }
@@ -28,7 +28,7 @@ public class GoogleBooksTest {
         String searchWord = "the divine comedy";
 
         for (String type : searchTypes) {
-            bookService.searchBooks(type, searchWord)
+            bookService.reactiveSearchBook(type, searchWord)
                     .doOnNext(book -> {
                         assertNotNull(book.getBookId(), "Book ID should not be null");
                         assertNotNull(book.getTitle(), "Title should not be null");

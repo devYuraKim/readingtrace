@@ -11,4 +11,6 @@ public final class ApiPath {
     public static final String ADMIN = BASE + "/admin";
     public static final String BOOK = BASE + "/book";
 
+    public static final String GOOGLE_BOOK_BASE = "https://www.googleapis.com/books/v1/volumes";
+
 }
