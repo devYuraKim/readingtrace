@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
 import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
 import com.yurakim.readingtrace.book.dto.GoogleBooksResponseDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.entity.UserBook;
@@ -9,10 +10,12 @@ import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.book.spec.UserBookSpecs;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,8 +23,11 @@ import reactor.core.publisher.Mono;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
@@ -63,26 +69,54 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
-        String normalizedSearchword = URLEncoder.encode(searchWord.trim().replaceAll("\\s+", " "), StandardCharsets.UTF_8);
-        String searchPrefix;
-
-        switch (searchType) {
-            case "author":
-                searchPrefix = "inauthor:";
-                break;
-            case "isbn":
-                searchPrefix = "isbn:";
-                break;
-            default:
-                searchPrefix = "intitle:";
-                break;
-        }
+    public BookSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {
+        String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
+        String searchPrefix = switch (searchType) {
+            case "author" -> "inauthor:";
+            case "isbn" -> "isbn:";
+            default -> "intitle:";
+        };
 
         String url = ApiPath.GOOGLE_BOOK_BASE
                 + "?key=" + env.getProperty("api.google.books.key")
                 + "&printType=" + "books"
-                + "&q=" + searchPrefix + normalizedSearchword;
+                + "&q=" + searchPrefix + trimmedSerchWord
+                + "&maxResults=" + booksPerPage
+                + "&startIndex=" + startIndex;
+
+        RestClient client = RestClient.create();
+
+        //searchWord will be encoded here, no need to do it before; causes double encoding issue
+        GoogleBooksResponseDto response = client
+                .get()
+                .uri(url)
+                .retrieve()
+                .body(GoogleBooksResponseDto.class);
+
+        if(response.getItems() == null){
+            return new BookSearchResultDto(Collections.emptyList(), 0);
+        }
+
+        List<BookDto> books =  response.getItems().stream()
+            .map(this::mapToBookDto)
+            .collect(Collectors.toList());
+
+        return new BookSearchResultDto(books, response.getTotalItems());
+    }
+
+    @Override
+    public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
+        String trimmedSerchWord = URLEncoder.encode(searchWord.trim().replaceAll("\\s+", " "), StandardCharsets.UTF_8);
+        String searchPrefix = switch (searchType) {
+            case "author" -> "inauthor:";
+            case "isbn" -> "isbn:";
+            default -> "intitle:";
+        };
+
+        String url = ApiPath.GOOGLE_BOOK_BASE
+                + "?key=" + env.getProperty("api.google.books.key")
+                + "&printType=" + "books"
+                + "&q=" + searchPrefix + trimmedSerchWord;
 
         return webClient.get()
                 .uri(url)

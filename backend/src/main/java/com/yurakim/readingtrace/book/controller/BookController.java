@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.book.controller;
 
 import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
@@ -42,8 +43,13 @@ public class BookController {
         return ResponseEntity.ok(userBookList);
     }
 
+    @GetMapping(value="/searchBook")
+    public ResponseEntity<BookSearchResultDto> searchBook(@RequestParam String searchType, @RequestParam String searchWord, @RequestParam int startIndex, @RequestParam(name = "maxResults") int booksPerPage){
+        return ResponseEntity.ok(bookService.searchBook(searchType, searchWord, startIndex, booksPerPage));
+    }
+
     @GetMapping(value = "reactive/searchBook", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<BookDto>> searchBook(@RequestParam String searchType, @RequestParam String searchWord) {
+    public Flux<ServerSentEvent<BookDto>> reactiveSearchBook(@RequestParam String searchType, @RequestParam String searchWord) {
         System.out.println("Initial auth: " + SecurityContextHolder.getContext().getAuthentication());
 
         return Flux.defer(() ->
@@ -61,7 +67,7 @@ public class BookController {
                                             .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
                                 })
                                 .switchIfEmpty(
-                                        Mono.fromCallable(() -> SecurityContextHolder.getContext())
+                                        Mono.fromCallable(SecurityContextHolder::getContext)
                                                 .cast(SecurityContext.class)
                                                 .flatMapMany(securityContext -> {
                                                     System.out.println("Fallback auth: " + securityContext.getAuthentication());

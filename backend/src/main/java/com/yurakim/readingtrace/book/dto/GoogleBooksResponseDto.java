@@ -2,16 +2,19 @@ package com.yurakim.readingtrace.book.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
+@Data
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleBooksResponseDto {
-
+    private String kind;
+    private Integer totalItems;
     private List<BookItem> items;
 
     @Getter
@@ -19,7 +22,6 @@ public class GoogleBooksResponseDto {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class BookItem {
         private String id;
-
         @JsonProperty("volumeInfo")
         private VolumeInfo volumeInfo;
     }
@@ -34,7 +36,6 @@ public class GoogleBooksResponseDto {
         private String publisher;
         private String publishedDate;
         private String description;
-
         @JsonProperty("industryIdentifiers")
         private List<IndustryIdentifier> industryIdentifiers;
     }
