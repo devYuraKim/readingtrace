@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import StartByBookCollection from '@/components/StartByBookCollection';
 import StartByBookSearch from '@/components/StartByBookSearch';
+import StartByBookSearchReactive from '@/components/StartByBookSearchReactive';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,7 +24,7 @@ const router = createBrowserRouter(
 
       <Route path="/:id" element={<PrivateLayout />}>
         <Route index element={<StartByBookCollection />} />
-        <Route path="searchBook" element={<StartByBookSearch />} />
+        <Route path="searchBook" element={<StartByBookSearchReactive />} />
       </Route>
     </>,
   ),
