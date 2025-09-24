@@ -71,6 +71,15 @@ export function LoginForm({
     },
   });
 
+  const handleGoogleLogin = async () => {
+    try {
+      window.location.href =
+        'http://localhost:8080/oauth2/authorization/google';
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -130,7 +139,7 @@ export function LoginForm({
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full mt-3">
+                  <Button type="submit" className="w-full mt-3 cursor-pointer">
                     Log in
                   </Button>
                 </div>
@@ -140,30 +149,26 @@ export function LoginForm({
                     Or continue with
                   </span>
                 </div>
-
-                <div className="flex flex-col gap-4">
-                  <Button variant="outline" className="w-full">
-                    <img
-                      width="15"
-                      height="15"
-                      alt="Google logo"
-                      src={GoogleLogo}
-                    />
-                    Login with Google
-                  </Button>
-                </div>
-                <div className="text-center text-sm">
-                  Don&apos;t have an account?{' '}
-                  <NavLink
-                    to="/signup"
-                    className="underline underline-offset-4"
-                  >
-                    Sign up{' '}
-                  </NavLink>
-                </div>
               </div>
             </form>
           </Form>
+
+          <div className="flex flex-col gap-4 my-5">
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={handleGoogleLogin}
+            >
+              <img width="15" height="15" alt="Google logo" src={GoogleLogo} />
+              Login with Google
+            </Button>
+          </div>
+          <div className="text-center text-sm">
+            Don&apos;t have an account?{' '}
+            <NavLink to="/signup" className="underline underline-offset-4">
+              Sign up{' '}
+            </NavLink>
+          </div>
         </CardContent>
       </Card>
     </div>
