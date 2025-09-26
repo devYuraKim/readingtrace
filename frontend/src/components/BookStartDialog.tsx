@@ -1,4 +1,5 @@
 import React from 'react';
+import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,7 +21,7 @@ import BookVisibilitySelect from './BookVisibilitySelect';
 import { SingleDatePicker } from './SingleDatePicker';
 
 interface bookType {
-  id: string;
+  bookId: string;
   title: string;
   authors: string | null;
   imageLinks: string | null;
@@ -99,7 +100,7 @@ const BookStartDialog = ({
     const result = formSchema.safeParse(formValues);
     const payload = {
       userId: useAuthStore.getState().user?.userId,
-      bookId: book.id,
+      bookId: book.bookId,
       status: formValues.status,
       visibility: formValues.visibility,
       rating: formValues.rating,
@@ -107,8 +108,7 @@ const BookStartDialog = ({
       endDate: formValues.endDate,
     };
     console.log('payload', payload);
-
-    // apiClient.post('/book/add', payload);
+    apiClient.post('/book/add', payload);
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {

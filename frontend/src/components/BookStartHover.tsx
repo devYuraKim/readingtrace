@@ -5,15 +5,15 @@ import {
 } from '@/components/ui/hover-card';
 
 interface bookType {
-  id: string;
+  bookId: string;
   title: string;
   authors: string;
   imageLinks: string;
   publisher: string;
   publishedDate: string;
   description: string;
-  isbn_10: string;
-  isbn_13: string;
+  isbn10: string;
+  isbn13: string;
 }
 
 export default function BookStartHover({ book }: { book: bookType }) {

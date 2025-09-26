@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/carousel';
 
 interface bookType {
-  id: string;
+  bookId: string;
   title: string;
   authors: string;
   imageLinks: string;
@@ -27,7 +27,7 @@ const StartByBookCollection = () => {
   //static
   const books = [
     {
-      id: '1',
+      bookId: '1',
       title: 'A Clockwork Orange',
       authors: 'Anthony Burgess',
       imageLinks: '/a_clockwork_orange.jpg',
@@ -38,7 +38,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '2',
+      bookId: '2',
       title: 'Cats Cradle',
       authors: 'Kurt Vonnegut',
       imageLinks: '/cats_cradle.jpg',
@@ -49,7 +49,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '3',
+      bookId: '3',
       title: 'Metamorphosis',
       authors: 'Franz Kafka',
       imageLinks: '/metamorphosis.jpg',
@@ -60,7 +60,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '4',
+      bookId: '4',
       title: 'Of Human Bondage',
       authors: 'W. Somerset Maugham',
       imageLinks: '/of_human_bondage.jpg',
@@ -73,7 +73,7 @@ const StartByBookCollection = () => {
       isbn13: '9781407016450',
     },
     {
-      id: '5',
+      bookId: '5',
       title: 'Slaughterhouse Five',
       authors: 'Kurt Vonnegut',
       imageLinks: '/slaughterhouse_five.jpg',
@@ -84,7 +84,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '6',
+      bookId: '6',
       title: 'Steeppenwolf',
       authors: 'Hermann Hesse',
       imageLinks: '/steppenwolf.jpg',
@@ -95,7 +95,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '7',
+      bookId: '7',
       title: 'The Bhagavad Gita',
       authors: 'N/A',
       imageLinks: '/the_bhagavad_gita.jpg',
@@ -106,7 +106,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '8',
+      bookId: '8',
       title: 'The Castle',
       authors: 'Franz Kafka',
       imageLinks: '/the_castle.jpg',
@@ -117,7 +117,7 @@ const StartByBookCollection = () => {
       isbn13: '',
     },
     {
-      id: '9',
+      bookId: '9',
       title: 'The Trial',
       authors: 'Franz Kafka',
       publisher: 'Penguin Books Ltd (UK)',
@@ -153,7 +153,10 @@ const StartByBookCollection = () => {
         >
           <CarouselContent className="h-full">
             {books.map((book) => (
-              <CarouselItem key={book.id} className="md:basis-1/4 lg:basis-1/3">
+              <CarouselItem
+                key={book.bookId}
+                className="md:basis-1/4 lg:basis-1/3"
+              >
                 <Card className="cursor-pointer">
                   <CardContent
                     onClick={() => {
