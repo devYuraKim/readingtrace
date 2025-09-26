@@ -47,7 +47,8 @@ public class UserServiceImpl implements UserService {
                     userDto.setIsAccountLocked(user.getIsAccountLocked());
                     userDto.setAccountLockedAt(user.getAccountLockedAt());
                     userDto.setAccountUnlockedAt(user.getAccountUnlockedAt());
-                    userDto.setSignUpMethod(user.getSignUpMethod());
+                    userDto.setOAuth2Provider(user.getOAuth2Provider());
+                    userDto.setOAuth2Login(user.getOAuth2Login());
                     return userDto;
                 }
         ).toList();
@@ -75,7 +76,8 @@ public class UserServiceImpl implements UserService {
         userDto.setIsAccountLocked(user.getIsAccountLocked());
         userDto.setAccountLockedAt(user.getAccountLockedAt());
         userDto.setAccountUnlockedAt(user.getAccountUnlockedAt());
-        userDto.setSignUpMethod(user.getSignUpMethod());
+        userDto.setOAuth2Provider(user.getOAuth2Provider());
+        userDto.setOAuth2Login(user.getOAuth2Login());
 
         return userDto;
     }

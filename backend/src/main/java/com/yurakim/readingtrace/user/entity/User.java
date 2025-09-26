@@ -65,7 +65,12 @@ public class User extends BaseEntity {
     @JsonIgnore
     private LocalDateTime accountUnlockedAt;
 
+    @Column(name="o_auth2_login", nullable = false)
     @JsonIgnore
-    private String signUpMethod;
+    private Boolean oAuth2Login = false;
+
+    @Column(name="o_auth2_provider")
+    @JsonIgnore
+    private String oAuth2Provider;
 
 }

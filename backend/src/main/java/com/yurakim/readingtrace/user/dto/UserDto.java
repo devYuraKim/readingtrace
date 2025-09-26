@@ -22,6 +22,7 @@ public class UserDto {
     private Boolean isAccountLocked = false;
     private LocalDateTime accountLockedAt;
     private LocalDateTime accountUnlockedAt;
-    private String signUpMethod;
+    private Boolean oAuth2Login;
+    private String oAuth2Provider;
 
 }
