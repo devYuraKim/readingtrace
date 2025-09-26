@@ -42,8 +42,20 @@ const StartByBookSearch = () => {
     }
 
     const accessToken = useAuthStore.getState().accessToken ?? '';
-    const csrfToken = useAuthStore.getState().csrfToken ?? '';
-    console.log('tokens from global state', accessToken, csrfToken);
+
+    function getCookie(name: string) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return undefined;
+    }
+    const csrfToken = getCookie('XSRF-TOKEN') ?? '';
+    console.log(
+      'access from store: ',
+      accessToken,
+      ' | csrf from cookie: ',
+      csrfToken,
+    );
 
     try {
       const response = await fetch(
