@@ -20,8 +20,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -106,17 +104,18 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
-        String trimmedSerchWord = URLEncoder.encode(searchWord.trim().replaceAll("\\s+", " "), StandardCharsets.UTF_8);
+        String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
         String searchPrefix = switch (searchType) {
             case "author" -> "inauthor:";
             case "isbn" -> "isbn:";
             default -> "intitle:";
         };
+        String rawQuery = searchPrefix + trimmedSerchWord;
 
         String url = ApiPath.GOOGLE_BOOK_BASE
                 + "?key=" + env.getProperty("api.google.books.key")
                 + "&printType=" + "books"
-                + "&q=" + searchPrefix + trimmedSerchWord;
+                + "&q=" + rawQuery;
 
         return webClient.get()
                 .uri(url)
