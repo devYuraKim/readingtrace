@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Ignore compiled JS from TypeScript
+src/**/*.js
+src/**/*.js.map
+
+*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

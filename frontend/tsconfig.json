@@ -10,7 +10,11 @@
     "skipLibCheck": true, //skips type checking for external libraries
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] } //
+    "paths": { "@/*": ["./src/*"] },
+
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false
   },
   "include": ["src/**/*"] //only compile files in the src
 }
