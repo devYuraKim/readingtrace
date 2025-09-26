@@ -6,7 +6,6 @@ import com.yurakim.readingtrace.auth.dto.PasswordResetDto;
 import com.yurakim.readingtrace.auth.dto.SignupDto;
 import com.yurakim.readingtrace.auth.entity.PasswordResetToken;
 import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
-import com.yurakim.readingtrace.auth.repository.RefreshTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.util.EmailService;
@@ -41,14 +40,12 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
-    private static final String ROLE_USER = "USER";
-
+    private static final String ROLE_USER = "ROLE_USER";
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     @Lazy
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     @Lazy
