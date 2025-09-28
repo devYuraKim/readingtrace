@@ -59,7 +59,7 @@ const StartByBookSearch = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1/book/reactive/searchBook?searchType=${searchType}&searchWord=${searchWord}`,
+        `/api/v1/book/reactive/searchBook?searchType=${searchType}&searchWord=${searchWord}`,
         {
           headers: {
             Authorization: accessToken,
