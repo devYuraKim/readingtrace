@@ -11,7 +11,6 @@ spring:
   config:
     activate:
       on-profile: prod
-    import: "optional:application-secret.yml"
   output:
     ansi:
       enabled: ${ANSI_ENABLED:never}
@@ -66,6 +65,12 @@ logging:
   pattern:
     file: ${LOG_PATTERN:%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
     console: ${CONSOLE_LOG_PATTERN:%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
+
+jwt:
+  issuer: readingtrace
+  expiration-hours: 12
+  access-expiration-minutes: 15
+  refresh-expiration-days: 7
 
 frontend:
   url: https://readingtrace.site
