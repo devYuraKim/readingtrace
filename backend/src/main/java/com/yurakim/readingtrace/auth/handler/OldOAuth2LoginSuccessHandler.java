@@ -9,7 +9,8 @@ import com.yurakim.readingtrace.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,12 +29,13 @@ import java.util.stream.Collectors;
 //TODO: handle edge case where a user signs up with the same email via both OAuth2 and normal password signup.
 //TODO: create a role mapping helper
 //TODO: manage constants ROLE_USER, FRONTEND_URL in single source
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class OldOAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-    private static final String ROLE_USER = "USER";
-    private static final String FRONTEND_URL = "http://localhost:5173";
+    @Value("${frontend.url}")
+    private String frontendUrl;
+    private static final String ROLE_USER = "ROLE_USER";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -88,7 +90,7 @@ public class OldOAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticatio
             SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
             String jwt = jwtService.generateJwt(updatedAuthentication);
             response.addHeader(JWT.JWT_HEADER, JWT.JWT_PREFIX + jwt);
-            getRedirectStrategy().sendRedirect(request, response, FRONTEND_URL);
+            getRedirectStrategy().sendRedirect(request, response, frontendUrl);
             return;
         }
         throw new IllegalStateException("Unsupported OAuth2 provider: "

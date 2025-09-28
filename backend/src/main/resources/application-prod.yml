@@ -66,3 +66,8 @@ logging:
   pattern:
     file: ${LOG_PATTERN:%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
     console: ${CONSOLE_LOG_PATTERN:%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
+
+frontend:
+  url: https://readingtrace.site
+cors:
+  allowed-origins: ${frontend.url}

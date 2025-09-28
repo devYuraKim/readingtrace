@@ -89,3 +89,8 @@ jwt:
   expiration-hours: 12
   access-expiration-minutes: 15
   refresh-expiration-days: 7
+
+frontend:
+  url: http://localhost:5173
+cors:
+  allowed-origins: ${frontend.url}

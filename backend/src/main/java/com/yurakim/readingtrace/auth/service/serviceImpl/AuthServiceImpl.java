@@ -16,6 +16,7 @@ import com.yurakim.readingtrace.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,6 +51,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     @Lazy
     private final EmailService emailService;
+    @Lazy
+    private final Environment env;
 
     @Override
     @Transactional
@@ -142,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
         PasswordResetToken passwordResetToken = new PasswordResetToken(token, expiryDate, user);
         passwordResetTokenRepository.save(passwordResetToken);
 
-        String resetUrl = "http://localhost:8080/forgot-password?token=" + token;
+        String resetUrl = env.getProperty("frontend.url")+"/forgot-password?token=" + token;
         emailService.sendPasswordRestEmail(user.getEmail(), resetUrl);
         return "Password reset token generated";
     }

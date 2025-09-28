@@ -12,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,7 +41,10 @@ import java.util.stream.Collectors;
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private static final String ROLE_USER = "ROLE_USER";
-    private static final String FRONTEND_URL = "http://localhost:5173/something";
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+    private String FRONTEND_URL = frontendUrl+"/something";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
