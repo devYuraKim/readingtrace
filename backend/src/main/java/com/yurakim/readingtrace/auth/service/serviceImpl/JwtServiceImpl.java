@@ -21,7 +21,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -30,6 +32,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -66,6 +69,25 @@ public class JwtServiceImpl implements JwtService {
                 .expiration(expiry)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    @Override
+    public void validateAccessToken(String accessToken) {
+        String secret = environment.getProperty(JWT.ACCESS_SECRET_KEY_PROPERTY);
+        SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        try{
+            Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
+            String email = claims.getSubject();
+            Number userIdNumber = (Number) claims.get("userId");
+            Long userId = userIdNumber.longValue();
+            List<String> roles = (List<String>) claims.get("roles");
+
+            UserDetailsImpl userDetails = new UserDetailsImpl(userId, email, null, AuthorityUtils.createAuthorityList(roles));
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }catch(JwtException e){
+            throw new JwtException("Invalid access token received", e);
+        }
     }
 
     //TODO: separate refresh token related logic to RefreshTokenService

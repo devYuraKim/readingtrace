@@ -1,10 +1,11 @@
 package com.yurakim.readingtrace.auth.config;
 
-import com.yurakim.readingtrace.auth.filter.JWTValidatorFilter;
+import com.yurakim.readingtrace.auth.filter.AccessTokenValidatorFilter;
 import com.yurakim.readingtrace.auth.handler.AccessDeniedHandlerImpl;
 import com.yurakim.readingtrace.auth.handler.AuthenticationEntryPointImpl;
 import com.yurakim.readingtrace.auth.handler.OAuth2LoginSuccessHandler;
 import com.yurakim.readingtrace.auth.security.AuthenticationProviderImpl;
+import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -55,6 +56,7 @@ public class SecurityConfig {
     };
 
     private final Environment environment;
+    private final JwtService jwtService;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
     private UserDetailsService userDetailsService;
@@ -72,11 +74,13 @@ public class SecurityConfig {
         //CSRF
         http.csrf(csrf -> csrf
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/support/**")
+        );
 
         //TODO: check if filter sequence matter here
         //JWT validation filter
-        http.addFilterBefore(new JWTValidatorFilter(environment), AuthorizationFilter.class);
+        http.addFilterBefore(new AccessTokenValidatorFilter(jwtService), AuthorizationFilter.class);
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
