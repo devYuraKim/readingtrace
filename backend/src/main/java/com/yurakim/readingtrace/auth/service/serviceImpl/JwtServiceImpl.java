@@ -23,7 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -72,7 +71,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void validateAccessToken(String accessToken) {
+    public Authentication validateAccessToken(String accessToken) {
         String secret = environment.getProperty(JWT.ACCESS_SECRET_KEY_PROPERTY);
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         try{
@@ -83,8 +82,7 @@ public class JwtServiceImpl implements JwtService {
             List<String> roles = (List<String>) claims.get("roles");
 
             UserDetailsImpl userDetails = new UserDetailsImpl(userId, email, null, AuthorityUtils.createAuthorityList(roles));
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         }catch(JwtException e){
             throw new JwtException("Invalid access token received", e);
         }

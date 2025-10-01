@@ -10,7 +10,7 @@ public interface JwtService {
 
     String generateAccessToken(Authentication authentication);
 
-    void validateAccessToken(String token);
+    Authentication validateAccessToken(String token);
 
     String generateRefreshToken(User user, LocalDateTime rotateExpiry);
 

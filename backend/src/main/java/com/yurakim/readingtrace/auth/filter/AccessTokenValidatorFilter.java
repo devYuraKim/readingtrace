@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,7 +30,8 @@ public class AccessTokenValidatorFilter extends OncePerRequestFilter {
         if (headerValue != null && headerValue.startsWith(JWT.JWT_PREFIX)) {
             String accessToken = headerValue.substring(JWT.JWT_PREFIX.length());
             try {
-                jwtService.validateAccessToken(accessToken);
+                Authentication authentication = jwtService.validateAccessToken(accessToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
                 throw new BadCredentialsException("Invalid token received: ", e);
             }
