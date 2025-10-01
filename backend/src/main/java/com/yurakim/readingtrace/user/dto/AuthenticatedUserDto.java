@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 public class AuthenticatedUserDto {
 
-    private Long id;
+    private Long userId;
     private String email;
     private Set<Role> roles;
 

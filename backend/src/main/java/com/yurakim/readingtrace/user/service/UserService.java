@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface UserService {
 
-    LoginResponseDto getUser(Long id, String email);
+    LoginResponseDto getUser(Long userId, String email);
 
     List<UserDto> getAllUsers();
 
-    UserDto updateUserRoles(Long id, List<String> roleList);
+    UserDto updateUserRoles(Long userId, List<String> roleList);
 
     AuthenticatedUserDto getAuthenticatedUser(String email);
 

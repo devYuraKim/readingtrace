@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     public AuthenticatedUserDto getAuthenticatedUser(String email) {
         User userRecord = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         AuthenticatedUserDto user = new AuthenticatedUserDto();
-        user.setId(userRecord.getId());
+        user.setUserId(userRecord.getId());
         user.setEmail(userRecord.getEmail());
         user.setRoles(userRecord.getRoles());
         return user;
