@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthStore';
+import { NavLink, useNavigate } from 'react-router-dom';
 import BookStartDialog from '@/components/BookStartDialog';
 import BookStartHover from '@/components/BookStartHover';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { Button } from './ui/button';
 
 interface bookType {
   bookId: string;
@@ -132,8 +134,20 @@ const StartByBookCollection = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState<bookType | null>(null);
 
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+
+  const handleButtonClick = () => {
+    if (!user?.userId) {
+      navigate('/login');
+      return;
+    }
+    navigate('supportChat');
+  };
+
   return (
     <div className="relative flex flex-1 flex-col items-center justify-start mt-20">
+      <Button onClick={handleButtonClick}>Start a Chat</Button>
       <div className="relative z-1 flex flex-col items-center justify-center">
         {/* TODO: Conditional rendering based on data availability */}
         <h2 className="mb-10 !p-0 text-center !text-3xl leading-none !font-bold text-black">

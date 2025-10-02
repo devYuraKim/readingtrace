@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -48,6 +48,7 @@ public class SecurityConfig {
             "/error",
             "/actuator/health",
             "/oauth2/**",
+            "/support",
     };
 
     private static final String[] PROTECTED_ENDPOINTS = {
@@ -80,7 +81,7 @@ public class SecurityConfig {
 
         //TODO: check if filter sequence matter here
         //JWT validation filter
-        http.addFilterBefore(new AccessTokenValidatorFilter(jwtService), AuthorizationFilter.class);
+        http.addFilterBefore(new AccessTokenValidatorFilter(jwtService), AnonymousAuthenticationFilter.class);
 
         //CORS
         http.cors(cors -> cors.configurationSource(request -> {
