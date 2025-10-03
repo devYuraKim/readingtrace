@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketStompConfig implements WebSocketMessageBrokerConfigurer {
+public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtService jwtService;
     private final Environment environment;

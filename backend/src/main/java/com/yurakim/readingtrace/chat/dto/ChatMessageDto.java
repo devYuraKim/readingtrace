@@ -1,15 +1,16 @@
 package com.yurakim.readingtrace.chat.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
-public class ChatMessage {
+@ToString
+public class ChatMessageDto {
     private String sender;
     private String recipient;
     private String content;
+    private LocalDateTime timestamp;
     private String type; //CHAT, JOIN, LEAVE, etc
 }

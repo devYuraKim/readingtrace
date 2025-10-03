@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Client } from '@stomp/stompjs';
-import SupportSessions from './SupportSessions';
 import { Button } from './ui/button';
 
 function SupportChat() {
@@ -23,12 +22,12 @@ function SupportChat() {
         Authorization: `Bearer ${getBearerToken(accessToken ?? '')}`,
       },
       onConnect: () => {
-        stompClient.subscribe('/topic/support', (message) => {
+        stompClient.subscribe('/queue/sessions', (message) => {
           const data = JSON.parse(message.body);
           console.log(data);
         });
         stompClient.publish({
-          destination: '/app/support.sendMessage',
+          destination: '/app/sessions',
           body: JSON.stringify({
             sender: 'USER ID HERE',
             recipient: 'ADMIN ID HERE',
@@ -44,8 +43,7 @@ function SupportChat() {
   return (
     <div>
       <h1>SupportChat</h1>
-      <Button onClick={handleChatStart}>Start Chat</Button>
-      <SupportSessions />
+      <Button onClick={handleChatStart}>Check Sessions</Button>
     </div>
   );
 }
