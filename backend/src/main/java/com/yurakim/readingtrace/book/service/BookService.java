@@ -10,6 +10,7 @@ import java.util.List;
 public interface BookService {
 
     void addUserBook(UserBookDto userBookDto);
+    UserBookDto getUserBook(Long userId, String bookId);
 
     List<UserBookDto> getUserBooks(Long userId, String status, String visibility, Integer rating);
 

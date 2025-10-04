@@ -33,6 +33,8 @@ public class BookServiceImpl implements BookService {
     private final WebClient webClient;
     private final Environment env;
 
+    //TODO: URGENT mapper
+
     @Override
     public void addUserBook(UserBookDto userBookDto) {
         UserBook userBook = new UserBook();
@@ -41,7 +43,23 @@ public class BookServiceImpl implements BookService {
         userBook.setStatus(userBookDto.getStatus());
         userBook.setVisibility(userBookDto.getVisibility());
         userBook.setRating(userBookDto.getRating());
+        userBook.setStartDate(userBookDto.getStartDate());
+        userBook.setEndDate(userBookDto.getEndDate());
         userBookRepository.save(userBook);
+    }
+
+    @Override
+    public UserBookDto getUserBook(Long userId, String bookId) {
+        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
+        UserBookDto userBookDto = new UserBookDto();
+        userBookDto.setUserId(userBook.getUserId());
+        userBookDto.setBookId(userBook.getBookId());
+        userBookDto.setStatus(userBook.getStatus());
+        userBookDto.setVisibility(userBook.getVisibility());
+        userBookDto.setRating(userBook.getRating());
+        userBookDto.setStartDate(userBook.getStartDate());
+        userBookDto.setEndDate(userBook.getEndDate());
+        return userBookDto;
     }
 
     @Override
