@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -64,7 +65,56 @@ const BookStartDialog = ({
   onOpenChange: (open: boolean) => void;
   book: bookType;
 }) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const userId = useAuthStore.getState().user?.userId;
+  const queryClient = useQueryClient();
+
+  const {
+    data: existingUserBook,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['userBook', userId, book.bookId],
+    queryFn: async () => {
+      const res = await apiClient.get(`/users/${userId}/books/${book.bookId}`);
+      return res.data;
+    },
+    enabled: !!userId && !!book.bookId && open,
+  });
+
+  const addBookMutation = useMutation({
+    mutationFn: async (payload: FormValues) => {
+      await apiClient.post(`/users/${userId}/books/${book.bookId}`, {
+        ...payload,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Book added/updated successfully');
+      queryClient.invalidateQueries({
+        queryKey: ['userBook', userId, book.bookId],
+      });
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error('Failed to add/update book');
+    },
+  });
+
+  const updateBookMutation = useMutation({
+    mutationFn: (payload: FormValues) =>
+      apiClient.put(`/users/${userId}/books/${book.bookId}`, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['userBook', userId, book.bookId],
+      });
+      toast.success('Book updated successfully!');
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error('Failed to update book');
+    },
+  });
+
   const defaultFormValues: FormValuesWithPlaceholder = {
     status: '',
     visibility: '',
@@ -73,42 +123,48 @@ const BookStartDialog = ({
     endDate: '',
   };
 
-  const [formValues, setFormValues] =
-    React.useState<FormValuesWithPlaceholder>(defaultFormValues);
+  const initialValues = existingUserBook
+    ? {
+        status: existingUserBook.status || '',
+        visibility: existingUserBook.visibility || '',
+        rating: existingUserBook.rating || '',
+        startDate: existingUserBook.startDate
+          ? new Date(existingUserBook.startDate)
+          : '',
+        endDate: existingUserBook.endDate
+          ? new Date(existingUserBook.endDate)
+          : '',
+      }
+    : defaultFormValues;
 
-  // TODO: Fix value type any
-  const handleChange = (field: keyof FormValues, value: any) => {
+  const [formValues, setFormValues] = useState(initialValues);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setFormValues(initialValues); // Reset on close
+    }
+    onOpenChange(open);
+  };
+
+  const handleChange = (field: keyof FormValues, value: FormValues) => {
     setFormValues((prev) => {
       const updated = { ...prev, [field]: value };
       const { startDate, endDate } = updated;
       if (startDate && endDate && startDate > endDate) {
         toast.error('Start date should be before end date');
-        return prev; // reject the change
+        return prev;
       }
-
       return updated;
     });
   };
 
   const handleReset = () => {
     setFormValues(defaultFormValues);
-    onOpenChange(true);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = formSchema.safeParse(formValues);
-    const payload = {
-      userId: useAuthStore.getState().user?.userId,
-      bookId: book.bookId,
-      status: formValues.status,
-      visibility: formValues.visibility,
-      rating: formValues.rating,
-      startDate: formValues.startDate,
-      endDate: formValues.endDate,
-    };
-    console.log('payload', payload);
-    apiClient.post('/book/add', payload);
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {
@@ -116,15 +172,25 @@ const BookStartDialog = ({
         const message = issue.message;
         toast.error(`${fieldName}: ${message}`);
       });
-    } else {
-      console.log(result.data);
-      setFormValues(defaultFormValues);
-      onOpenChange(false);
+      return;
     }
+
+    const payload = {
+      status: formValues.status,
+      visibility: formValues.visibility,
+      rating: formValues.rating,
+      startDate: formValues.startDate,
+      endDate: formValues.endDate,
+    };
+
+    if (existingUserBook) {
+      updateBookMutation.mutate(payload);
+    }
+    addBookMutation.mutate(payload);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="grid grid-cols-3">
@@ -254,7 +320,7 @@ const BookStartDialog = ({
               </Button>
             </DialogClose>
             <Button type="submit" className="cursor-pointer">
-              Add Book
+              {existingUserBook ? 'Update Book' : 'Add Book'}
             </Button>
           </DialogFooter>
         </form>

@@ -4,6 +4,8 @@ import com.yurakim.readingtrace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity
@@ -26,4 +28,8 @@ public class UserBook extends BaseEntity {
     private String visibility;
 
     private Integer rating;
+
+    private Date startDate;
+    
+    private Date endDate;
 }
