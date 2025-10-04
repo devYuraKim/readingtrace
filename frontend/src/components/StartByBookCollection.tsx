@@ -181,6 +181,13 @@ const StartByBookCollection = () => {
                     <BookStartHover book={book} />
                   </CardContent>
                 </Card>
+
+                <BookStartDialog
+                  key={book.bookId}
+                  open={dialogOpen && selectedBook?.bookId === book.bookId}
+                  onOpenChange={setDialogOpen}
+                  book={book}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -190,6 +197,7 @@ const StartByBookCollection = () => {
 
         {selectedBook && (
           <BookStartDialog
+            key={selectedBook.bookId}
             open={dialogOpen}
             onOpenChange={setDialogOpen}
             book={selectedBook}
