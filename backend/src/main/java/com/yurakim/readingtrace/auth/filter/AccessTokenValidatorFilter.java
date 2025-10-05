@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.auth.filter;
 
 import com.yurakim.readingtrace.auth.constant.JWT;
+import com.yurakim.readingtrace.auth.exception.AccessTokenException;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import jakarta.servlet.FilterChain;
@@ -8,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -32,8 +32,18 @@ public class AccessTokenValidatorFilter extends OncePerRequestFilter {
             try {
                 Authentication authentication = jwtService.validateAccessToken(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (AccessTokenException e){
+                if ("EXPIRED".equals(e.getCode())) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); //throw 401
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
+                    return; // Don't continue the filter chain
+                }
             } catch (Exception e) {
-                throw new BadCredentialsException("Invalid token received: ", e);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Authentication failed\"}");
+                return;
             }
         }
         filterChain.doFilter(request, response);

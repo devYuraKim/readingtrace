@@ -11,6 +11,7 @@ import {
 import StartByBookCollection from '@/components/StartByBookCollection';
 import StartByBookSearch from '@/components/StartByBookSearch';
 import StartByBookSearchReactive from '@/components/StartByBookSearchReactive';
+import SupportChat from '@/components/SupportChat';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,9 +23,10 @@ const router = createBrowserRouter(
         <Route index element={<Landing />} />
       </Route>
 
-      <Route path="/:id" element={<PrivateLayout />}>
+      <Route path="/:userId" element={<PrivateLayout />}>
         <Route index element={<StartByBookCollection />} />
         <Route path="searchBook" element={<StartByBookSearchReactive />} />
+        <Route path="supportChat" element={<SupportChat />} />
       </Route>
     </>,
   ),

@@ -3,6 +3,7 @@ package com.yurakim.readingtrace.auth.service.serviceImpl;
 import com.yurakim.readingtrace.auth.constant.JWT;
 import com.yurakim.readingtrace.auth.entity.entity.RefreshToken;
 import com.yurakim.readingtrace.auth.enums.InvalidationCause;
+import com.yurakim.readingtrace.auth.exception.AccessTokenException;
 import com.yurakim.readingtrace.auth.exception.RefreshTokenException;
 import com.yurakim.readingtrace.auth.repository.RefreshTokenRepository;
 import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
@@ -75,12 +76,22 @@ public class JwtServiceImpl implements JwtService {
         String secret = environment.getProperty(JWT.ACCESS_SECRET_KEY_PROPERTY);
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         try{
+            //1.check signature
+            //throws JwtException if gone wrong
             Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
+            //2.check expiration
+            if(claims.getExpiration().before(new Date())){
+                throw new AccessTokenException("EXPIRED", "Access token expired");
+            }
+            //3.check issuer
+            if(!environment.getProperty(JWT.JWT_ISSUER_PROPERTY).equals(claims.getIssuer())){
+                throw new AccessTokenException("INVALID_ISSUER", "Invalid issuer");
+            }
+            //Build Authentication
             String email = claims.getSubject();
             Number userIdNumber = (Number) claims.get("userId");
             Long userId = userIdNumber.longValue();
             List<String> roles = (List<String>) claims.get("roles");
-
             UserDetailsImpl userDetails = new UserDetailsImpl(userId, email, null, AuthorityUtils.createAuthorityList(roles));
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         }catch(JwtException e){

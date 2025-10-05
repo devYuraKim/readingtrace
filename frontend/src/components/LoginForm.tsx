@@ -46,7 +46,7 @@ export function LoginForm({
   function onSubmit(values: z.infer<typeof formSchema>) {
     mutateAsync(values)
       .then(() => {
-        navigate('/something');
+        toast.success('Logged in successfully');
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -67,6 +67,7 @@ export function LoginForm({
       const accessToken = res.headers['authorization'];
       const user = res.data;
       setAuth(user, accessToken);
+      navigate(`/${user.userId}`);
       console.log(useAuthStore.getState());
     },
   });

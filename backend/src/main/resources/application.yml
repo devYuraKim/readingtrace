@@ -76,6 +76,8 @@ logging:
     org.springframework.web: ${WEB_LOG_LEVEL:DEBUG}
     org.springframework.transaction: ${TRANSACTION_LOG_LEVEL:DEBUG}
     com.yurakim.readingtrace: ${APP_LOG_LEVEL:DEBUG}
+    org.springframework.web.socket: ${WEBSOCKET_LOG_LEVEL:DEBUG}
+    org.springframework.messaging.simp: ${SIMPLE_LOG_LEVEL:DEBUG}
   file:
     name: ${LOG_FILE:}
   pattern:
