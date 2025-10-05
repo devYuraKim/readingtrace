@@ -48,7 +48,7 @@ public class SecurityConfig {
             "/error",
             "/actuator/health",
             "/oauth2/**",
-            "/support",
+            "/ws",
     };
 
     private static final String[] PROTECTED_ENDPOINTS = {

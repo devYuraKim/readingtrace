@@ -31,22 +31,14 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        //expose a STOMP endpoint at /support
-        registry.addEndpoint("/support")
+        registry.addEndpoint("/ws")
                 .setAllowedOrigins(environment.getProperty("frontend.url"));
-        //TODO: check if the following setups are necessary
-        //.setAllowedOrigins("*")
-        //.withSockJS();
+                //.withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // STOMP messages whose destination header begins with /app
-        // are routed to @MessageMapping methods in @Controller classes
         registry.setApplicationDestinationPrefixes("/app");
-        // Outgoing messages prefixed with /topic or /queue are handled by simple broker
-        // For built-in simple broker, prefixes do not have special meaning
-        // But external brokers supports different STOMP destinations and prefixes
         registry.enableSimpleBroker("/topic", "/queue");
     }
 

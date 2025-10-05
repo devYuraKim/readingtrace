@@ -32,8 +32,7 @@ public class StompController {
     @MessageMapping("/support.sendMessage")
     @SendTo("/topic/support")
     public ChatMessageDto supportChat(Message<ChatMessageDto> message){
-        log.info("message: {}", message);
-        return null;
+        return message.getPayload();
     }
 
     @MessageMapping("/sessions")

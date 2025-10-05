@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Client } from '@stomp/stompjs';
 import { Button } from './ui/button';
@@ -8,7 +7,7 @@ function SupportChat() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // const host = window.location.host;
     const host = 'localhost:8080';
-    return `${protocol}//${host}/support`;
+    return `${protocol}//${host}/ws`;
   };
 
   const accessToken = useAuthStore((state) => state.accessToken);
