@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -24,56 +26,79 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-const formSchema = z.object({
-  email: z.email('Enter a valid email address'),
-  password: z
-    .string()
-    .min(6, { message: 'Password must be at least 6 characters' }),
-});
+const signupFormSchema = z
+  .object({
+    email: z.email('Enter a valid email address'),
+    password: z
+      .string()
+      .regex(/^\S*$/, { message: 'Password cannot contain spaces' })
+      .trim()
+      .min(6, { message: 'Password must be at least 6 characters' }),
+    confirmPassword: z.string().trim(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'], // Assign the error to the confirmPassword field
+  });
+
+type signupForm = z.infer<typeof signupFormSchema>;
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+
+  const form = useForm<signupForm>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
     },
+    mode: 'onBlur',
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: signupForm) {
     mutateAsync(values)
       .then(() => {
         toast.success('Account created successfully', {
           duration: 1500,
           closeButton: false,
         });
+        navigate('/login');
       })
       .catch((error) => {
-        toast.error(error.response.data.message);
+        const errorMessage =
+          error.response?.data?.message ||
+          'An unexpected error occurred during signup.';
+        toast.error(errorMessage);
       });
   }
 
   const { mutateAsync } = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const { data } = await apiClient.post('/auth/signup', {
+    mutationFn: async (values: signupForm) => {
+      await apiClient.post('/auth/signup', {
         email: values.email,
         password: values.password,
       });
     },
-    onSuccess: (data) => {
-      console.log(data);
-    },
   });
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create your account</CardTitle>
-          <CardDescription>Join our community of readers</CardDescription>
+          <CardDescription>
+            Join and connect with our community of readers
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -110,13 +135,74 @@ export function SignupForm({
                         <FormItem>
                           <div className="grid gap-3">
                             <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="password"
-                                placeholder="Must be at least 6 characters"
-                                {...field}
-                              />
-                            </FormControl>
+                            <div className="relative">
+                              <FormControl>
+                                <Input
+                                  type={showPassword ? 'text' : 'password'}
+                                  placeholder="Must be at least 6 characters"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                                onClick={togglePasswordVisibility}
+                                aria-label={
+                                  showPassword
+                                    ? 'Hide password'
+                                    : 'Show password'
+                                }
+                              >
+                                {showPassword ? (
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
+                            <FormMessage />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="grid gap-3">
+                            <FormLabel>Confirm Password</FormLabel>
+                            <div className="relative">
+                              <FormControl>
+                                <Input
+                                  type={showPassword ? 'text' : 'password'}
+                                  placeholder="Must match your  password"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                                onClick={togglePasswordVisibility}
+                                aria-label={
+                                  showPassword
+                                    ? 'Hide password'
+                                    : 'Show password'
+                                }
+                              >
+                                {showPassword ? (
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
                             <FormMessage />
                           </div>
                         </FormItem>
