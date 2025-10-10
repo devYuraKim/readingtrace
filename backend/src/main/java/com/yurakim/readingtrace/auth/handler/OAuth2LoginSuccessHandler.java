@@ -1,7 +1,6 @@
 package com.yurakim.readingtrace.auth.handler;
 
 import com.yurakim.readingtrace.auth.constant.JWT;
-import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
@@ -13,15 +12,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 //TODO: handle edge case where a user signs up with the same email via both OAuth2 and normal password signup.
 //TODO: create a role mapping helper
@@ -44,7 +38,6 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
     @Value("${frontend.url}")
     private String frontendUrl;
-    private String FRONTEND_URL = frontendUrl+"/something";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -61,66 +54,38 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             String email = attributes.getOrDefault("email", "").toString();
             String idAttributeKey = "sub";
 
-            Authentication newAuthentication;
             Optional<User> optExistingUser = userRepository.findByEmail(email);
+            User user;
+
             if(optExistingUser.isPresent()){
-                User existingUser = optExistingUser.get();
-                existingUser.setLastLoginAt(LocalDateTime.now());
-                existingUser.setOAuth2Login(true);
-                existingUser.setOAuth2Provider(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
-                userRepository.save(existingUser);
-
-                UserDetailsImpl userDetails = new UserDetailsImpl(existingUser.getId(), existingUser.getEmail(), existingUser.getPassword(), existingUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()));
-                newAuthentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                String accessToken = jwtService.generateAccessToken(newAuthentication);
-                String rawRefreshToken  = jwtService.generateRefreshToken(existingUser, null);
-
-                response.addHeader(JWT.JWT_HEADER, JWT.JWT_PREFIX + accessToken);
-                //TODO: refactor token setting code (repeating auth controller logic)
-                //TODO: return user information
-                Cookie refreshTokenCookie = new Cookie(JWT.REFRESH_TOKEN_COOKIE_NAME, rawRefreshToken);
-                refreshTokenCookie.setHttpOnly(true);
-                refreshTokenCookie.setPath("/");
-                //refreshTokenCookie.setPath(ApiPath.AUTH+"/refresh");
-                refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-                response.addCookie(refreshTokenCookie);
+                //existing user
+                user = optExistingUser.get();
+                user.setLastLoginAt(LocalDateTime.now());
+                user.setOAuth2Login(true);
+                user.setOAuth2Provider(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
             }else{
-
-                User newUser = new User();
-                newUser.setEmail(email);
-                newUser.setPassword("{noop}OAUTH2_USER");
-                newUser.setLastLoginAt(LocalDateTime.now());
-                newUser.setOAuth2Login(true);
-                newUser.setOAuth2Provider(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
+                //new user
+                user = new User();
+                user.setEmail(email);
+                user.setPassword("{noop}OAUTH2_USER");
+                user.setLastLoginAt(LocalDateTime.now());
+                user.setOAuth2Login(true);
+                user.setOAuth2Provider(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
                 Set<Role> roles = new HashSet<>();
                 roles.add(roleRepository.findByName(ROLE_USER).get());
-                newUser.setRoles(roles);
-                userRepository.save(newUser);
-
-                UserDetailsImpl userDetails = new UserDetailsImpl(newUser.getId(), newUser.getEmail(), newUser.getPassword(), newUser.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet()));
-                newAuthentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                String accessToken = jwtService.generateAccessToken(newAuthentication);
-                String rawRefreshToken  = jwtService.generateRefreshToken(newUser, null);
-
-                response.addHeader(JWT.JWT_HEADER, JWT.JWT_PREFIX + accessToken);
-                //TODO: refactor token setting code (repeating auth controller logic)
-                //TODO: return user information
-                Cookie refreshTokenCookie = new Cookie(JWT.REFRESH_TOKEN_COOKIE_NAME, rawRefreshToken);
-                refreshTokenCookie.setHttpOnly(true);
-                refreshTokenCookie.setPath("/");
-                //refreshTokenCookie.setPath(ApiPath.AUTH+"/refresh");
-                refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-                response.addCookie(refreshTokenCookie);
+                user.setRoles(roles);
             }
+            userRepository.save(user);
 
-            CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-            csrfTokenRepository.saveToken(csrfToken, request, response);
-            response.setHeader("X-CSRF-TOKEN", csrfToken.getToken());
+            String rawRefreshToken  = jwtService.generateRefreshToken(user, null);
+            Cookie refreshTokenCookie = new Cookie(JWT.REFRESH_TOKEN_COOKIE_NAME, rawRefreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
+            //refreshTokenCookie.setPath(ApiPath.AUTH+"/refresh");
+            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+            response.addCookie(refreshTokenCookie);
 
-            SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-            getRedirectStrategy().sendRedirect(request, response, FRONTEND_URL);
+            getRedirectStrategy().sendRedirect(request, response, frontendUrl+"/oauth2/callback");
             return;
         }
         throw new IllegalStateException("Unsupported OAuth2 provider: "

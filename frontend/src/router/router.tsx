@@ -8,9 +8,9 @@ import {
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
+import OAuth2Callback from '@/components/OAuth2Callback';
 import StartByBookCollection from '@/components/StartByBookCollection';
 import StartByBookSearch from '@/components/StartByBookSearch';
-import StartByBookSearchReactive from '@/components/StartByBookSearchReactive';
 import SupportChat from '@/components/SupportChat';
 
 const router = createBrowserRouter(
@@ -18,6 +18,7 @@ const router = createBrowserRouter(
     <>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/oauth2/callback" element={<OAuth2Callback />} />
 
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Landing />} />
@@ -25,7 +26,7 @@ const router = createBrowserRouter(
 
       <Route path="/:userId" element={<PrivateLayout />}>
         <Route index element={<StartByBookCollection />} />
-        <Route path="searchBook" element={<StartByBookSearchReactive />} />
+        <Route path="searchBook" element={<StartByBookSearch />} />
         <Route path="supportChat" element={<SupportChat />} />
       </Route>
     </>,

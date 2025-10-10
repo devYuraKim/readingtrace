@@ -74,7 +74,9 @@ export function LoginForm({
 
   const handleGoogleLogin = async () => {
     try {
-      window.location.href = '/api/oauth2/authorization/google';
+      //TODO: check if URI works in deployment
+      window.location.href =
+        'http://localhost:8080/oauth2/authorization/google';
     } catch (error) {
       console.log(error);
     }

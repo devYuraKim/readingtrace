@@ -2,6 +2,16 @@ import { useAuthStore } from '@/store/useAuthStore';
 import axios from 'axios';
 import { decodeAccessToken } from '@/lib/jwt';
 
+const getBearerToken = (token: string) =>
+  token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return undefined;
+}
+
 export const apiClient = axios.create({
   baseURL: '/api/v1',
   headers: {
@@ -11,13 +21,11 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
+//refreshClient is only for '/auth/refresh' and '/auth/csrf' endpoints
 const refreshClient = axios.create({
   baseURL: '/api/v1',
   withCredentials: true,
 });
-
-const getBearerToken = (token: string) =>
-  token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
 apiClient.interceptors.request.use(
   async (config) => {
@@ -29,7 +37,6 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = getBearerToken(token);
     }
-    console.log('api, request', useAuthStore.getState());
     return config;
   },
   (error) => {
@@ -37,35 +44,13 @@ apiClient.interceptors.request.use(
   },
 );
 
-refreshClient.interceptors.request.use(
-  async (config) => {
-    const xsrfToken = getCookie('XSRF-TOKEN');
-    if (xsrfToken) {
-      config.headers['X-XSRF-TOKEN'] = xsrfToken;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-refreshClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error?.response?.status === 401) {
-      console.log('INVALID REFRESH TOKEN');
-      useAuthStore.getState().clearAuth();
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  },
-);
-
 apiClient.interceptors.response.use(
+  // pass successful responses through
   (response) => {
-    return response; // pass successful responses through
+    return response;
   },
   async (error) => {
-    //Handle 403 CSRF
+    //Handle 403 response from the BE
     if (
       error?.response?.status === 403 &&
       error?.response?.data.error.includes('CSRF') &&
@@ -96,32 +81,35 @@ apiClient.interceptors.response.use(
               },
               newAccessToken,
             );
-
-            apiClient.defaults.headers.common['Authorization'] =
-              getBearerToken(newAccessToken);
-            error.config.headers['Authorization'] =
-              getBearerToken(newAccessToken);
-
-            console.log(
-              'new access token issued, useAuthStore.getState(): ',
-              useAuthStore.getState(),
-            );
           }
         }
-        //retry original request with new token
         return apiClient(error.config);
       } catch (refreshError) {
         return Promise.reject(refreshError);
       }
     }
-    console.log('api, response', useAuthStore.getState());
     return Promise.reject(error);
   },
 );
 
-function getCookie(name: string) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-  return undefined;
-}
+refreshClient.interceptors.request.use(
+  async (config) => {
+    const xsrfToken = getCookie('XSRF-TOKEN');
+    if (xsrfToken) {
+      config.headers['X-XSRF-TOKEN'] = xsrfToken;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+refreshClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error?.response?.status === 401) {
+      useAuthStore.getState().clearAuth();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  },
+);
