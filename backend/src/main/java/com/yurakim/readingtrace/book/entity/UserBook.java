@@ -8,6 +8,7 @@ import java.util.Date;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @ToString(callSuper = true)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "bookId"}))
 @Entity
 public class UserBook extends BaseEntity {
 
