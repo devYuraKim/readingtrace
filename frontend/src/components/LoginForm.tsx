@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import GoogleLogo from '@/assets/google.png';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -26,24 +28,33 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-const formSchema = z.object({
+const loginFormSchema = z.object({
   email: z.email('Enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
 });
+
+type loginForm = z.infer<typeof loginFormSchema>;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const form = useForm<loginForm>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: '',
       password: '',
     },
+    mode: 'onBlur',
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: loginForm) {
     mutateAsync(values)
       .then(() => {
         toast.success('Logged in successfully');
@@ -57,7 +68,7 @@ export function LoginForm({
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const { mutateAsync } = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: loginForm) => {
       return await apiClient.post('/auth/login', {
         email: values.email,
         password: values.password,
@@ -68,7 +79,6 @@ export function LoginForm({
       const user = res.data;
       setAuth(user, accessToken);
       navigate(`/${user.userId}`);
-      console.log(useAuthStore.getState());
     },
   });
 
@@ -121,26 +131,47 @@ export function LoginForm({
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex items-center">
-                          <FormLabel>Password</FormLabel>
-                          <NavLink
-                            to="#"
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                          >
-                            Forgot your password?
-                          </NavLink>
+                        <div className="grid gap-3">
+                          <div className="flex items-center">
+                            <FormLabel>Password</FormLabel>
+                            <NavLink
+                              to="#"
+                              className="ml-auto text-sm underline-offset-4 hover:underline"
+                            >
+                              Forgot your password?
+                            </NavLink>
+                          </div>
+                          <div className="relative">
+                            <FormControl>
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="Must be at least 6 characters"
+                                {...field}
+                              />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                              onClick={togglePasswordVisibility}
+                              aria-label={
+                                showPassword ? 'Hide password' : 'Show password'
+                              }
+                            >
+                              {showPassword ? (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                          <FormMessage />
                         </div>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Password must be at least 6 characters"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <Button type="submit" className="w-full mt-3 cursor-pointer">
                     Log in
                   </Button>
