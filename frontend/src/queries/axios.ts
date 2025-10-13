@@ -108,7 +108,6 @@ refreshClient.interceptors.response.use(
   async (error) => {
     if (error?.response?.status === 401) {
       useAuthStore.getState().clearAuth();
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   },

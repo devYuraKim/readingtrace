@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
+import AuthProvider from '@/components/AuthProvider';
 import OAuth2Callback from '@/components/OAuth2Callback';
 import StartByBookCollection from '@/components/StartByBookCollection';
 import StartByBookSearch from '@/components/StartByBookSearch';
@@ -15,7 +16,7 @@ import SupportChat from '@/components/SupportChat';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <>
+    <Route element={<AuthProvider />}>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/oauth2/callback" element={<OAuth2Callback />} />
@@ -29,7 +30,7 @@ const router = createBrowserRouter(
         <Route path="searchBook" element={<StartByBookSearch />} />
         <Route path="supportChat" element={<SupportChat />} />
       </Route>
-    </>,
+    </Route>,
   ),
 );
 
