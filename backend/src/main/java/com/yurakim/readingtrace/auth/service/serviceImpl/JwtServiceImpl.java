@@ -104,8 +104,8 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(User user, LocalDateTime rotateExpiry) {
         String secret = environment.getProperty(JWT.REFRESH_SECRET_KEY_PROPERTY);
         String issuer = environment.getProperty(JWT.JWT_ISSUER_PROPERTY);
-        Long expiration = 1_000*60L;
-//        Long expiration = Duration.ofDays(Long.parseLong(environment.getProperty(JWT.REFRESH_EXPIRATION_DAYS_PROPERTY))).toMillis();
+//        Long expiration = 1_000*60L;
+        Long expiration = Duration.ofDays(Long.parseLong(environment.getProperty(JWT.REFRESH_EXPIRATION_DAYS_PROPERTY))).toMillis();
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
         Date now = new Date();
