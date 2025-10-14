@@ -26,6 +26,10 @@ spring:
         format_sql: ${JPA_FORMAT_SQL:true}
         use_sql_comments: ${JPA_SQL_COMMENTS:true}
         generate_statistics: ${JPA_STATISTICS:true}
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
   devtools:
     restart:
       enabled: ${DEVTOOLS_RESTART:true}
