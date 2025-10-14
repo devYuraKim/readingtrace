@@ -3,25 +3,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-
-interface bookType {
-  bookId: string;
-  title: string;
-  authors: string;
-  imageLinks: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn10: string;
-  isbn13: string;
-}
+import { bookType } from '@/lib/books';
 
 export default function BookStartHover({ book }: { book: bookType }) {
   return (
     <HoverCard openDelay={0} closeDelay={1}>
-      <HoverCardTrigger asChild>
-        <img className="rounded-sm" src={book.imageLinks} alt={book.title} />
-      </HoverCardTrigger>
+      <HoverCardTrigger asChild></HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="flex justify-between gap-4">
           <div className="space-y-1">
