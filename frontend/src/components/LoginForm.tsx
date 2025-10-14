@@ -55,19 +55,13 @@ export function LoginForm({
   });
 
   function onSubmit(values: loginForm) {
-    mutateAsync(values)
-      .then(() => {
-        toast.success('Logged in successfully');
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+    mutate(values);
   }
 
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const { mutateAsync } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: async (values: loginForm) => {
       return await apiClient.post('/auth/login', {
         email: values.email,
@@ -79,6 +73,9 @@ export function LoginForm({
       const user = res.data;
       setAuth(user, accessToken);
       navigate(`/${user.userId}`);
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
