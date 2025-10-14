@@ -1,5 +1,3 @@
-import PrivateLayout from '@/layouts/PrivateLayout';
-import PublicLayout from '@/layouts/PublicLayout';
 import Landing from '@/pages/Landing';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
@@ -9,9 +7,11 @@ import {
   Route,
 } from 'react-router-dom';
 import AuthProvider from '@/components/AuthProvider';
+import PrivateLayout from '@/components/layouts/PrivateLayout';
+import PublicLayout from '@/components/layouts/PublicLayout';
 import OAuth2Callback from '@/components/OAuth2Callback';
-import StartByBookCollection from '@/components/StartByBookCollection';
-import StartByBookSearch from '@/components/StartByBookSearch';
+import StartByBookCollection from '@/components/StartBy/StartByBookCollection';
+import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
 
 const router = createBrowserRouter(
