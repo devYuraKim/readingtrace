@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -16,32 +16,27 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { BookCollection } from '@/lib/books';
 import BookRatingSelect from './BookRatingSelect';
 import BookStatusSelect from './BookStatusSelect';
 import BookVisibilitySelect from './BookVisibilitySelect';
 import { SingleDatePicker } from './SingleDatePicker';
 
-interface bookType {
-  bookId: string;
-  title: string;
-  authors: string | null;
-  imageLinks: string | null;
-  publisher: string | null;
-  publishedDate: string | null;
-  description: string | null;
-  isbn10: string | null;
-  isbn13: string | null;
-}
-
 const formSchema = z.object({
   status: z.enum(
     ['wantToRead', 'alreadyRead', 'currentlyReading', 'neverFinished'],
-    { message: 'Please select a reading status.' },
+    {
+      message: 'Please select a reading status.',
+    },
   ),
   visibility: z.enum(['public', 'private', 'friends'], {
     message: 'Please select a visibility option.',
   }),
-  rating: z.number({ message: 'Please provide a rating.' }).min(0).max(5),
+  rating: z
+    .number({ message: 'Please provide a rating.' })
+    .min(0)
+    .max(5)
+    .nullish(),
   startDate: z.date().nullish(),
   endDate: z.date().nullish(),
 });
@@ -49,49 +44,41 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 type FormValuesWithPlaceholder = {
-  status: FormValues['status'] | '';
-  visibility: FormValues['visibility'] | '';
-  rating: FormValues['rating'] | '';
-  startDate: FormValues['startDate'] | '';
-  endDate: FormValues['endDate'] | '';
+  status: FormValues['status'] | null;
+  visibility: FormValues['visibility'] | null;
+  rating: FormValues['rating'] | null;
+  startDate: FormValues['startDate'] | null;
+  endDate: FormValues['endDate'] | null;
+};
+
+type BookStartDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialData: any;
+  selectedBookId: string;
 };
 
 const BookStartDialog = ({
   open,
   onOpenChange,
-  book,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  book: bookType;
-}) => {
+  initialData,
+  selectedBookId,
+}: BookStartDialogProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const userId = useAuthStore.getState().user?.userId;
-  const queryClient = useQueryClient();
 
-  const {
-    data: existingUserBook,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['userBook', userId, book.bookId],
-    queryFn: async () => {
-      const res = await apiClient.get(`/users/${userId}/books/${book.bookId}`);
-      return res.data;
-    },
-    enabled: !!userId && !!book.bookId && open,
-  });
+  const queryClient = useQueryClient();
+  const userId = useAuthStore.getState().user?.userId;
 
   const addBookMutation = useMutation({
     mutationFn: async (payload: FormValues) => {
-      await apiClient.post(`/users/${userId}/books/${book.bookId}`, {
+      await apiClient.post(`/users/${userId}/books/${selectedBookId}`, {
         ...payload,
       });
     },
     onSuccess: () => {
       toast.success('Book added/updated successfully');
       queryClient.invalidateQueries({
-        queryKey: ['userBook', userId, book.bookId],
+        queryKey: ['userBook', userId, selectedBookId],
       });
       onOpenChange(false);
     },
@@ -102,10 +89,10 @@ const BookStartDialog = ({
 
   const updateBookMutation = useMutation({
     mutationFn: (payload: FormValues) =>
-      apiClient.put(`/users/${userId}/books/${book.bookId}`, payload),
+      apiClient.put(`/users/${userId}/books/${selectedBookId}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['userBook', userId, book.bookId],
+        queryKey: ['userBook', userId, selectedBookId],
       });
       toast.success('Book updated successfully!');
       onOpenChange(false);
@@ -116,24 +103,22 @@ const BookStartDialog = ({
   });
 
   const defaultFormValues: FormValuesWithPlaceholder = {
-    status: '',
-    visibility: '',
-    rating: '',
-    startDate: '',
-    endDate: '',
+    status: null,
+    visibility: null,
+    rating: null,
+    startDate: null,
+    endDate: null,
   };
 
-  const initialValues = existingUserBook
+  const initialValues = initialData
     ? {
-        status: existingUserBook.status || '',
-        visibility: existingUserBook.visibility || '',
-        rating: existingUserBook.rating || '',
-        startDate: existingUserBook.startDate
-          ? new Date(existingUserBook.startDate)
-          : '',
-        endDate: existingUserBook.endDate
-          ? new Date(existingUserBook.endDate)
-          : '',
+        status: initialData.status || null,
+        visibility: initialData.visibility || null,
+        rating: initialData.rating || null,
+        startDate: initialData.startDate
+          ? new Date(initialData.startDate)
+          : null,
+        endDate: initialData.endDate ? new Date(initialData.endDate) : null,
       }
     : defaultFormValues;
 
@@ -141,7 +126,7 @@ const BookStartDialog = ({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setFormValues(initialValues); // Reset on close
+      setFormValues(initialValues);
     }
     onOpenChange(open);
   };
@@ -183,11 +168,16 @@ const BookStartDialog = ({
       endDate: formValues.endDate,
     };
 
-    if (existingUserBook) {
+    if (initialData) {
       updateBookMutation.mutate(payload);
     }
     addBookMutation.mutate(payload);
   };
+
+  const parsedInitialValues = JSON.stringify(initialValues);
+  console.log(`initialValues: ${parsedInitialValues}`);
+
+  const book = BookCollection.find((book) => book.bookId === selectedBookId);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -197,32 +187,33 @@ const BookStartDialog = ({
             <div>
               <img
                 src={
-                  !book.imageLinks?.trim()
+                  !book?.imageLinks?.trim()
                     ? '/placeholder.png'
                     : book.imageLinks
                 }
-                alt={book.title}
+                alt={book?.title}
                 className="w-full object-cover text-xs text-muted-foreground rounded-xs"
               />
             </div>
             <div className="col-span-2 flex flex-col h-full gap-y-1.5">
               <div>
-                <DialogTitle>{book.title}</DialogTitle>
+                <DialogTitle>{book?.title}</DialogTitle>
                 <DialogDescription>
-                  By {!book.authors?.trim() ? 'Author N/A' : book.authors}
+                  By {!book?.authors?.trim() ? 'Author N/A' : book.authors}
                 </DialogDescription>
               </div>
 
               <div className="flex flex-col gap-y-0.5 text-muted-foreground opacity-80 text-xs">
                 <div>
-                  {!book.publisher?.trim() ? 'Publisher N/A' : book.publisher} |{' '}
-                  {!book.publishedDate?.trim()
+                  {!book?.publisher?.trim() ? 'Publisher N/A' : book.publisher}{' '}
+                  |{' '}
+                  {!book?.publishedDate?.trim()
                     ? 'Published Date N/A'
                     : book.publishedDate}
                 </div>
                 <div>
-                  {!book.isbn10?.trim() ? 'ISBN10 N/A' : book.isbn10} |{' '}
-                  {!book.isbn13?.trim() ? 'ISBN13 N/A' : book.isbn13}
+                  {!book?.isbn10?.trim() ? 'ISBN10 N/A' : book.isbn10} |{' '}
+                  {!book?.isbn13?.trim() ? 'ISBN13 N/A' : book.isbn13}
                 </div>
               </div>
 
@@ -232,7 +223,7 @@ const BookStartDialog = ({
                   ${isExpanded ? 'line-clamp-none' : 'line-clamp-5'}
                 `}
                 >
-                  {!book.description?.trim()
+                  {!book?.description?.trim()
                     ? 'Description N/A'
                     : book.description}
                 </div>
@@ -241,7 +232,7 @@ const BookStartDialog = ({
                   className="flex flex-row justify-end items-center gap-1 mt-1 cursor-pointer"
                   onClick={() => setIsExpanded(!isExpanded)}
                 >
-                  {book.description?.trim() !== '' ? (
+                  {book?.description?.trim() !== '' ? (
                     <>
                       <ChevronsUpDown className="w-3 h-3" />
                       {isExpanded ? 'Show less' : 'Show more'}
@@ -320,7 +311,7 @@ const BookStartDialog = ({
               </Button>
             </DialogClose>
             <Button type="submit" className="cursor-pointer">
-              {existingUserBook ? 'Update Book' : 'Add Book'}
+              {initialData.userId ? 'Update Book' : 'Add Book'}
             </Button>
           </DialogFooter>
         </form>

@@ -51,6 +51,12 @@ public class BookServiceImpl implements BookService {
     @Override
     public UserBookDto getUserBook(Long userId, String bookId) {
         UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
+
+        //record not found if user hasn't added the book yet
+        if(userBook == null){
+            return new UserBookDto();
+        }
+
         UserBookDto userBookDto = new UserBookDto();
         userBookDto.setUserId(userBook.getUserId());
         userBookDto.setBookId(userBook.getBookId());

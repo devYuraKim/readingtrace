@@ -20,7 +20,7 @@ const BookRateSelect = ({
 }: BookVisibilitySelectProps) => {
   return (
     <Select
-      value={value.toString()}
+      value={value ? value.toString() : 'My Rating'}
       onValueChange={(value) => onChange(Number(value))}
     >
       <SelectTrigger className={className}>
