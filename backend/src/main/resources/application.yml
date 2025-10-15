@@ -19,17 +19,13 @@ spring:
   jpa:
     show-sql: ${JPA_SHOW_SQL:true}
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO:create}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: ${JPA_FORMAT_SQL:true}
         use_sql_comments: ${JPA_SQL_COMMENTS:true}
         generate_statistics: ${JPA_STATISTICS:true}
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data.sql
   devtools:
     restart:
       enabled: ${DEVTOOLS_RESTART:true}
