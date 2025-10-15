@@ -9,6 +9,7 @@ import com.yurakim.readingtrace.auth.repository.PasswordResetTokenRepository;
 import com.yurakim.readingtrace.auth.service.AuthService;
 import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.util.EmailService;
+import com.yurakim.readingtrace.shelf.service.ShelfService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
@@ -51,6 +52,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     @Lazy
     private final EmailService emailService;
+    @Lazy
+    private final ShelfService shelfService;
     @Lazy
     private final Environment env;
 
@@ -132,6 +135,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(roles);
 
         userRepository.save(user);
+        shelfService.createDefaultShelves(user.getId());
 
         return "User registered";
     }

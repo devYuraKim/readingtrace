@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { apiClient } from '@/queries/axios';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, SplinePointer } from 'lucide-react';
 import { SearchForm } from '@/components/SearchForm';
 import {
   Collapsible,
@@ -24,137 +27,13 @@ import { VersionSwitcher } from '@/components/VersionSwitcher';
 const data = {
   versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
   navMain: [
+    { title: 'Your Bookshelf' },
     {
-      title: 'Getting Started',
+      title: 'Static',
       url: '#',
       items: [
         {
-          title: 'Installation',
-          url: '#',
-        },
-        {
-          title: 'Project Structure',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Building Your Application',
-      url: '#',
-      items: [
-        {
-          title: 'Routing',
-          url: '#',
-        },
-        {
-          title: 'Data Fetching',
-          url: '#',
-          isActive: true,
-        },
-        {
-          title: 'Rendering',
-          url: '#',
-        },
-        {
-          title: 'Caching',
-          url: '#',
-        },
-        {
-          title: 'Styling',
-          url: '#',
-        },
-        {
-          title: 'Optimizing',
-          url: '#',
-        },
-        {
-          title: 'Configuring',
-          url: '#',
-        },
-        {
-          title: 'Testing',
-          url: '#',
-        },
-        {
-          title: 'Authentication',
-          url: '#',
-        },
-        {
-          title: 'Deploying',
-          url: '#',
-        },
-        {
-          title: 'Upgrading',
-          url: '#',
-        },
-        {
-          title: 'Examples',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'API Reference',
-      url: '#',
-      items: [
-        {
-          title: 'Components',
-          url: '#',
-        },
-        {
-          title: 'File Conventions',
-          url: '#',
-        },
-        {
-          title: 'Functions',
-          url: '#',
-        },
-        {
-          title: 'next.config.js Options',
-          url: '#',
-        },
-        {
-          title: 'CLI',
-          url: '#',
-        },
-        {
-          title: 'Edge Runtime',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Architecture',
-      url: '#',
-      items: [
-        {
-          title: 'Accessibility',
-          url: '#',
-        },
-        {
-          title: 'Fast Refresh',
-          url: '#',
-        },
-        {
-          title: 'Next.js Compiler',
-          url: '#',
-        },
-        {
-          title: 'Supported Browsers',
-          url: '#',
-        },
-        {
-          title: 'Turbopack',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Community',
-      url: '#',
-      items: [
-        {
-          title: 'Contribution Guide',
+          title: 'static sub',
           url: '#',
         },
       ],
@@ -163,52 +42,99 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const userId = useAuthStore((state) => state.user?.userId);
+
+  const { data: shelves, isPending } = useQuery({
+    queryFn: async () => {
+      const res = await apiClient.get(`/users/${userId}/shelves`);
+      return res.data;
+    },
+    queryKey: ['userShelves', userId],
+    enabled: !!userId,
+  });
+
+  const getCombinedNavData = (shelves) => {
+    // 1. Static items that will always be rendered
+    const staticNavMain = [...data.navMain];
+
+    // 2. Transform the dynamic shelf data if it exists
+    let shelvesItems = [];
+    if (shelves && shelves.length > 0) {
+      shelvesItems = shelves.map((shelf) => ({
+        title: `${shelf.name} (${shelf.bookCount})`,
+        url: `/users/${shelf.userId}/shelves/${shelf.slug}`,
+      }));
+    }
+
+    // 3. Find the 'Your Bookshelf' parent item in the static structure
+    const bookshelfParent = staticNavMain.find(
+      (item) => item.title === 'Your Bookshelf',
+    );
+
+    // 4. Replace the hardcoded items array with the shelf items
+    if (bookshelfParent) {
+      bookshelfParent.items = shelvesItems;
+    }
+
+    return staticNavMain;
+  };
+  const combinedNavData = getCombinedNavData(shelves);
+  console.log(combinedNavData);
+
   return (
-    <Sidebar {...props}>
-      <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
-        <SearchForm />
-      </SidebarHeader>
-      <SidebarContent className="gap-0">
-        {/* We create a collapsible SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
-          <Collapsible
-            key={item.title}
-            title={item.title}
-            defaultOpen
-            className="group/collapsible"
-          >
-            <SidebarGroup>
-              <SidebarGroupLabel
-                asChild
-                className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+    <>
+      <Sidebar {...props}>
+        <SidebarHeader>
+          <VersionSwitcher
+            versions={data.versions}
+            defaultVersion={data.versions[0]}
+          />
+          <SearchForm />
+        </SidebarHeader>
+        {!isPending && combinedNavData && (
+          <SidebarContent className="gap-0">
+            {/* We create a collapsible SidebarGroup for each parent. */}
+            {combinedNavData.map((item) => (
+              <Collapsible
+                key={item.title}
+                title={item.title}
+                defaultOpen
+                className="group/collapsible"
               >
-                <CollapsibleTrigger>
-                  {item.title}{' '}
-                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {item.items.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-        ))}
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
+                <SidebarGroup>
+                  <SidebarGroupLabel
+                    asChild
+                    className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+                  >
+                    <CollapsibleTrigger>
+                      {item.title}{' '}
+                      <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                  <CollapsibleContent>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {item.items.map((item) => (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={item.isActive}
+                              className="ml-2"
+                            >
+                              <a href={item.url}>{item.title}</a>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            ))}
+          </SidebarContent>
+        )}
+        <SidebarRail />
+      </Sidebar>
+    </>
   );
 }

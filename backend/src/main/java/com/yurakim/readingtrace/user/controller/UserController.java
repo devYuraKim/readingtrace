@@ -4,11 +4,15 @@ import com.yurakim.readingtrace.auth.dto.LoginResponseDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
+import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.service.ShelfService;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -17,6 +21,7 @@ public class UserController {
 
     private final UserService userService;
     private final BookService bookService;
+    private final ShelfService shelfService;
 
     @GetMapping("/{id}")
     public ResponseEntity<LoginResponseDto> getUser(@PathVariable("id") Long id, @AuthenticationPrincipal String email){
@@ -52,6 +57,13 @@ public class UserController {
     public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable String bookId){
         bookService.deleteUserBook(userId, bookId);
         return ResponseEntity.ok().build();
+    }
+
+    //  UserShelf
+    @GetMapping("/{userId}/shelves")
+    public ResponseEntity<List<ShelfDto>> getUserShelves(@PathVariable Long userId) {
+        List<ShelfDto> resultList =  shelfService.getUserShelves(userId);
+        return ResponseEntity.ok(resultList);
     }
 
 }
