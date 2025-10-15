@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
-import BookStartDialog from '@/components/BookStartDialog';
+import BookStartDialog from '@/components/BookStartDialog/BookStartDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import BookStartDialog from '../BookStartDialog';
+import BookStartDialog from '../BookStartDialog/BookStartDialog';
 
 interface bookType {
   bookId: string;
