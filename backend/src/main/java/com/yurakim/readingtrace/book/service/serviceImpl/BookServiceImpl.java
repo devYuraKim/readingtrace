@@ -69,6 +69,37 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public UserBookDto updateUserBook(UserBookDto userBookDto){
+        Long userId = userBookDto.getUserId();
+        String bookId = userBookDto.getBookId();
+        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
+
+        userBook.setStatus(userBookDto.getStatus());
+        userBook.setVisibility(userBookDto.getVisibility());
+        userBook.setRating(userBookDto.getRating());
+        userBook.setStartDate(userBookDto.getStartDate());
+        userBook.setEndDate(userBookDto.getEndDate());
+        UserBook updatedUserBook = userBookRepository.save(userBook);
+
+        UserBookDto resultDto = new UserBookDto();
+        resultDto.setUserId(updatedUserBook.getUserId());
+        resultDto.setBookId(updatedUserBook.getBookId());
+        resultDto.setStatus(updatedUserBook.getStatus());
+        resultDto.setVisibility(updatedUserBook.getVisibility());
+        resultDto.setRating(updatedUserBook.getRating());
+        resultDto.setStartDate(updatedUserBook.getStartDate());
+        resultDto.setEndDate(updatedUserBook.getEndDate());
+
+        return userBookDto;
+    }
+
+    @Override
+    public void deleteUserBook(Long userId, String bookId) {
+        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
+        if(userBook != null) userBookRepository.delete(userBook);
+    }
+
+    @Override
     public List<UserBookDto> getUserBooks(Long userId, String status, String visibility, Integer rating) {
         Specification<UserBook> spec = UserBookSpecs.hasUserId(userId);
 

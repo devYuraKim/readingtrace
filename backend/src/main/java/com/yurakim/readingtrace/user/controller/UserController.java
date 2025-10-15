@@ -18,8 +18,15 @@ public class UserController {
     private final UserService userService;
     private final BookService bookService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<LoginResponseDto> getUser(@PathVariable("id") Long id, @AuthenticationPrincipal String email){
+        LoginResponseDto loginResponseDto = userService.getUser(id, email);
+        return ResponseEntity.ok(loginResponseDto);
+    }
+
+//    UserBook
     @PostMapping("/{userId}/books/{bookId}")
-    public ResponseEntity<UserBookDto> addUserBook(@PathVariable Long userId, @PathVariable String bookId, @RequestBody UserBookDto userBookDto){
+    public ResponseEntity<Void> addUserBook(@PathVariable Long userId, @PathVariable String bookId, @RequestBody UserBookDto userBookDto){
         //let the path variables be the single source of truth
         userBookDto.setUserId(userId);
         userBookDto.setBookId(bookId);
@@ -33,10 +40,18 @@ public class UserController {
         return ResponseEntity.ok(userBookDto);
     }
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<LoginResponseDto> getUser(@PathVariable("id") Long id, @AuthenticationPrincipal String email){
-        LoginResponseDto loginResponseDto = userService.getUser(id, email);
-        return ResponseEntity.ok(loginResponseDto);
+    @PutMapping("/{userId}/books/{bookId}")
+    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable String bookId, @RequestBody UserBookDto userBookDto){
+        userBookDto.setUserId(userId);
+        userBookDto.setBookId(bookId);
+        UserBookDto resultDto = bookService.updateUserBook(userBookDto);
+        return ResponseEntity.ok(resultDto);
     }
+
+    @DeleteMapping("/{userId}/books/{bookId}")
+    public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable String bookId){
+        bookService.deleteUserBook(userId, bookId);
+        return ResponseEntity.ok().build();
+    }
+
 }

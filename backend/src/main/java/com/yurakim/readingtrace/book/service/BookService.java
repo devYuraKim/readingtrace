@@ -11,6 +11,8 @@ public interface BookService {
 
     void addUserBook(UserBookDto userBookDto);
     UserBookDto getUserBook(Long userId, String bookId);
+    UserBookDto updateUserBook(UserBookDto userBookDto);
+    void deleteUserBook(Long userId, String bookId);
 
     List<UserBookDto> getUserBooks(Long userId, String status, String visibility, Integer rating);
 
