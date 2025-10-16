@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter @Setter
 public class ShelfDto {
-    private Long id;
+    private Long shelfId;
     private Long userId;
     private String name;
     private String slug;
