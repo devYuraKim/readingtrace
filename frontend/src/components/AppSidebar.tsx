@@ -1,8 +1,6 @@
-import * as React from 'react';
-import { apiClient } from '@/queries/axios';
+import { useUserShelves } from '@/queries/useUserShelves';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronRight, SplinePointer } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { SearchForm } from '@/components/SearchForm';
 import {
   Collapsible,
@@ -22,6 +20,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { VersionSwitcher } from '@/components/VersionSwitcher';
+import { Shelf } from '@/lib/shelves';
 
 // This is sample data.
 const data = {
@@ -41,28 +40,25 @@ const data = {
   ],
 };
 
+type SidebarMenuItem = {
+  title: string;
+  url: string;
+};
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userId = useAuthStore((state) => state.user?.userId);
+  const { data: shelves, isPending } = useUserShelves(userId);
 
-  const { data: shelves, isPending } = useQuery({
-    queryFn: async () => {
-      const res = await apiClient.get(`/users/${userId}/shelves`);
-      return res.data;
-    },
-    queryKey: ['userShelves', userId],
-    enabled: !!userId,
-  });
-
-  const getCombinedNavData = (shelves) => {
+  const getCombinedNavData = (shelves: Shelf[]) => {
     // 1. Static items that will always be rendered
     const staticNavMain = [...data.navMain];
 
     // 2. Transform the dynamic shelf data if it exists
-    let shelvesItems = [];
+    let shelvesItems: SidebarMenuItem[];
     if (shelves && shelves.length > 0) {
       shelvesItems = shelves.map((shelf) => ({
         title: `${shelf.name} (${shelf.bookCount})`,
-        url: `/users/${shelf.userId}/shelves/${shelf.slug}`,
+        url: `/users/${shelf.userId}/shelves/${shelf.shelfId}`,
       }));
     }
 
