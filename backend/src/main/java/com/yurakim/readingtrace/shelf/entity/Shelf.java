@@ -36,4 +36,7 @@ public class Shelf extends BaseEntity {
     @Column(nullable = false,  columnDefinition = "INT DEFAULT 0")
     private Integer bookCount = 0;
 
+    @Column(nullable = false)
+    private Boolean isDefault;
+
 }

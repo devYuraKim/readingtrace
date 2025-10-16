@@ -15,4 +15,5 @@ public class ShelfDto {
     private String slug;
     private String description;
     private Integer bookCount;
+    private Boolean isDefault;
 }

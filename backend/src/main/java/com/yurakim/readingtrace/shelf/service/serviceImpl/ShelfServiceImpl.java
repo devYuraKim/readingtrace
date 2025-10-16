@@ -31,6 +31,7 @@ public class ShelfServiceImpl implements ShelfService {
             shelf.setUserId(userId);
             shelf.setName(name);
             shelf.setSlug(name.toLowerCase().replace(" ", "-"));
+            shelf.setIsDefault(true);
             return shelf;
         }).toList();
         shelfRepository.saveAll(defaultShelves);
@@ -39,7 +40,6 @@ public class ShelfServiceImpl implements ShelfService {
     @Override
     public List<ShelfDto> getUserShelves(Long userId) {
         List<Shelf> userShelves = shelfRepository.findByUserId(userId);
-
         return userShelves.stream().map(shelf -> {
             ShelfDto shelfDto = new ShelfDto();
             shelfDto.setId(shelf.getId());
@@ -48,10 +48,8 @@ public class ShelfServiceImpl implements ShelfService {
             shelfDto.setSlug(shelf.getSlug());
             shelfDto.setDescription(shelf.getDescription());
             shelfDto.setBookCount(shelf.getBookCount());
+            shelfDto.setIsDefault(shelf.getIsDefault());
             return shelfDto;
         }).toList();
-
     }
-
-
 }
