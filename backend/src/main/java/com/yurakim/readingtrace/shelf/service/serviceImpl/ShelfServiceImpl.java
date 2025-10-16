@@ -42,7 +42,7 @@ public class ShelfServiceImpl implements ShelfService {
         List<Shelf> userShelves = shelfRepository.findByUserId(userId);
         return userShelves.stream().map(shelf -> {
             ShelfDto shelfDto = new ShelfDto();
-            shelfDto.setId(shelf.getId());
+            shelfDto.setShelfId(shelf.getId());
             shelfDto.setUserId(shelf.getUserId());
             shelfDto.setName(shelf.getName());
             shelfDto.setSlug(shelf.getSlug());
@@ -51,5 +51,16 @@ public class ShelfServiceImpl implements ShelfService {
             shelfDto.setIsDefault(shelf.getIsDefault());
             return shelfDto;
         }).toList();
+    }
+
+    @Override
+    public List<ShelfDto> createUserShelf(Long userId, String shelfName) {
+        Shelf userShelf = new Shelf();
+        userShelf.setUserId(userId);
+        userShelf.setName(shelfName);
+        userShelf.setSlug(shelfName.toLowerCase().replace(" ", "-"));
+        userShelf.setIsDefault(false);
+        shelfRepository.save(userShelf);
+        return getUserShelves(userId);
     }
 }

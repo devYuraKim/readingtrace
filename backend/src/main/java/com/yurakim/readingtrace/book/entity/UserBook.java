@@ -18,6 +18,9 @@ public class UserBook extends BaseEntity {
 
     @Column(nullable = false)
     private Long userId;
+    
+    @Column(nullable = false)
+    private Long shelfId;
 
     @Column(nullable = false)
     private String bookId;

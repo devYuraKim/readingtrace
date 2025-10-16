@@ -9,6 +9,9 @@ import com.yurakim.readingtrace.book.repository.UserBookRepository;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.book.spec.UserBookSpecs;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
+import com.yurakim.readingtrace.shelf.entity.Shelf;
+import com.yurakim.readingtrace.shelf.repository.ShelfRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -30,12 +33,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final UserBookRepository userBookRepository;
+    private final ShelfRepository shelfRepository;
     private final WebClient webClient;
     private final Environment env;
 
     //TODO: URGENT mapper
 
     @Override
+    @Transactional
     public void addUserBook(UserBookDto userBookDto) {
         UserBook userBook = new UserBook();
         userBook.setUserId(userBookDto.getUserId());
@@ -43,6 +48,14 @@ public class BookServiceImpl implements BookService {
         userBook.setStatus(userBookDto.getStatus());
         userBook.setVisibility(userBookDto.getVisibility());
         userBook.setRating(userBookDto.getRating());
+        if(userBookDto.getShelfId() == null) {
+            String shelfSlug = userBookDto.getStatus();
+            Long userId = userBookDto.getUserId();
+            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
+            userBook.setShelfId(shelf.getId());
+        } else{
+            userBook.setShelfId(userBookDto.getShelfId());
+        }
         userBook.setStartDate(userBookDto.getStartDate());
         userBook.setEndDate(userBookDto.getEndDate());
         userBookRepository.save(userBook);
@@ -62,6 +75,7 @@ public class BookServiceImpl implements BookService {
         userBookDto.setBookId(userBook.getBookId());
         userBookDto.setStatus(userBook.getStatus());
         userBookDto.setVisibility(userBook.getVisibility());
+        userBookDto.setShelfId(userBook.getShelfId());
         userBookDto.setRating(userBook.getRating());
         userBookDto.setStartDate(userBook.getStartDate());
         userBookDto.setEndDate(userBook.getEndDate());
@@ -77,7 +91,13 @@ public class BookServiceImpl implements BookService {
         userBook.setStatus(userBookDto.getStatus());
         userBook.setVisibility(userBookDto.getVisibility());
         userBook.setRating(userBookDto.getRating());
-        userBook.setStartDate(userBookDto.getStartDate());
+        if(userBookDto.getShelfId() == null) {
+            String shelfSlug = userBookDto.getStatus();
+            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
+            userBook.setShelfId(shelf.getId());
+        } else{
+            userBook.setShelfId(userBookDto.getShelfId());
+        }        userBook.setStartDate(userBookDto.getStartDate());
         userBook.setEndDate(userBookDto.getEndDate());
         UserBook updatedUserBook = userBookRepository.save(userBook);
 
@@ -86,6 +106,7 @@ public class BookServiceImpl implements BookService {
         resultDto.setBookId(updatedUserBook.getBookId());
         resultDto.setStatus(updatedUserBook.getStatus());
         resultDto.setVisibility(updatedUserBook.getVisibility());
+        resultDto.setShelfId(updatedUserBook.getShelfId());
         resultDto.setRating(updatedUserBook.getRating());
         resultDto.setStartDate(updatedUserBook.getStartDate());
         resultDto.setEndDate(updatedUserBook.getEndDate());
@@ -115,6 +136,7 @@ public class BookServiceImpl implements BookService {
                     userBookDto.setBookId(userBook.getBookId());
                     userBookDto.setStatus(userBook.getStatus());
                     userBookDto.setVisibility(userBook.getVisibility());
+                    userBookDto.setShelfId(userBook.getShelfId());
                     userBookDto.setRating(userBook.getRating());
                     return userBookDto;
                 })

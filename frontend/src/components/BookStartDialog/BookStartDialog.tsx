@@ -19,12 +19,13 @@ import { Label } from '@/components/ui/label';
 import { BookCollection } from '@/lib/books';
 import { SingleDatePicker } from '../SingleDatePicker';
 import BookRatingSelect from './BookRatingSelect';
+import BookShelfSelect from './BookShelfSelect';
 import BookStatusSelect from './BookStatusSelect';
 import BookVisibilitySelect from './BookVisibilitySelect';
 
 const formSchema = z.object({
   status: z.enum(
-    ['wantToRead', 'alreadyRead', 'currentlyReading', 'neverFinished'],
+    ['want-to-read', 'already-read', 'currently-reading', 'never-finished'],
     {
       message: 'Please select a reading status.',
     },
@@ -37,6 +38,7 @@ const formSchema = z.object({
     .min(0)
     .max(5)
     .nullish(),
+  shelfId: z.number().nullish(),
   startDate: z.date().nullish(),
   endDate: z.date().nullish(),
 });
@@ -69,13 +71,13 @@ const BookStartDialog = ({
       });
     },
     onSuccess: () => {
-      toast.success('Book added/updated successfully');
+      toast.success('Book added successfully');
       queryClient.invalidateQueries({
         queryKey: ['userBook', userId, selectedBookId],
       });
     },
     onError: () => {
-      toast.error('Failed to add/update book');
+      toast.error('Failed to add book');
     },
   });
 
@@ -113,6 +115,7 @@ const BookStartDialog = ({
     status: null,
     visibility: null,
     rating: null,
+    shelfId: null,
     startDate: null,
     endDate: null,
   };
@@ -122,6 +125,7 @@ const BookStartDialog = ({
         status: initialData.status || null,
         visibility: initialData.visibility || null,
         rating: initialData.rating || null,
+        shelfId: initialData.shelfId || null,
         startDate: initialData.startDate
           ? new Date(initialData.startDate)
           : null,
@@ -129,7 +133,7 @@ const BookStartDialog = ({
       }
     : defaultFormValues;
 
-  const [formValues, setFormValues] = useState(initialValues);
+  const [formValues, setFormValues] = useState<FormValues>(initialValues);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -175,9 +179,12 @@ const BookStartDialog = ({
       status: formValues.status,
       visibility: formValues.visibility,
       rating: formValues.rating,
+      shelfId: formValues.shelfId ?? null,
       startDate: formValues.startDate,
       endDate: formValues.endDate,
     };
+
+    console.log(payload);
 
     if (initialData.userId) {
       updateBookMutation.mutate(payload);
@@ -185,9 +192,6 @@ const BookStartDialog = ({
       addBookMutation.mutate(payload);
     }
   };
-
-  const parsedInitialValues = JSON.stringify(initialValues);
-  console.log(`initialValues: ${parsedInitialValues}`);
 
   const book = BookCollection.find((book) => book.bookId === selectedBookId);
 
@@ -262,7 +266,7 @@ const BookStartDialog = ({
             <div className="my-4">
               <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_20px_minmax(0,1fr)_minmax(0,1fr)] gap-2 items-center">
                 <div className="flex col-start-1 col-span-2">
-                  <Label className="w-2/5 text-right">Reading Status</Label>
+                  <Label className="w-2/5 text-right">Status</Label>
                   <BookStatusSelect
                     className="w-3/5 text-xs"
                     value={formValues.status}
@@ -282,11 +286,22 @@ const BookStartDialog = ({
                 </div>
 
                 <div className="flex col-start-1 col-span-2">
-                  <Label className="w-2/5 text-right">My Rating</Label>
+                  <Label className="w-2/5 text-right">Rating</Label>
                   <BookRatingSelect
                     className="w-3/5 text-xs"
                     value={formValues.rating}
                     onChange={(value: number) => handleChange('rating', value)}
+                  />
+                </div>
+
+                <div className="flex col-start-4 col-span-2">
+                  <Label className="w-2/5 text-right">Shelf</Label>
+                  <BookShelfSelect
+                    className="w-3/5 text-xs"
+                    value={formValues.shelfId}
+                    onChange={(value: number) =>
+                      handleChange('shelfId', value === 0 ? null : value)
+                    }
                   />
                 </div>
 

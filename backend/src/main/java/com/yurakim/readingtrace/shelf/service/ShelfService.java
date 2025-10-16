@@ -9,4 +9,7 @@ public interface ShelfService {
     List<ShelfDto> getUserShelves(Long userId);
 
     void createDefaultShelves(Long userId);
-}
+
+    List<ShelfDto> createUserShelf(Long userId, String shelfName);
+
+    }

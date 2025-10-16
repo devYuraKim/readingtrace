@@ -9,6 +9,7 @@ import java.util.Date;
 @Setter
 public class UserBookDto {
     private Long userId;
+    private Long shelfId;
     private String bookId;
     private String status;
     private String visibility;

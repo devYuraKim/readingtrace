@@ -27,10 +27,10 @@ const BookStatusSelect = ({
         <SelectValue placeholder="Select Status" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="wantToRead">🤩 Want to Read</SelectItem>
-        <SelectItem value="alreadyRead">😎 Already Read</SelectItem>
-        <SelectItem value="currentlyReading"> 🧐 Currently Reading</SelectItem>
-        <SelectItem value="neverFinished">😔 Never Finished</SelectItem>
+        <SelectItem value="want-to-read">🤩 Want to Read</SelectItem>
+        <SelectItem value="already-read">😎 Already Read</SelectItem>
+        <SelectItem value="currently-reading"> 🧐 Currently Reading</SelectItem>
+        <SelectItem value="never-finished">😔 Never Finished</SelectItem>
       </SelectContent>
     </Select>
   );

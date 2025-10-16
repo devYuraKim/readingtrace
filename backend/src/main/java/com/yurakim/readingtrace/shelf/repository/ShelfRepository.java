@@ -11,4 +11,6 @@ public interface ShelfRepository extends JpaRepository<Shelf, Long> {
 
     List<Shelf> findByUserId(Long userId);
 
+    Shelf findByUserIdAndSlug(Long userId, String slug);
+
 }

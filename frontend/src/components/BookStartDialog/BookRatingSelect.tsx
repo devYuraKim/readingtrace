@@ -7,7 +7,7 @@ import {
 } from '../ui/select';
 
 interface BookVisibilitySelectProps {
-  value: number | null;
+  value: number | null | undefined;
   onChange: (value: number) => void;
   className?: string;
 }
