@@ -23,7 +23,7 @@ export function SingleDatePicker({ value, onChange }: SingleDatePickerProps) {
           id="date"
           className="!w-full !flex !justify-between !items-center  font-normal text-muted-foreground text-xs "
         >
-          {value ? value.toLocaleDateString() : 'Select date'}
+          {value ? value.toLocaleDateString() : 'Select Date'}
           <ChevronDownIcon className=" size-4 opacity-50 !flex-shrink-0" />
         </Button>
       </PopoverTrigger>

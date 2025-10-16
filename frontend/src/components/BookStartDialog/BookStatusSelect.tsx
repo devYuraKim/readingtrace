@@ -24,7 +24,7 @@ const BookStatusSelect = ({
       onValueChange={(value) => onChange(value)}
     >
       <SelectTrigger className={className}>
-        <SelectValue placeholder="Reading Status" />
+        <SelectValue placeholder="Select Status" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="wantToRead">🤩 Want to Read</SelectItem>

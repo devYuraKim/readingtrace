@@ -24,7 +24,7 @@ const BookVisibilitySelect = ({
       onValueChange={(value) => onChange(value)}
     >
       <SelectTrigger className={className}>
-        <SelectValue placeholder="Visibility" />
+        <SelectValue placeholder="Select Visibility" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="public">🌍 Public</SelectItem>

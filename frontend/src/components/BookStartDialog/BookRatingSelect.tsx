@@ -23,7 +23,7 @@ const BookRateSelect = ({
       onValueChange={(value) => onChange(Number(value))}
     >
       <SelectTrigger className={className}>
-        <SelectValue placeholder="My Rating" />
+        <SelectValue placeholder="Select Rating" />
       </SelectTrigger>
       <SelectContent>
         {[1, 2, 3, 4, 5].map((n) => (
