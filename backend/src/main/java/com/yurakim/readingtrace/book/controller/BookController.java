@@ -20,11 +20,16 @@ import java.time.Duration;
 import java.util.List;
 
 @RestController
-@RequestMapping(ApiPath.BOOK)
+@RequestMapping(ApiPath.BOOK) // /api/v1/books
 @RequiredArgsConstructor
 public class BookController {
 
     private final BookService bookService;
+
+    @GetMapping
+    public ResponseEntity<BookSearchResultDto> searchBook(@RequestParam String searchType, @RequestParam String searchWord, @RequestParam int startIndex, @RequestParam(name = "maxResults") int booksPerPage){
+        return ResponseEntity.ok(bookService.searchBook(searchType, searchWord, startIndex, booksPerPage));
+    }
 
     @PostMapping("/add")
     public ResponseEntity<String> addUserBook(@RequestBody UserBookDto userBookDto) {
@@ -41,11 +46,6 @@ public class BookController {
     ) {
         List<UserBookDto> userBookList = bookService.getUserBooks(userId, status, visibility, rating);
         return ResponseEntity.ok(userBookList);
-    }
-
-    @GetMapping(value="/searchBook")
-    public ResponseEntity<BookSearchResultDto> searchBook(@RequestParam String searchType, @RequestParam String searchWord, @RequestParam int startIndex, @RequestParam(name = "maxResults") int booksPerPage){
-        return ResponseEntity.ok(bookService.searchBook(searchType, searchWord, startIndex, booksPerPage));
     }
 
     @GetMapping(value = "reactive/searchBook", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

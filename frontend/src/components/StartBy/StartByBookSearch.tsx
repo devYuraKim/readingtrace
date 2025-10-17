@@ -61,7 +61,7 @@ const StartByBookSearch = () => {
 
     try {
       const response = await apiClient.get(
-        '/book/searchBook?searchType=' +
+        '/books?searchType=' +
           searchType +
           '&searchWord=' +
           searchWord +
