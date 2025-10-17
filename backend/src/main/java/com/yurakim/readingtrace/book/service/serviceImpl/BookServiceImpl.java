@@ -1,21 +1,13 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
-import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
+import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.GoogleBooksResponseDto;
-import com.yurakim.readingtrace.book.dto.UserBookDto;
-import com.yurakim.readingtrace.book.entity.UserBook;
-import com.yurakim.readingtrace.book.repository.UserBookRepository;
 import com.yurakim.readingtrace.book.service.BookService;
-import com.yurakim.readingtrace.book.spec.UserBookSpecs;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
-import com.yurakim.readingtrace.shelf.entity.Shelf;
-import com.yurakim.readingtrace.shelf.repository.ShelfRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -32,117 +24,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-    private final UserBookRepository userBookRepository;
-    private final ShelfRepository shelfRepository;
     private final WebClient webClient;
     private final Environment env;
-
-    //TODO: URGENT mapper
-
-    @Override
-    @Transactional
-    public void addUserBook(UserBookDto userBookDto) {
-        UserBook userBook = new UserBook();
-        userBook.setUserId(userBookDto.getUserId());
-        userBook.setBookId(userBookDto.getBookId());
-        userBook.setStatus(userBookDto.getStatus());
-        userBook.setVisibility(userBookDto.getVisibility());
-        userBook.setRating(userBookDto.getRating());
-        if(userBookDto.getShelfId() == null) {
-            String shelfSlug = userBookDto.getStatus();
-            Long userId = userBookDto.getUserId();
-            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-            userBook.setShelfId(shelf.getId());
-        } else{
-            userBook.setShelfId(userBookDto.getShelfId());
-        }
-        userBook.setStartDate(userBookDto.getStartDate());
-        userBook.setEndDate(userBookDto.getEndDate());
-        userBookRepository.save(userBook);
-    }
-
-    @Override
-    public UserBookDto getUserBook(Long userId, Long bookId) {
-        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
-
-        //record not found if user hasn't added the book yet
-        if(userBook == null){
-            return new UserBookDto();
-        }
-
-        UserBookDto userBookDto = new UserBookDto();
-        userBookDto.setUserId(userBook.getUserId());
-        userBookDto.setBookId(userBook.getBookId());
-        userBookDto.setStatus(userBook.getStatus());
-        userBookDto.setVisibility(userBook.getVisibility());
-        userBookDto.setShelfId(userBook.getShelfId());
-        userBookDto.setRating(userBook.getRating());
-        userBookDto.setStartDate(userBook.getStartDate());
-        userBookDto.setEndDate(userBook.getEndDate());
-        return userBookDto;
-    }
-
-    @Override
-    public UserBookDto updateUserBook(UserBookDto userBookDto){
-        Long userId = userBookDto.getUserId();
-        Long bookId = userBookDto.getBookId();
-        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
-
-        userBook.setStatus(userBookDto.getStatus());
-        userBook.setVisibility(userBookDto.getVisibility());
-        userBook.setRating(userBookDto.getRating());
-        if(userBookDto.getShelfId() == null) {
-            String shelfSlug = userBookDto.getStatus();
-            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-            userBook.setShelfId(shelf.getId());
-        } else{
-            userBook.setShelfId(userBookDto.getShelfId());
-        }        userBook.setStartDate(userBookDto.getStartDate());
-        userBook.setEndDate(userBookDto.getEndDate());
-        UserBook updatedUserBook = userBookRepository.save(userBook);
-
-        UserBookDto resultDto = new UserBookDto();
-        resultDto.setUserId(updatedUserBook.getUserId());
-        resultDto.setBookId(updatedUserBook.getBookId());
-        resultDto.setStatus(updatedUserBook.getStatus());
-        resultDto.setVisibility(updatedUserBook.getVisibility());
-        resultDto.setShelfId(updatedUserBook.getShelfId());
-        resultDto.setRating(updatedUserBook.getRating());
-        resultDto.setStartDate(updatedUserBook.getStartDate());
-        resultDto.setEndDate(updatedUserBook.getEndDate());
-
-        return userBookDto;
-    }
-
-    @Override
-    public void deleteUserBook(Long userId, Long bookId) {
-        UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
-        if(userBook != null) userBookRepository.delete(userBook);
-    }
-
-    @Override
-    public List<UserBookDto> getUserBooks(Long userId, Long shelfId, String status, String visibility, Integer rating) {
-        Specification<UserBook> spec = UserBookSpecs.hasUserId(userId);
-
-        if (shelfId != null) spec = spec.and(UserBookSpecs.hasShelfId(shelfId));
-        if (status != null) spec = spec.and(UserBookSpecs.hasStatus(status));
-        if (visibility != null) spec = spec.and(UserBookSpecs.hasVisibility(visibility));
-        if (rating != null) spec = spec.and(UserBookSpecs.hasRating(rating));
-
-        //TODO: introduce mapper to focus on querying
-        return userBookRepository.findAll(spec).stream()
-                .map( userBook -> {
-                    UserBookDto userBookDto = new UserBookDto();
-                    userBookDto.setUserId(userBook.getId());
-                    userBookDto.setBookId(userBook.getBookId());
-                    userBookDto.setStatus(userBook.getStatus());
-                    userBookDto.setVisibility(userBook.getVisibility());
-                    userBookDto.setShelfId(userBook.getShelfId());
-                    userBookDto.setRating(userBook.getRating());
-                    return userBookDto;
-                })
-                .toList();
-    }
 
     @Override
     public BookSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {

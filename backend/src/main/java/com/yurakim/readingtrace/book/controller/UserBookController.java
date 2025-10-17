@@ -1,7 +1,8 @@
 package com.yurakim.readingtrace.book.controller;
 
-import com.yurakim.readingtrace.book.dto.UserBookDto;
+import com.yurakim.readingtrace.book.dto.UserBookStatusDto;
 import com.yurakim.readingtrace.book.service.BookService;
+import com.yurakim.readingtrace.book.service.UserBookStatusService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,40 +16,40 @@ import java.util.List;
 public class UserBookController {
 
     private final BookService bookService;
+    private final UserBookStatusService userBookStatusService;
 
-    //    UserBook
     @PostMapping("/{bookId}")
-    public ResponseEntity<Void> addUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
+    public ResponseEntity<Void> addUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookStatusDto userBookStatusDto){
         //let the path variables be the single source of truth
-        userBookDto.setUserId(userId);
-        userBookDto.setBookId(bookId);
-        bookService.addUserBook(userBookDto);
+        userBookStatusDto.setUserId(userId);
+        userBookStatusDto.setBookId(bookId);
+        userBookStatusService.addUserBookStatus(userBookStatusDto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{bookId}")
-    public ResponseEntity<UserBookDto> getUserBook(@PathVariable Long userId, @PathVariable Long bookId){
-        UserBookDto userBookDto = bookService.getUserBook(userId, bookId);
-        return ResponseEntity.ok(userBookDto);
+    public ResponseEntity<UserBookStatusDto> getUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId){
+        UserBookStatusDto userBookStatusDto = userBookStatusService.getUserBookStatus(userId, bookId);
+        return ResponseEntity.ok(userBookStatusDto);
     }
 
     @PutMapping("{bookId}")
-    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
-        userBookDto.setUserId(userId);
-        userBookDto.setBookId(bookId);
-        UserBookDto resultDto = bookService.updateUserBook(userBookDto);
+    public ResponseEntity<UserBookStatusDto> updateUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookStatusDto userBookStatusDto){
+        userBookStatusDto.setUserId(userId);
+        userBookStatusDto.setBookId(bookId);
+        UserBookStatusDto resultDto = userBookStatusService.updateUserBookStatus(userBookStatusDto);
         return ResponseEntity.ok(resultDto);
     }
 
     @DeleteMapping("{bookId}")
-    public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable Long bookId){
-        bookService.deleteUserBook(userId, bookId);
+    public ResponseEntity<Void> deleteUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId){
+        userBookStatusService.deleteUserBookStatus(userId, bookId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<UserBookDto>> getUserBooks(@PathVariable Long userId, @RequestParam Long shelfId){
-        List<UserBookDto> resultDtoList = bookService.getUserBooks(userId, shelfId, null, null, null);
+    public ResponseEntity<List<UserBookStatusDto>> getUserBooksStatus(@PathVariable Long userId, @RequestParam Long shelfId){
+        List<UserBookStatusDto> resultDtoList = userBookStatusService.getUserBooksStatus(userId, shelfId, null, null, null);
         return ResponseEntity.ok(resultDtoList);
     }
 }

@@ -1,8 +1,7 @@
 package com.yurakim.readingtrace.book.controller;
 
-import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
-import com.yurakim.readingtrace.book.dto.UserBookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +11,14 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.List;
 
 @RestController
 @RequestMapping(ApiPath.BOOK) // /api/v1/books
@@ -29,23 +30,6 @@ public class BookController {
     @GetMapping
     public ResponseEntity<BookSearchResultDto> searchBook(@RequestParam String searchType, @RequestParam String searchWord, @RequestParam int startIndex, @RequestParam(name = "maxResults") int booksPerPage){
         return ResponseEntity.ok(bookService.searchBook(searchType, searchWord, startIndex, booksPerPage));
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<String> addUserBook(@RequestBody UserBookDto userBookDto) {
-        bookService.addUserBook(userBookDto);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<UserBookDto>> getUserBooks(
-            @PathVariable Long userId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String visibility,
-            @RequestParam(required = false) Integer rating
-    ) {
-        List<UserBookDto> userBookList = bookService.getUserBooks(userId, status, visibility, rating);
-        return ResponseEntity.ok(userBookList);
     }
 
     @GetMapping(value = "reactive/searchBook", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
