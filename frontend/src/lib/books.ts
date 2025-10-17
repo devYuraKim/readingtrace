@@ -1,7 +1,7 @@
 //static
 export const BookCollection = [
   {
-    bookId: '1',
+    bookId: 1,
     title: 'A Clockwork Orange',
     authors: 'Anthony Burgess',
     imageLinks: '/a_clockwork_orange.jpg',
@@ -12,7 +12,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '2',
+    bookId: 2,
     title: 'Cats Cradle',
     authors: 'Kurt Vonnegut',
     imageLinks: '/cats_cradle.jpg',
@@ -23,7 +23,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '3',
+    bookId: 3,
     title: 'Metamorphosis',
     authors: 'Franz Kafka',
     imageLinks: '/metamorphosis.jpg',
@@ -34,7 +34,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '4',
+    bookId: 4,
     title: 'Of Human Bondage',
     authors: 'W. Somerset Maugham',
     imageLinks: '/of_human_bondage.jpg',
@@ -47,7 +47,7 @@ export const BookCollection = [
     isbn13: '9781407016450',
   },
   {
-    bookId: '5',
+    bookId: 5,
     title: 'Slaughterhouse Five',
     authors: 'Kurt Vonnegut',
     imageLinks: '/slaughterhouse_five.jpg',
@@ -58,7 +58,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '6',
+    bookId: 6,
     title: 'Steeppenwolf',
     authors: 'Hermann Hesse',
     imageLinks: '/steppenwolf.jpg',
@@ -69,7 +69,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '7',
+    bookId: 7,
     title: 'The Bhagavad Gita',
     authors: 'N/A',
     imageLinks: '/the_bhagavad_gita.jpg',
@@ -80,7 +80,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '8',
+    bookId: 8,
     title: 'The Castle',
     authors: 'Franz Kafka',
     imageLinks: '/the_castle.jpg',
@@ -91,7 +91,7 @@ export const BookCollection = [
     isbn13: '',
   },
   {
-    bookId: '9',
+    bookId: 9,
     title: 'The Trial',
     authors: 'Franz Kafka',
     publisher: 'Penguin Books Ltd (UK)',

@@ -49,7 +49,7 @@ type BookStartDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData: any;
-  selectedBookId: string;
+  selectedBookId: number;
 };
 
 const BookStartDialog = ({

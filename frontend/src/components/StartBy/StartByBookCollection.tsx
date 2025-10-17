@@ -17,7 +17,7 @@ import StartByBookSearchLink from './StartByBookSearchLink';
 
 const StartByBookCollection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedBookId, setSelectedBookId] = useState<string>('');
+  const [selectedBookId, setSelectedBookId] = useState<number>();
 
   const userId = useAuthStore.getState().user?.userId;
 
@@ -33,7 +33,7 @@ const StartByBookCollection = () => {
     staleTime: Infinity,
   });
 
-  const handleOnClickBook = (bookId: string) => {
+  const handleOnClickBook = (bookId: number) => {
     setSelectedBookId(bookId);
     setDialogOpen(true);
   };
