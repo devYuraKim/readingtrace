@@ -20,23 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { BookDto } from '@/lib/books';
 import BookStartDialog from '../BookStartDialog/BookStartDialog';
-
-interface bookType {
-  bookId: string;
-  title: string;
-  authors: string;
-  imageLinks: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn10: string;
-  isbn13: string;
-}
 
 interface responseType {
   totalItems: number | null;
-  books: bookType[];
+  books: BookDto[];
 }
 
 const StartByBookSearch = () => {
@@ -51,7 +40,7 @@ const StartByBookSearch = () => {
   const [booksPerPage, setBooksPerPage] = React.useState(6);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [selectedBook, setSelectedBook] = React.useState<bookType | null>(null);
+  const [selectedBook, setSelectedBook] = React.useState<BookDto | null>(null);
 
   const handleSearch = async (
     searchType: string,

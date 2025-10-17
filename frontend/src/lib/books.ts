@@ -103,14 +103,24 @@ export const BookCollection = [
   },
 ];
 
-export type bookType = {
-  bookId: string;
+export type BookDto = {
+  bookId: number;
+  externalId?: string;
   title: string;
-  authors: string;
-  imageLinks: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn10: string;
-  isbn13: string;
+  subtitle?: string;
+  authors?: string;
+  imageLinks?: string;
+  publisher?: string;
+  publishedDate?: string;
+  description?: string;
+  isbn10?: string;
+  isbn13?: string;
+  pageCount?: number;
+  printType?: string;
+  mainCategory?: string;
+  categories?: string[];
+  averageRating?: number;
+  ratingsCount?: number;
+  language?: string;
+  infoLink?: string;
 };

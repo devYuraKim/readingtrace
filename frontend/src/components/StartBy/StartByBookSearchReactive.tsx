@@ -11,24 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { BookDto } from '@/lib/books';
 import { Input } from '../ui/input';
-
-interface bookType {
-  bookId: string;
-  title: string;
-  authors: string;
-  imageLinks: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  isbn10: string;
-  isbn13: string;
-}
 
 const StartByBookSearch = () => {
   const [searchType, setSearchType] = React.useState('title');
   const [searchWord, setSearchWord] = React.useState('');
-  const [results, setResults] = React.useState<bookType[]>([]);
+  const [results, setResults] = React.useState<BookDto[]>([]);
 
   const handleSearch = async (searchType: string, searchWord: string) => {
     const normalizedSearchWord = searchWord
@@ -95,7 +84,7 @@ const StartByBookSearch = () => {
           if (event.startsWith('data:')) {
             const jsonStr = event.replace(/^data:\s*/, '');
             try {
-              const book = JSON.parse(jsonStr) as bookType;
+              const book = JSON.parse(jsonStr) as BookDto;
               setResults((prev) => [...prev, book]);
             } catch (err) {
               console.error('JSON parse error:', err, jsonStr);

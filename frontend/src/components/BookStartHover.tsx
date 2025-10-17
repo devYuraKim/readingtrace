@@ -3,9 +3,9 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { bookType } from '@/lib/books';
+import { BookDto } from '@/lib/books';
 
-export default function BookStartHover({ book }: { book: bookType }) {
+export default function BookStartHover({ book }: { book: BookDto }) {
   return (
     <HoverCard openDelay={0} closeDelay={1}>
       <HoverCardTrigger asChild></HoverCardTrigger>
