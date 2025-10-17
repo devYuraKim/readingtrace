@@ -10,6 +10,6 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class BookSearchResultDto {
-    private List<BookDto> books;
+    private List<GoogleBookDto> books;
     private int totalItems;
 }

@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
-import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
 import com.yurakim.readingtrace.book.dto.GoogleBooksResponseDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
@@ -62,7 +62,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public UserBookDto getUserBook(Long userId, String bookId) {
+    public UserBookDto getUserBook(Long userId, Long bookId) {
         UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
 
         //record not found if user hasn't added the book yet
@@ -85,7 +85,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public UserBookDto updateUserBook(UserBookDto userBookDto){
         Long userId = userBookDto.getUserId();
-        String bookId = userBookDto.getBookId();
+        Long bookId = userBookDto.getBookId();
         UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
 
         userBook.setStatus(userBookDto.getStatus());
@@ -115,15 +115,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteUserBook(Long userId, String bookId) {
+    public void deleteUserBook(Long userId, Long bookId) {
         UserBook userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
         if(userBook != null) userBookRepository.delete(userBook);
     }
 
     @Override
-    public List<UserBookDto> getUserBooks(Long userId, String status, String visibility, Integer rating) {
+    public List<UserBookDto> getUserBooks(Long userId, Long shelfId, String status, String visibility, Integer rating) {
         Specification<UserBook> spec = UserBookSpecs.hasUserId(userId);
 
+        if (shelfId != null) spec = spec.and(UserBookSpecs.hasShelfId(shelfId));
         if (status != null) spec = spec.and(UserBookSpecs.hasStatus(status));
         if (visibility != null) spec = spec.and(UserBookSpecs.hasVisibility(visibility));
         if (rating != null) spec = spec.and(UserBookSpecs.hasRating(rating));
@@ -172,15 +173,15 @@ public class BookServiceImpl implements BookService {
             return new BookSearchResultDto(Collections.emptyList(), 0);
         }
 
-        List<BookDto> books =  response.getItems().stream()
-            .map(this::mapToBookDto)
+        List<GoogleBookDto> books =  response.getItems().stream()
+            .map(this::mapToGoogleBookDto)
             .collect(Collectors.toList());
 
         return new BookSearchResultDto(books, response.getTotalItems());
     }
 
     @Override
-    public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
+    public Flux<GoogleBookDto> reactiveSearchBook(String searchType, String searchWord) {
         String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
         String searchPrefix = switch (searchType) {
             case "author" -> "inauthor:";
@@ -208,7 +209,7 @@ public class BookServiceImpl implements BookService {
 
                     // Convert to Flux and emit one by one
                     return Flux.fromIterable(response.getItems())
-                            .map(this::mapToBookDto)
+                            .map(this::mapToGoogleBookDto)
                             .doOnNext(book -> System.out.println("**********Service emitting: " + book.getTitle()));
                 })
                 .onErrorResume(Exception.class, ex -> {
@@ -219,14 +220,14 @@ public class BookServiceImpl implements BookService {
 
     }
 
-    private BookDto mapToBookDto(GoogleBooksResponseDto.BookItem item){
+    private GoogleBookDto mapToGoogleBookDto(GoogleBooksResponseDto.BookItem item){
         GoogleBooksResponseDto.VolumeInfo vi = item.getVolumeInfo();
 
         List<String> authors = vi.getAuthors() != null ? vi.getAuthors() : List.of();
         List<GoogleBooksResponseDto.IndustryIdentifier> ids =
                 vi.getIndustryIdentifiers() != null ? vi.getIndustryIdentifiers() : List.of();
 
-        return new BookDto(
+        return new GoogleBookDto(
                 item.getId(),
                 vi.getTitle(),
                 String.join(", ", authors),

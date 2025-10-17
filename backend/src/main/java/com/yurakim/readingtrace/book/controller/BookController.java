@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.book.controller;
 
-import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.service.BookService;
@@ -49,7 +49,7 @@ public class BookController {
     }
 
     @GetMapping(value = "reactive/searchBook", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<BookDto>> reactiveSearchBook(@RequestParam String searchType, @RequestParam String searchWord) {
+    public Flux<ServerSentEvent<GoogleBookDto>> reactiveSearchBook(@RequestParam String searchType, @RequestParam String searchWord) {
         System.out.println("Initial auth: " + SecurityContextHolder.getContext().getAuthentication());
 
         return Flux.defer(() ->
@@ -60,7 +60,7 @@ public class BookController {
 
                                     return bookService.reactiveSearchBook(searchType, searchWord)
                                             .delayElements(Duration.ofMillis(500)) // optional: simulate streaming
-                                            .map(book -> ServerSentEvent.<BookDto>builder()
+                                            .map(book -> ServerSentEvent.<GoogleBookDto>builder()
                                                     .data(book)
                                                     .build())
                                             .doOnNext(sse -> System.out.println("Emitting: " + sse.data().getTitle()))
@@ -74,7 +74,7 @@ public class BookController {
 
                                                     return bookService.reactiveSearchBook(searchType, searchWord)
                                                             .delayElements(Duration.ofMillis(500))
-                                                            .map(book -> ServerSentEvent.<BookDto>builder()
+                                                            .map(book -> ServerSentEvent.<GoogleBookDto>builder()
                                                                     .data(book)
                                                                     .build())
                                                             .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));

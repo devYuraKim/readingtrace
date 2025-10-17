@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface UserBookRepository extends JpaRepository<UserBook, Long>, JpaSpecificationExecutor<UserBook> {
 
-    UserBook findByUserIdAndBookId(Long userId, String bookId);
+    UserBook findByUserIdAndBookId(Long userId, Long bookId);
 
 }

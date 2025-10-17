@@ -10,7 +10,7 @@ import java.util.Date;
 public class UserBookDto {
     private Long userId;
     private Long shelfId;
-    private String bookId;
+    private Long bookId;
     private String status;
     private String visibility;
     private Integer rating;

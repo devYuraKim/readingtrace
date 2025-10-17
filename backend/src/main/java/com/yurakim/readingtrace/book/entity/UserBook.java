@@ -23,7 +23,7 @@ public class UserBook extends BaseEntity {
     private Long shelfId;
 
     @Column(nullable = false)
-    private String bookId;
+    private Long bookId;
 
     @Column(nullable = false)
     private String status;

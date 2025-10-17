@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(ApiPath.USERBOOK) // /api/v1/users/{userId}/books
@@ -16,7 +18,7 @@ public class UserBookController {
 
     //    UserBook
     @PostMapping("/{bookId}")
-    public ResponseEntity<Void> addUserBook(@PathVariable Long userId, @PathVariable String bookId, @RequestBody UserBookDto userBookDto){
+    public ResponseEntity<Void> addUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
         //let the path variables be the single source of truth
         userBookDto.setUserId(userId);
         userBookDto.setBookId(bookId);
@@ -25,13 +27,13 @@ public class UserBookController {
     }
 
     @GetMapping("/{bookId}")
-    public ResponseEntity<UserBookDto> getUserBook(@PathVariable Long userId, @PathVariable String bookId){
+    public ResponseEntity<UserBookDto> getUserBook(@PathVariable Long userId, @PathVariable Long bookId){
         UserBookDto userBookDto = bookService.getUserBook(userId, bookId);
         return ResponseEntity.ok(userBookDto);
     }
 
     @PutMapping("{bookId}")
-    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable String bookId, @RequestBody UserBookDto userBookDto){
+    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
         userBookDto.setUserId(userId);
         userBookDto.setBookId(bookId);
         UserBookDto resultDto = bookService.updateUserBook(userBookDto);
@@ -39,8 +41,14 @@ public class UserBookController {
     }
 
     @DeleteMapping("{bookId}")
-    public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable String bookId){
+    public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable Long bookId){
         bookService.deleteUserBook(userId, bookId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserBookDto>> getUserBooks(@PathVariable Long userId, @RequestParam Long shelfId){
+        List<UserBookDto> resultDtoList = bookService.getUserBooks(userId, shelfId, null, null, null);
+        return ResponseEntity.ok(resultDtoList);
     }
 }
