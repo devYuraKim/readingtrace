@@ -25,7 +25,7 @@ const router = createBrowserRouter(
         <Route index element={<Landing />} />
       </Route>
 
-      <Route path="/:userId" element={<PrivateLayout />}>
+      <Route path="/users/:userId" element={<PrivateLayout />}>
         <Route index element={<StartByBookCollection />} />
         <Route path="searchBook" element={<StartByBookSearch />} />
         <Route path="supportChat" element={<SupportChat />} />

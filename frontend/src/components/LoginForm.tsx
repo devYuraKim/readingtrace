@@ -72,7 +72,8 @@ export function LoginForm({
       const accessToken = res.headers['authorization'];
       const user = res.data;
       setAuth(user, accessToken);
-      navigate(`/${user.userId}`);
+      // TODO: implement protected routes
+      navigate(`/users/${user.userId}`);
     },
     onError: (error) => {
       toast.error(error.message);
