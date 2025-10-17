@@ -10,6 +10,7 @@ import AuthProvider from '@/components/AuthProvider';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import OAuth2Callback from '@/components/OAuth2Callback';
+import ShelfDetails from '@/components/ShelfDetails';
 import StartByBookCollection from '@/components/StartBy/StartByBookCollection';
 import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
         <Route index element={<StartByBookCollection />} />
         <Route path="searchBook" element={<StartByBookSearch />} />
         <Route path="supportChat" element={<SupportChat />} />
+        <Route path="books" element={<ShelfDetails />} />
       </Route>
     </Route>,
   ),
