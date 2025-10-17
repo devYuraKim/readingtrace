@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (shelves && shelves.length > 0) {
       shelvesItems = shelves.map((shelf) => ({
         title: `${shelf.name} (${shelf.bookCount})`,
-        url: `/users/${shelf.userId}/shelves/${shelf.shelfId}`,
+        url: `/users/${shelf.userId}/books?shelfId=${shelf.shelfId}`,
       }));
     }
 
