@@ -18,19 +18,19 @@ public class UserBookController {
     private final BookService bookService;
     private final UserBookStatusService userBookStatusService;
 
+    @GetMapping("/{bookId}")
+    public ResponseEntity<UserBookStatusDto> getUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId){
+        UserBookStatusDto userBookStatusDto = userBookStatusService.getUserBookStatus(userId, bookId);
+        return ResponseEntity.ok(userBookStatusDto);
+    }
+
     @PostMapping("/{bookId}")
-    public ResponseEntity<Void> addUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookStatusDto userBookStatusDto){
+    public ResponseEntity<Void> createUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookStatusDto userBookStatusDto){
         //let the path variables be the single source of truth
         userBookStatusDto.setUserId(userId);
         userBookStatusDto.setBookId(bookId);
         userBookStatusService.addUserBookStatus(userBookStatusDto);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{bookId}")
-    public ResponseEntity<UserBookStatusDto> getUserBookStatus(@PathVariable Long userId, @PathVariable Long bookId){
-        UserBookStatusDto userBookStatusDto = userBookStatusService.getUserBookStatus(userId, bookId);
-        return ResponseEntity.ok(userBookStatusDto);
     }
 
     @PutMapping("{bookId}")
