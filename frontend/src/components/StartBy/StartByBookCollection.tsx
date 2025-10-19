@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { apiClient } from '@/queries/axios';
+import { useGetBookStatus } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
 import BookStartDialog from '@/components/BookStartDialog/BookStartDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -21,17 +20,10 @@ const StartByBookCollection = () => {
 
   const userId = useAuthStore.getState().user?.userId;
 
-  const { data: userBookRecord, isPending } = useQuery({
-    queryKey: ['userBook', userId, selectedBookId],
-    queryFn: async () => {
-      const res = await apiClient.get(
-        `/users/${userId}/books/${selectedBookId}`,
-      );
-      return res.data;
-    },
-    enabled: !!userId && !!selectedBookId,
-    staleTime: Infinity,
-  });
+  const { data: userBookRecord, isPending } = useGetBookStatus(
+    userId,
+    selectedBookId,
+  );
 
   const handleOnClickBook = (bookId: number) => {
     setSelectedBookId(bookId);

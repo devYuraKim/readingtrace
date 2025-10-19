@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
-import { apiClient } from '@/queries/axios';
+import { useState } from 'react';
+import {
+  useCreateBookStatus,
+  useDeleteBookStatus,
+  useUpdateBookStatus,
+} from '@/queries/book-status.mutation';
+import {
+  bookStatusFormSchema,
+  BookStatusFormValues,
+} from '@/schemas/book-status.schemas';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BookStartDialogProps } from '@/types/props.types';
 import { ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
-import z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,35 +30,6 @@ import BookShelfSelect from './BookShelfSelect';
 import BookStatusSelect from './BookStatusSelect';
 import BookVisibilitySelect from './BookVisibilitySelect';
 
-const formSchema = z.object({
-  status: z.enum(
-    ['want-to-read', 'already-read', 'currently-reading', 'never-finished'],
-    {
-      message: 'Please select a reading status.',
-    },
-  ),
-  visibility: z.enum(['public', 'private', 'friends'], {
-    message: 'Please select a visibility option.',
-  }),
-  rating: z
-    .number({ message: 'Please provide a rating.' })
-    .min(0)
-    .max(5)
-    .nullish(),
-  shelfId: z.number().nullish(),
-  startDate: z.date().nullish(),
-  endDate: z.date().nullish(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-type BookStartDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  initialData: any;
-  selectedBookId: number;
-};
-
 const BookStartDialog = ({
   open,
   onOpenChange,
@@ -61,88 +39,38 @@ const BookStartDialog = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
-  const queryClient = useQueryClient();
   const userId = useAuthStore.getState().user?.userId;
 
-  const addBookMutation = useMutation({
-    mutationFn: async (payload: FormValues) => {
-      await apiClient.post(`/users/${userId}/books/${selectedBookId}`, {
-        ...payload,
-      });
-    },
-    onSuccess: () => {
-      toast.success('Book added successfully');
-      queryClient.invalidateQueries({
-        queryKey: ['userBook', userId, selectedBookId],
-      });
-    },
-    onError: () => {
-      toast.error('Failed to add book');
-    },
+  const createMutation = useCreateBookStatus(userId, selectedBookId);
+  const updateMutation = useUpdateBookStatus(userId, selectedBookId);
+  const deleteMutation = useDeleteBookStatus(userId, selectedBookId, () => {
+    handleOpenChange(false);
+    setOpenConfirmDialog(false);
   });
 
-  const updateBookMutation = useMutation({
-    mutationFn: (payload: FormValues) =>
-      apiClient.put(`/users/${userId}/books/${selectedBookId}`, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['userBook', userId, selectedBookId],
-      });
-      toast.success('Book updated successfully!');
-    },
-    onError: () => {
-      toast.error('Failed to update book');
-    },
-  });
-
-  const deleteBookMutation = useMutation({
-    mutationFn: () =>
-      apiClient.delete(`/users/${userId}/books/${selectedBookId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['userBook', userId, selectedBookId],
-      });
-      handleOpenChange(!open);
-      toast.success('Book deleted successfully!');
-      setOpenConfirmDialog(false);
-    },
-    onError: () => {
-      toast.error('Failed to delete book');
-    },
-  });
-
-  const defaultFormValues = {
-    status: null,
-    visibility: null,
-    rating: null,
-    shelfId: null,
-    startDate: null,
-    endDate: null,
+  const initialFormValues = {
+    status: initialData?.status ?? null,
+    visibility: initialData?.visibility ?? null,
+    rating: initialData?.rating ?? null,
+    shelfId: initialData?.shelfId ?? null,
+    startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
+    endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
   };
 
-  const initialValues = initialData
-    ? {
-        status: initialData.status || null,
-        visibility: initialData.visibility || null,
-        rating: initialData.rating || null,
-        shelfId: initialData.shelfId || null,
-        startDate: initialData.startDate
-          ? new Date(initialData.startDate)
-          : null,
-        endDate: initialData.endDate ? new Date(initialData.endDate) : null,
-      }
-    : defaultFormValues;
-
-  const [formValues, setFormValues] = useState<FormValues>(initialValues);
+  const [formValues, setFormValues] =
+    useState<BookStatusFormValues>(initialData);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setFormValues(initialValues);
+      setFormValues(initialFormValues);
     }
     onOpenChange(open);
   };
 
-  const handleChange = (field: keyof FormValues, value: FormValues) => {
+  const handleChange = (
+    field: keyof BookStatusFormValues,
+    value: BookStatusFormValues,
+  ) => {
     setFormValues((prev) => {
       const updated = { ...prev, [field]: value };
       const { startDate, endDate } = updated;
@@ -159,12 +87,12 @@ const BookStartDialog = ({
   };
 
   const handleDeleteConfirm = () => {
-    deleteBookMutation.mutate();
+    deleteMutation.mutate();
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = formSchema.safeParse(formValues);
+    const result = bookStatusFormSchema.safeParse(formValues);
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {
@@ -187,9 +115,9 @@ const BookStartDialog = ({
     console.log(payload);
 
     if (initialData.userId) {
-      updateBookMutation.mutate(payload);
+      updateMutation.mutate(payload);
     } else {
-      addBookMutation.mutate(payload);
+      createMutation.mutate(payload);
     }
   };
 
