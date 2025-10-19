@@ -42,6 +42,8 @@ public class Book {
 
     private Long ratingsCount;
 
-    //TODO: Dimensions, AccessInfo >> include these?
+    @Column(columnDefinition = "json")
+    private String metadata;
 
+    //TODO: Dimensions, AccessInfo >> include these?
 }

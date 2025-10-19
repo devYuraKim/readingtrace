@@ -36,4 +36,7 @@ public class UserBookStatus extends BaseEntity {
     private Date startDate;
     
     private Date endDate;
+
+    @Column(columnDefinition = "json")
+    private String metadata;
 }
