@@ -7,9 +7,10 @@ import lombok.Setter;
 
 import java.util.List;
 
+
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class BookSearchResultDto {
-    private List<GoogleBookDto> books;
+public class GoogleBooksSearchResultDto {
+    private List<BookDto> books;
     private int totalItems;
 }

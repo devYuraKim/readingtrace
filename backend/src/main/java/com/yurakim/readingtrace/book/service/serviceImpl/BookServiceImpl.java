@@ -1,8 +1,8 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
-import com.yurakim.readingtrace.book.dto.BookSearchResultDto;
+import com.yurakim.readingtrace.book.dto.BookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBooksSearchResultDto;
 import com.yurakim.readingtrace.book.dto.GoogleBookDto;
-import com.yurakim.readingtrace.book.dto.GoogleBooksResponseDto;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class BookServiceImpl implements BookService {
     private final Environment env;
 
     @Override
-    public BookSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {
+    public GoogleBooksSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {
         String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
         String searchPrefix = switch (searchType) {
             case "author" -> "inauthor:";
@@ -46,25 +46,25 @@ public class BookServiceImpl implements BookService {
         RestClient client = RestClient.create();
 
         //searchWord will be encoded here, no need to do it before; causes double encoding issue
-        GoogleBooksResponseDto response = client
+        GoogleBookDto response = client
                 .get()
                 .uri(url)
                 .retrieve()
-                .body(GoogleBooksResponseDto.class);
+                .body(GoogleBookDto.class);
 
         if(response.getItems() == null){
-            return new BookSearchResultDto(Collections.emptyList(), 0);
+            return new GoogleBooksSearchResultDto(Collections.emptyList(), 0);
         }
 
-        List<GoogleBookDto> books =  response.getItems().stream()
-            .map(this::mapToGoogleBookDto)
+        List<BookDto> books =  response.getItems().stream()
+            .map(this::mapToBookDto)
             .collect(Collectors.toList());
 
-        return new BookSearchResultDto(books, response.getTotalItems());
+        return new GoogleBooksSearchResultDto(books, response.getTotalItems());
     }
 
     @Override
-    public Flux<GoogleBookDto> reactiveSearchBook(String searchType, String searchWord) {
+    public Flux<BookDto> reactiveSearchBook(String searchType, String searchWord) {
         String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
         String searchPrefix = switch (searchType) {
             case "author" -> "inauthor:";
@@ -83,7 +83,7 @@ public class BookServiceImpl implements BookService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response ->
                         Mono.error(new RuntimeException("**********Google Books API error: " + response.statusCode())))
-                .bodyToMono(GoogleBooksResponseDto.class)
+                .bodyToMono(GoogleBookDto.class)
                 .timeout(Duration.ofSeconds(30))
                 .flatMapMany(response -> {
                     if (response.getItems() == null || response.getItems().isEmpty()) {
@@ -92,7 +92,7 @@ public class BookServiceImpl implements BookService {
 
                     // Convert to Flux and emit one by one
                     return Flux.fromIterable(response.getItems())
-                            .map(this::mapToGoogleBookDto)
+                            .map(this::mapToBookDto)
                             .doOnNext(book -> System.out.println("**********Service emitting: " + book.getTitle()));
                 })
                 .onErrorResume(Exception.class, ex -> {
@@ -103,24 +103,48 @@ public class BookServiceImpl implements BookService {
 
     }
 
-    private GoogleBookDto mapToGoogleBookDto(GoogleBooksResponseDto.BookItem item){
-        GoogleBooksResponseDto.VolumeInfo vi = item.getVolumeInfo();
+    private BookDto mapToBookDto(GoogleBookDto.BookItem item){
+        GoogleBookDto.VolumeInfo vi = item.getVolumeInfo();
 
-        List<String> authors = vi.getAuthors() != null ? vi.getAuthors() : List.of();
-        List<GoogleBooksResponseDto.IndustryIdentifier> ids =
+        List<GoogleBookDto.IndustryIdentifier> ids =
                 vi.getIndustryIdentifiers() != null ? vi.getIndustryIdentifiers() : List.of();
 
-        return new GoogleBookDto(
-                item.getId(),
-                vi.getTitle(),
-                String.join(", ", authors),
-                vi.getImageLinks() != null ? vi.getImageLinks().getThumbnail() : "",
-                vi.getPublisher(),
-                vi.getPublishedDate(),
-                vi.getDescription(),
-                ids.size() > 0 ? ids.get(0).getIdentifier() : "",
-                ids.size() > 1 ? ids.get(1).getIdentifier() : ""
+        return new BookDto(
+                null, //bookId
+                item.getId(), //externalId
+                vi.getTitle(), //title
+                vi.getAuthors(), //authors
+                vi.getImageLinks() != null ? vi.getImageLinks().getThumbnail() : "", //imageLinks
+                vi.getPublisher(), //publisher
+                vi.getPublishedDate(), //publishedDate
+                vi.getDescription(), //description
+                ids.size() > 0 ? ids.get(0).getIdentifier() : "", //isbn10
+                ids.size() > 1 ? ids.get(1).getIdentifier() : "", //isbn13
+                vi.getPageCount(), //pageCount
+                vi.getMainCategory(), // String mainCategory
+                vi.getCategories(), //categories
+                vi.getAverageRating(), //Double averageRatings
+                vi.getRatingsCount(), //Long ratingsCount
+                vi.getLanguage() //String lanauge
         );
     }
+
+    private Long bookId;
+    private String externalId;
+    private String title;
+    private String authors;
+    private String imageLinks;
+    private String publisher;
+    private String publishedDate;
+    private String description;
+    private String isbn10;
+    private String isbn13;
+    private Integer pageCount;
+    private String mainCategory;
+    private String categories;
+    private Double averageRating;
+    private Long ratingsCount;
+    private String language;
+
 
 }
