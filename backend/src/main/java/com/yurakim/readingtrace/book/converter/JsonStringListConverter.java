@@ -1,4 +1,4 @@
-package com.yurakim.readingtrace.book.util;
+package com.yurakim.readingtrace.book.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

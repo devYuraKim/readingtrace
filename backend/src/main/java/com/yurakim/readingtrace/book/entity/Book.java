@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.book.entity;
 
-import com.yurakim.readingtrace.book.util.JsonStringListConverter;
+import com.yurakim.readingtrace.book.converter.JsonStringListConverter;
 import com.yurakim.readingtrace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
