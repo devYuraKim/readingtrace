@@ -10,7 +10,7 @@ import java.util.Date;
 @ToString(callSuper = true)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "bookId"}))
 @Entity
-public class UserBookStatus extends BaseEntity {
+public class UserReadingStatus extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class UserBookStatusDto {
+public class UserReadingStatusDto {
     private Long userId;
     private Long shelfId;
     private Long bookId;
