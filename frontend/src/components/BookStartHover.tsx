@@ -1,9 +1,9 @@
+import { BookDto } from '@/types/book.types';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { BookDto } from '@/lib/books';
 
 export default function BookStartHover({ book }: { book: BookDto }) {
   return (
@@ -13,7 +13,12 @@ export default function BookStartHover({ book }: { book: BookDto }) {
         <div className="flex justify-between gap-4">
           <div className="space-y-1">
             <h4 className="text-sm font-semibold">{book.title}</h4>
-            <p className="text-sm">By {book.authors}</p>
+            <p className="text-sm">
+              By{' '}
+              {!book?.authors || book.authors.length === 0
+                ? 'Author N/A'
+                : book.authors.join(', ')}
+            </p>
             <div className="text-muted-foreground text-xs">
               {book.publishedDate}
             </div>
