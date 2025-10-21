@@ -25,7 +25,7 @@ public class UserBookStatusServiceImpl implements UserBookStatusService {
 
     @Override
     @Transactional
-    public void addUserBookStatus(UserBookStatusDto userBookStatusDto) {
+    public void createUserBookStatus(UserBookStatusDto userBookStatusDto) {
         UserBookStatus userBookStatus = new UserBookStatus();
         userBookStatus.setUserId(userBookStatusDto.getUserId());
         userBookStatus.setBookId(userBookStatusDto.getBookId());

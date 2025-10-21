@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface UserBookStatusService {
 
-    void addUserBookStatus(UserBookStatusDto userBookStatusDto);
+    void createUserBookStatus(UserBookStatusDto userBookStatusDto);
     UserBookStatusDto getUserBookStatus(Long userId, Long bookId);
     UserBookStatusDto updateUserBookStatus(UserBookStatusDto userBookStatusDto);
     void deleteUserBookStatus(Long userId, Long bookId);
