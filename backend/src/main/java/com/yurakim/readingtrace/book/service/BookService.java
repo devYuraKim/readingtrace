@@ -6,7 +6,8 @@ import reactor.core.publisher.Flux;
 
 public interface BookService {
 
-
+    BookDto createOrGetBook(BookDto bookDto);
+    
     GoogleBooksSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage);
 
     Flux<BookDto> reactiveSearchBook(String searchType, String searchWord);

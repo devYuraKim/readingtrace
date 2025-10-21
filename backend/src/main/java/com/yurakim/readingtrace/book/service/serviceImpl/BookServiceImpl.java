@@ -1,8 +1,11 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
 import com.yurakim.readingtrace.book.dto.BookDto;
-import com.yurakim.readingtrace.book.dto.GoogleBooksSearchResultDto;
 import com.yurakim.readingtrace.book.dto.GoogleBookDto;
+import com.yurakim.readingtrace.book.dto.GoogleBooksSearchResultDto;
+import com.yurakim.readingtrace.book.entity.Book;
+import com.yurakim.readingtrace.book.mapper.BookMapper;
+import com.yurakim.readingtrace.book.repository.BookRepository;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,20 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
     private final WebClient webClient;
     private final Environment env;
+
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
+
+    @Override
+    public BookDto createOrGetBook(BookDto bookDto) {
+        Book book = bookRepository
+                .findByExternalId(bookDto.getExternalId())
+                .orElseGet(() -> {
+                    Book newBook = bookMapper.mapToEntity(bookDto);
+                    return bookRepository.save(newBook);
+                });
+        return bookMapper.mapToDto(book);
+    }
 
     @Override
     public GoogleBooksSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {
