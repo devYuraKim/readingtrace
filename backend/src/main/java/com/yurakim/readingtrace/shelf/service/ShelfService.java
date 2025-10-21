@@ -10,6 +10,6 @@ public interface ShelfService {
 
     void createDefaultShelves(Long userId);
 
-    List<ShelfDto> createUserShelf(Long userId, String shelfName);
+    ShelfDto createUserShelf(Long userId, String shelfName);
 
     }

@@ -2,6 +2,7 @@ package com.yurakim.readingtrace.shelf.service.serviceImpl;
 
 import com.yurakim.readingtrace.shelf.dto.ShelfDto;
 import com.yurakim.readingtrace.shelf.entity.Shelf;
+import com.yurakim.readingtrace.shelf.mapper.ShelfMapper;
 import com.yurakim.readingtrace.shelf.repository.ShelfRepository;
 import com.yurakim.readingtrace.shelf.service.ShelfService;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ShelfServiceImpl implements ShelfService {
 
     private final ShelfRepository shelfRepository;
+    private final ShelfMapper shelfMapper;
 
     private static final List<String> DEFAULT_SHELF_NAMES = List.of(
             "Want to Read",
@@ -40,27 +42,19 @@ public class ShelfServiceImpl implements ShelfService {
     @Override
     public List<ShelfDto> getUserShelves(Long userId) {
         List<Shelf> userShelves = shelfRepository.findByUserId(userId);
-        return userShelves.stream().map(shelf -> {
-            ShelfDto shelfDto = new ShelfDto();
-            shelfDto.setShelfId(shelf.getId());
-            shelfDto.setUserId(shelf.getUserId());
-            shelfDto.setName(shelf.getName());
-            shelfDto.setSlug(shelf.getSlug());
-            shelfDto.setDescription(shelf.getDescription());
-            shelfDto.setBookCount(shelf.getBookCount());
-            shelfDto.setIsDefault(shelf.getIsDefault());
-            return shelfDto;
-        }).toList();
+        return userShelves.stream().map(shelfMapper::mapToDto).toList();
     }
 
     @Override
-    public List<ShelfDto> createUserShelf(Long userId, String shelfName) {
-        Shelf userShelf = new Shelf();
-        userShelf.setUserId(userId);
-        userShelf.setName(shelfName);
-        userShelf.setSlug(shelfName.toLowerCase().replace(" ", "-"));
-        userShelf.setIsDefault(false);
-        shelfRepository.save(userShelf);
-        return getUserShelves(userId);
+    public ShelfDto createUserShelf(Long userId, String shelfName) {
+        Shelf newShelf = new Shelf();
+        newShelf.setUserId(userId);
+        newShelf.setName(shelfName);
+        newShelf.setSlug(shelfName.toLowerCase().replace(" ", "-"));
+        newShelf.setIsDefault(false);
+        shelfRepository.save(newShelf);
+
+        return shelfMapper.mapToDto(newShelf);
     }
+
 }

@@ -25,9 +25,9 @@ public class UserShelfController {
     }
 
     @PostMapping
-    public ResponseEntity<List<ShelfDto>> createUserShelf(@PathVariable Long userId, @RequestBody CreateShelfRequestDto csrd){
-        List<ShelfDto> resultList = shelfService.createUserShelf(userId, csrd.getShelfName());
-        return ResponseEntity.ok(resultList);
+    public ResponseEntity<ShelfDto> createUserShelf(@PathVariable Long userId, @RequestBody CreateShelfRequestDto csrDto){
+        ShelfDto resultShelf = shelfService.createUserShelf(userId, csrDto.getShelfName());
+        return ResponseEntity.ok(resultShelf);
     }
 
 }
