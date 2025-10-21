@@ -14,20 +14,23 @@ public class UserBookDto {
 
     //Book
     private Long bookId;
+    private String externalId;
     private String title;
-    private String authors;
-    private String imageURL;
+    private List<String> authors;
+    private String imageLinks;
     private String publisher;
     private String publishedDate;
     private String description;
     private String isbn10;
     private String isbn13;
     private Integer pageCount;
+    private String mainCategory;
     private List<String> categories;
     private Double averageRating;
     private Long ratingsCount;
-    //UserBookStatus
-    private Long userBookStatusId;
+    private String language;
+    //UserReadingStatus
+    private Long userReadingStatusId;
     private Long userId;
     private Long shelfId;
     private String status;
@@ -36,7 +39,7 @@ public class UserBookDto {
     private Date startDate;
     private Date endDate;
     private String userBookStatusMetadata;
-    private LocalDateTime userBookStatusCreatedAt;
-    private LocalDateTime userBookStatusUpdatedAt;
+    private LocalDateTime userReadingStatusCreatedAt;
+    private LocalDateTime userReadingStatusUpdatedAt;
 
 }
