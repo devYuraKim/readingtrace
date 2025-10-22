@@ -1,13 +1,16 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const userId = useAuthStore((state) => state.user?.userId);
 
   const handleClick = () => {
+    queryClient.setQueryData(['userBook', userId, userBook.bookId], userBook);
     navigate(`/users/${userId}/books/${userBook.bookId}`);
   };
 
