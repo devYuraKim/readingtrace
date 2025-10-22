@@ -5,9 +5,9 @@ import {
   useUpdateUserBook,
 } from '@/queries/book-status.mutation';
 import {
-  bookStatusFormSchema,
-  BookStatusFormValues,
-} from '@/schemas/book-status.schemas';
+  readingStatusFormSchema,
+  ReadingStatusFormValues,
+} from '@/schemas/reading-status.schemas';
 import { useAuthStore } from '@/store/useAuthStore';
 import { BookStartDialogProps } from '@/types/props.types';
 import { ChevronsUpDown } from 'lucide-react';
@@ -61,7 +61,7 @@ const BookStartDialog = ({
   };
 
   const [formValues, setFormValues] =
-    useState<BookStatusFormValues>(initialFormValues);
+    useState<ReadingStatusFormValues>(initialFormValues);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -71,8 +71,8 @@ const BookStartDialog = ({
   };
 
   const handleChange = (
-    field: keyof BookStatusFormValues,
-    value: BookStatusFormValues,
+    field: keyof ReadingStatusFormValues,
+    value: ReadingStatusFormValues,
   ) => {
     setFormValues((prev) => {
       const updated = { ...prev, [field]: value };
@@ -95,7 +95,7 @@ const BookStartDialog = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = bookStatusFormSchema.safeParse(formValues);
+    const result = readingStatusFormSchema.safeParse(formValues);
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {

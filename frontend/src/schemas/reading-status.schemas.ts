@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const bookStatusFormSchema = z.object({
+export const readingStatusFormSchema = z.object({
   userReadingStatusId: z.number(),
   status: z.enum(
     ['want-to-read', 'already-read', 'currently-reading', 'never-finished'],
@@ -21,4 +21,4 @@ export const bookStatusFormSchema = z.object({
   endDate: z.date().nullish(),
 });
 
-export type BookStatusFormValues = z.infer<typeof bookStatusFormSchema>;
+export type ReadingStatusFormValues = z.infer<typeof readingStatusFormSchema>;

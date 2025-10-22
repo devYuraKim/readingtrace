@@ -1,4 +1,4 @@
-import { BookStatusFormValues } from '@/schemas/book-status.schemas';
+import { ReadingStatusFormValues } from '@/schemas/reading-status.schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from './axios';
@@ -6,7 +6,7 @@ import { apiClient } from './axios';
 export const useCreateUserBook = (userId: number | undefined) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: BookStatusFormValues) => {
+    mutationFn: async (payload: ReadingStatusFormValues) => {
       await apiClient.post(`/users/${userId}/books`, {
         ...payload,
       });
@@ -30,7 +30,7 @@ export const useUpdateUserBook = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: BookStatusFormValues) =>
+    mutationFn: (payload: ReadingStatusFormValues) =>
       apiClient.put(`/users/${userId}/books/${bookId}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({

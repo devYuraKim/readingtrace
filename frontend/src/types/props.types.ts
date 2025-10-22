@@ -1,5 +1,5 @@
-import { ReadingStatusInitialFormValues } from './book-status.types';
 import { BookDto } from './book.types';
+import { ReadingStatusInitialFormValues } from './reading-status.types';
 
 // export type BookStartDialogProps = {
 //   open: boolean;

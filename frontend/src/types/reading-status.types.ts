@@ -1,12 +1,12 @@
-import { BookStatusFormValues } from '@/schemas/book-status.schemas';
+import { ReadingStatusFormValues } from '@/schemas/reading-status.schemas';
 
 export type ReadingStatusInitialFormValues = {
   userReadingStatusId: number;
   userId: number;
   shelfId: number;
   bookId: number;
-  status: BookStatusFormValues['status'];
-  visibility: BookStatusFormValues['visibility'];
+  status: ReadingStatusFormValues['status'];
+  visibility: ReadingStatusFormValues['visibility'];
   rating: number;
   startDate: Date;
   endDate: Date;
