@@ -74,7 +74,7 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     }
 
     @Override
-    public List<UserReadingStatusDto> getUserBooksStatus(Long userId, Long shelfId, String status, String visibility, Integer rating) {
+    public List<UserReadingStatusDto> getUserReadingStatuses(Long userId, Long shelfId, String status, String visibility, Integer rating) {
         Specification<UserReadingStatus> spec = UserReadingStatusSpecs.hasUserId(userId);
 
         if (shelfId != null) spec = spec.and(UserReadingStatusSpecs.hasShelfId(shelfId));

@@ -11,6 +11,6 @@ public interface UserReadingStatusService {
     UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto userReadingStatusDto);
     void deleteUserReadingStatus(Long userId, Long bookId);
 
-    List<UserReadingStatusDto> getUserBooksStatus(Long userId, Long shelfId, String status, String visibility, Integer rating);
+    List<UserReadingStatusDto> getUserReadingStatuses(Long userId, Long shelfId, String status, String visibility, Integer rating);
 
 }
