@@ -1,3 +1,5 @@
+import { UserReadingStatusDto } from './reading-status.types';
+
 export type BookDto = {
   bookId: number | null;
   externalId: string | null;
@@ -16,3 +18,5 @@ export type BookDto = {
   ratingsCount: number | null;
   language: string | null;
 };
+
+export type UserBookDto = BookDto & UserReadingStatusDto;

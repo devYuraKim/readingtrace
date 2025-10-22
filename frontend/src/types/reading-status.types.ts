@@ -11,3 +11,18 @@ export type ReadingStatusInitialFormValues = {
   startDate: Date;
   endDate: Date;
 };
+
+export type UserReadingStatusDto = {
+  userReadingStatusId: number;
+  userId: number;
+  shelfId: number;
+  status: string;
+  visibility: string;
+  rating: number;
+  startDate: Date;
+  endDate: Date;
+  userBookStatusMetadata: string;
+  //TODO: below to properties are of type LocalDateTime, for now keeping them as string
+  userReadingStatusCreatedAt: string;
+  userReadingStatusUpdatedAt: string;
+};
