@@ -1,7 +1,7 @@
 import z from 'zod';
 
 export const readingStatusFormSchema = z.object({
-  userReadingStatusId: z.number(),
+  userReadingStatusId: z.number().nullish(),
   status: z.enum(
     ['want-to-read', 'already-read', 'currently-reading', 'never-finished'],
     {
