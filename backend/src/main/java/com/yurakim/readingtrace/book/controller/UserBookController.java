@@ -3,13 +3,15 @@ package com.yurakim.readingtrace.book.controller;
 import com.yurakim.readingtrace.book.dto.BookDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
 import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
+import com.yurakim.readingtrace.book.mapper.UserBookMapper;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.book.service.UserReadingStatusService;
-import com.yurakim.readingtrace.book.mapper.UserBookMapper;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -67,12 +69,15 @@ public class UserBookController {
         return ResponseEntity.ok().build();
     }
 
-//    //UserBook
-//    @GetMapping
-//    public ResponseEntity<List<UserReadingStatusDto>> getUserBooksStatus(@PathVariable Long userId, @RequestParam Long shelfId){
-////        List<UserReadingStatusDto> resultDtoList = userReadingStatusService.getUserBooksStatus(userId, shelfId, null, null, null);
-////        return ResponseEntity.ok(resultDtoList);
-//        List<UserBookDto> userBooks = userBookService.getUserBooks(userId, shelfId);
-//        return null;
-//    }
+    @GetMapping
+    public ResponseEntity<List<UserBookDto>> getUserBooks(@PathVariable Long userId, @RequestParam Long shelfId) {
+        //TODO: separate this logic to Service layer
+        List<UserReadingStatusDto> ursDtoList = userReadingStatusService.getUserReadingStatuses(userId, shelfId, null, null, null);
+        List<UserBookDto> userBookDtoList = ursDtoList.stream().map(ursDto -> {
+            BookDto bookDto = bookService.getBookById(ursDto.getBookId());
+            return userBookMapper.combineDTOs(bookDto, ursDto);
+        }).toList();
+        return ResponseEntity.ok(userBookDtoList);
+    }
+
 }
