@@ -1,5 +1,6 @@
 import { useUserShelves } from '@/queries/useUserShelves';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Shelf } from '@/types/shelf.types';
 import { ChevronRight } from 'lucide-react';
 import { SearchForm } from '@/components/SearchForm';
 import {
@@ -20,7 +21,6 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { VersionSwitcher } from '@/components/VersionSwitcher';
-import { Shelf } from '@/lib/shelves';
 
 // This is sample data.
 const data = {

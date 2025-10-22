@@ -1,5 +1,5 @@
+import { Shelf } from '@/types/shelf.types';
 import { useQuery } from '@tanstack/react-query';
-import { Shelf } from '@/lib/shelves';
 import { apiClient } from './axios';
 
 export const useUserShelves = (userId: number | undefined) => {
