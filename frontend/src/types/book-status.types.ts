@@ -1,6 +1,7 @@
 import { BookStatusFormValues } from '@/schemas/book-status.schemas';
 
-export type BookStatusInitialFormValues = {
+export type ReadingStatusInitialFormValues = {
+  userReadingStatusId: number;
   userId: number;
   shelfId: number;
   bookId: number;
