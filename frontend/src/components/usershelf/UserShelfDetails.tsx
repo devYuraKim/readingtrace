@@ -3,8 +3,9 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookDto } from '@/types/book.types';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import UserBookCard from './UserBookCard';
 
-const ShelfDetails = () => {
+const UserShelfDetails = () => {
   const [searchParams] = useSearchParams();
   const shelfId = searchParams.get('shelfId');
 
@@ -25,9 +26,12 @@ const ShelfDetails = () => {
   return (
     <>
       <div>ShelfDetails</div>
-      {!isPending && userBooks?.map((userBook) => <div>{userBook.bookId}</div>)}
+      {!isPending &&
+        userBooks?.map((userBook) => (
+          <UserBookCard key={userBook.bookId} data={userBook} />
+        ))}
     </>
   );
 };
 
-export default ShelfDetails;
+export default UserShelfDetails;

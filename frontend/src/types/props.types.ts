@@ -1,4 +1,4 @@
-import { BookDto } from './book.types';
+import { BookDto, UserBookDto } from './book.types';
 import { ReadingStatusInitialFormValues } from './reading-status.types';
 
 // export type BookStartDialogProps = {
@@ -13,4 +13,8 @@ export type BookStartDialogProps = {
   onOpenChange: (open: boolean) => void;
   initialData: ReadingStatusInitialFormValues;
   book: BookDto;
+};
+
+export type UserBookCardProps = {
+  data: UserBookDto;
 };
