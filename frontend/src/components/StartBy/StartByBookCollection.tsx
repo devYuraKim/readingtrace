@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGetBookStatus } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
+import { BookDto } from '@/types/book.types';
 import BookStartDialog from '@/components/BookStartDialog/BookStartDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -10,23 +11,24 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { BookCollection } from '@/lib/books';
+import { BookCollection } from '@/lib/book.data';
 import StartByBookCollectionCTA from './StartByBookCollectionCTA';
 import StartByBookSearchLink from './StartByBookSearchLink';
 
 const StartByBookCollection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedBookId, setSelectedBookId] = useState<number>();
+  const [selectedBook, setSelectedBook] = useState<BookDto>();
 
   const userId = useAuthStore.getState().user?.userId;
 
+  // TODO: make sure bookId is not null
   const { data: userBookRecord, isPending } = useGetBookStatus(
     userId,
-    selectedBookId,
+    selectedBook?.bookId,
   );
 
-  const handleOnClickBook = (bookId: number) => {
-    setSelectedBookId(bookId);
+  const handleOnClickBook = (book: BookDto) => {
+    setSelectedBook(book);
     setDialogOpen(true);
   };
 
@@ -48,7 +50,7 @@ const StartByBookCollection = () => {
                 className="md:basis-1/4 lg:basis-1/3"
               >
                 <Card className="cursor-pointer">
-                  <CardContent onClick={() => handleOnClickBook(book.bookId)}>
+                  <CardContent onClick={() => handleOnClickBook(book)}>
                     <img
                       className="rounded-sm"
                       src={book.imageLinks}
@@ -63,12 +65,12 @@ const StartByBookCollection = () => {
           <CarouselNext />
         </Carousel>
 
-        {selectedBookId && !isPending && (
+        {selectedBook && !isPending && (
           <BookStartDialog
-            key={selectedBookId}
+            key={selectedBook.bookId}
             open={dialogOpen}
             onOpenChange={setDialogOpen}
-            selectedBookId={selectedBookId}
+            book={selectedBook}
             initialData={userBookRecord}
           />
         )}

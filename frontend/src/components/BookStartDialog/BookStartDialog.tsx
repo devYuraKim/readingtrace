@@ -23,7 +23,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { BookCollection } from '@/lib/books';
 import { SingleDatePicker } from '../SingleDatePicker';
 import BookRatingSelect from './BookRatingSelect';
 import BookShelfSelect from './BookShelfSelect';
@@ -34,21 +33,25 @@ const BookStartDialog = ({
   open,
   onOpenChange,
   initialData,
-  selectedBookId,
+  book,
 }: BookStartDialogProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
   const userId = useAuthStore.getState().user?.userId;
 
-  const createMutation = useCreateBookStatus(userId, selectedBookId);
-  const updateMutation = useUpdateBookStatus(userId, selectedBookId);
-  const deleteMutation = useDeleteBookStatus(userId, selectedBookId, () => {
+  const createMutation = useCreateBookStatus(userId);
+  //TODO: make sure book.bookId is not null
+  const updateMutation = useUpdateBookStatus(userId, book.bookId);
+  //TODO: make sure book.bookId is not null
+  const deleteMutation = useDeleteBookStatus(userId, book.bookId, () => {
     handleOpenChange(false);
     setOpenConfirmDialog(false);
   });
 
+  //TODO: check if userReadingStatusId should be included in the initialFormValues or can be separated
   const initialFormValues = {
+    userReadingStatusId: initialData?.userReadingStatusId ?? null,
     status: initialData?.status ?? null,
     visibility: initialData?.visibility ?? null,
     rating: initialData?.rating ?? null,
@@ -58,7 +61,7 @@ const BookStartDialog = ({
   };
 
   const [formValues, setFormValues] =
-    useState<BookStatusFormValues>(initialData);
+    useState<BookStatusFormValues>(initialFormValues);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -104,24 +107,40 @@ const BookStartDialog = ({
     }
 
     const payload = {
+      // UserReadingStatus
+      userReadingStatusId: formValues.userReadingStatusId,
+      userId: userId,
       status: formValues.status,
       visibility: formValues.visibility,
       rating: formValues.rating,
       shelfId: formValues.shelfId ?? null,
       startDate: formValues.startDate,
       endDate: formValues.endDate,
+      // Book
+      bookId: book.bookId,
+      externalId: book.externalId,
+      title: book.title,
+      authors: book.authors,
+      imageLinks: book.imageLinks,
+      publisher: book.publisher,
+      publishedDate: book.publishedDate,
+      description: book.description,
+      isbn10: book.isbn10,
+      isbn13: book.isbn13,
+      pageCount: book.pageCount,
+      mainCategory: book.mainCategory,
+      categories: book.categories,
+      averageRating: book.averageRating,
+      ratingsCount: book.ratingsCount,
+      language: book.language,
     };
 
-    console.log(payload);
-
-    if (initialData.userId) {
+    if (initialData?.userId) {
       updateMutation.mutate(payload);
     } else {
       createMutation.mutate(payload);
     }
   };
-
-  const book = BookCollection.find((book) => book.bookId === selectedBookId);
 
   return (
     <>
@@ -136,6 +155,7 @@ const BookStartDialog = ({
                       ? '/placeholder.png'
                       : book.imageLinks
                   }
+                  //TODO: check schema 'null' and 'undefined' setup
                   alt={book?.title}
                   className="w-full object-cover text-xs text-muted-foreground rounded-xs"
                 />
@@ -144,7 +164,10 @@ const BookStartDialog = ({
                 <div>
                   <DialogTitle>{book?.title}</DialogTitle>
                   <DialogDescription>
-                    By {!book?.authors?.trim() ? 'Author N/A' : book.authors}
+                    By{' '}
+                    {!book?.authors || book.authors.length === 0
+                      ? 'Author N/A'
+                      : book.authors.join(', ')}
                   </DialogDescription>
                 </div>
 
@@ -260,10 +283,10 @@ const BookStartDialog = ({
             </div>
             <DialogFooter
               className={
-                initialData.userId ? '!justify-between' : 'justify-end'
+                initialData?.userId ? '!justify-between' : 'justify-end'
               }
             >
-              {initialData.userId && (
+              {initialData?.userId && (
                 <Button
                   type="button"
                   variant="outline"
@@ -274,7 +297,7 @@ const BookStartDialog = ({
                 </Button>
               )}
               <Button type="submit" className="cursor-pointer">
-                {initialData.userId ? 'Update' : 'Add'}
+                {initialData?.userId ? 'Update' : 'Add'}
               </Button>
             </DialogFooter>
           </form>
