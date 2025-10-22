@@ -36,36 +36,33 @@ public class UserBookController {
         return ResponseEntity.ok().build();
     }
 
-    //@PostMapping("/{bookId}")
-    //public ResponseEntity<Void> createUserReadingStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserReadingStatusDto userReadingStatusDto){
-    //    //let the path variables be the single source of truth
-    //    userReadingStatusDto.setUserId(userId);
-    //    userReadingStatusDto.setBookId(bookId);
-    //    userReadingStatusService.createUserReadingStatus(userReadingStatusDto);
-    //    return ResponseEntity.ok().build();
-    //}
-
-    //UserReadingStatus
-//    //TODO: should return both UserReadingStatus and Book
-//    @GetMapping("/{bookId}")
-//    public ResponseEntity<UserBookDto> getUserReadingStatus(@PathVariable Long userId, @PathVariable Long bookId){
-//        BookDto bookDto = bookService.getBookById(bookId);
-//        UserReadingStatusDto ursDto = userReadingStatusService.getUserReadingStatus(userId, bookId);
-//        UserBookDto combinedUserBookDto = userBookMapper.combineDTOs(bookDto, ursDto);
-//        return ResponseEntity.ok(combinedUserBookDto);
-//    }
-
-
-    @PutMapping("{bookId}")
-    public ResponseEntity<UserReadingStatusDto> updateUserReadingStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserReadingStatusDto userReadingStatusDto){
-        userReadingStatusDto.setUserId(userId);
-        userReadingStatusDto.setBookId(bookId);
-        UserReadingStatusDto resultDto = userReadingStatusService.updateUserReadingStatus(userReadingStatusDto);
-        return ResponseEntity.ok(resultDto);
+    @GetMapping("/{bookId}")
+    public ResponseEntity<UserBookDto> getUserBook(@PathVariable Long userId, @PathVariable Long bookId) {
+        BookDto bookDto = bookService.getBookById(bookId);
+        UserReadingStatusDto ursDto= userReadingStatusService.getUserReadingStatus(userId, bookId);
+        UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(bookDto, ursDto);
+        return ResponseEntity.ok().body(compositeUserBookDto);
     }
 
-    @DeleteMapping("{bookId}")
-    public ResponseEntity<Void> deleteUserReadingStatus(@PathVariable Long userId, @PathVariable Long bookId){
+    //TODO: resolve changing userReadingStatusId issue
+    @PutMapping("/{bookId}")
+    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
+        //Separate Book from UserBookDto
+        BookDto bookDto = userBookMapper.extractBookDto(userBookDto);
+        //Set userId and bookId with PathVariable as the single source of truth
+        userBookDto.setUserId(userId);
+        userBookDto.setBookId(bookId);
+        //Separate UserReadingStatus from UserBookDto
+        UserReadingStatusDto ursDto = userBookMapper.extractUserReadingStatusDto(userBookDto);
+        //Update UserReadingStatus
+        UserReadingStatusDto updatedURSDto = userReadingStatusService.updateUserReadingStatus(ursDto);
+        //Combine Book and UserReadingStatus to return UserBook
+        UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(bookDto, updatedURSDto);
+        return ResponseEntity.ok(compositeUserBookDto);
+    }
+
+    @DeleteMapping("/{bookId}")
+    public ResponseEntity<Void> deleteUserBook(@PathVariable Long userId, @PathVariable Long bookId){
         userReadingStatusService.deleteUserReadingStatus(userId, bookId);
         return ResponseEntity.ok().build();
     }

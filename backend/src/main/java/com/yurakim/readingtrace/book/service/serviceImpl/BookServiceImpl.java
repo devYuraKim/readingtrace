@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -41,6 +42,12 @@ public class BookServiceImpl implements BookService {
                     Book newBook = bookMapper.mapToEntity(bookDto);
                     return bookRepository.save(newBook);
                 });
+        return bookMapper.mapToDto(book);
+    }
+
+    @Override
+    public BookDto getBookById(@PathVariable Long bookId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(()->new RuntimeException("No book found with id: " + bookId));
         return bookMapper.mapToDto(book);
     }
 

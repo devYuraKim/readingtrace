@@ -40,12 +40,10 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
 
     @Override
     public UserReadingStatusDto getUserReadingStatus(Long userId, Long bookId) {
-        UserReadingStatus urs = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId);
-        //record not found if user hasn't added reading status yet
-        if(urs == null){
-            return new UserReadingStatusDto();
-        }
-        UserReadingStatusDto ursDto = userReadingStatusMapper.mapToDto(urs);
+        //Do not throw error when foundURS is null, instead return an empty URSDto
+        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseGet(()-> new UserReadingStatus());
+        UserReadingStatusDto ursDto = userReadingStatusMapper.mapToDto(foundURS);
         return ursDto;
     }
 
@@ -53,7 +51,8 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto ursDto){
         Long userId = ursDto.getUserId();
         Long bookId = ursDto.getBookId();
-        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId);
+        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseThrow(()-> new RuntimeException(String.format("FAILED TO UPDATE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));
         UserReadingStatus mappedURS = userReadingStatusMapper.mapToEntity(ursDto, foundURS);
         if(mappedURS.getShelfId() == null) {
             String shelfSlug = mappedURS.getStatus();
@@ -69,8 +68,9 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
 
     @Override
     public void deleteUserReadingStatus(Long userId, Long bookId) {
-        UserReadingStatus userBook = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId);
-        if(userBook != null) userReadingStatusRepository.delete(userBook);
+        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseThrow(()-> new RuntimeException(String.format("FAILED TO DELETE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));
+        if(foundURS != null) userReadingStatusRepository.delete(foundURS);
     }
 
     @Override
