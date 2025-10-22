@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './axios';
 
-export const useGetBookStatus = (
+export const useGetUserBook = (
   userId: number | undefined,
-  bookId: number | undefined,
+  bookId: number | undefined | null,
 ) => {
   return useQuery({
-    queryKey: ['userBookStatus', userId, bookId],
+    queryKey: ['userBook', userId, bookId],
     queryFn: async () => {
       const res = await apiClient.get(`/users/${userId}/books/${bookId}`);
       return res.data;

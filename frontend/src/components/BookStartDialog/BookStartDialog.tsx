@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import {
-  useCreateBookStatus,
-  useDeleteBookStatus,
-  useUpdateBookStatus,
+  useCreateUserBook,
+  useDeleteUserBook,
+  useUpdateUserBook,
 } from '@/queries/book-status.mutation';
 import {
   bookStatusFormSchema,
@@ -40,11 +40,11 @@ const BookStartDialog = ({
 
   const userId = useAuthStore.getState().user?.userId;
 
-  const createMutation = useCreateBookStatus(userId);
+  const createMutation = useCreateUserBook(userId);
   //TODO: make sure book.bookId is not null
-  const updateMutation = useUpdateBookStatus(userId, book.bookId);
+  const updateMutation = useUpdateUserBook(userId, book.bookId);
   //TODO: make sure book.bookId is not null
-  const deleteMutation = useDeleteBookStatus(userId, book.bookId, () => {
+  const deleteMutation = useDeleteUserBook(userId, book.bookId, () => {
     handleOpenChange(false);
     setOpenConfirmDialog(false);
   });

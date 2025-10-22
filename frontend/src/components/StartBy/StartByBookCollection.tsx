@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetBookStatus } from '@/queries/book-status.query';
+import { useGetUserBook } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { BookDto } from '@/types/book.types';
 import BookStartDialog from '@/components/BookStartDialog/BookStartDialog';
@@ -22,7 +22,7 @@ const StartByBookCollection = () => {
   const userId = useAuthStore.getState().user?.userId;
 
   // TODO: make sure bookId is not null
-  const { data: userBookRecord, isPending } = useGetBookStatus(
+  const { data: userBookRecord, isPending } = useGetUserBook(
     userId,
     selectedBook?.bookId,
   );

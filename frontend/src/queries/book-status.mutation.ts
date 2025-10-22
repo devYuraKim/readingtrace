@@ -3,21 +3,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from './axios';
 
-export const useCreateBookStatus = (
-  userId: number | undefined,
-  bookId: number,
-) => {
+export const useCreateUserBook = (userId: number | undefined) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: BookStatusFormValues) => {
-      await apiClient.post(`/users/${userId}/books/${bookId}`, {
+      await apiClient.post(`/users/${userId}/books`, {
         ...payload,
       });
     },
     onSuccess: () => {
       toast.success('Book added successfully');
       queryClient.invalidateQueries({
-        queryKey: ['userBookStatus', userId, bookId],
+        queryKey: ['userBook', userId],
       });
     },
     onError: () => {
@@ -26,9 +23,9 @@ export const useCreateBookStatus = (
   });
 };
 
-export const useUpdateBookStatus = (
+export const useUpdateUserBook = (
   userId: number | undefined,
-  bookId: number,
+  bookId: number | null,
 ) => {
   const queryClient = useQueryClient();
 
@@ -37,7 +34,7 @@ export const useUpdateBookStatus = (
       apiClient.put(`/users/${userId}/books/${bookId}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['userBookStatus', userId, bookId],
+        queryKey: ['userBook', userId, bookId],
       });
       toast.success('Book updated successfully!');
     },
@@ -47,9 +44,9 @@ export const useUpdateBookStatus = (
   });
 };
 
-export const useDeleteBookStatus = (
+export const useDeleteUserBook = (
   userId: number | undefined,
-  bookId: number,
+  bookId: number | null,
   onSuccessCallback?: () => void,
 ) => {
   const queryClient = useQueryClient();
@@ -58,7 +55,7 @@ export const useDeleteBookStatus = (
     mutationFn: () => apiClient.delete(`/users/${userId}/books/${bookId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['userBookStatus', userId, bookId],
+        queryKey: ['userBook', userId, bookId],
       });
       toast.success('Book deleted successfully!');
       onSuccessCallback?.();
