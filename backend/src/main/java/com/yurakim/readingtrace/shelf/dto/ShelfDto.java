@@ -16,4 +16,8 @@ public class ShelfDto {
     private String description;
     private Integer bookCount;
     private Boolean isDefault;
+    private Long defaultShelfId;
+    private Boolean isHidden;
+    private Integer orderIndex;
+
 }
