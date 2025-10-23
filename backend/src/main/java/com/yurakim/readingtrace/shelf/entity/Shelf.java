@@ -45,7 +45,6 @@ public class Shelf extends BaseEntity {
     @Column(nullable = false)
     private Boolean isHidden = false;
 
-    @Column(nullable = false)
     private Integer orderIndex;
 
 }
