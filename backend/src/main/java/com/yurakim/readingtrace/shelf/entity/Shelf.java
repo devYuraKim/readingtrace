@@ -35,7 +35,7 @@ public class Shelf extends BaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private Integer bookCount = 0;
+    private Long bookCount = 0L;
 
     @Column(nullable = false)
     private Boolean isHidden = false;

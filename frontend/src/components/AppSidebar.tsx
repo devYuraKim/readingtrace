@@ -1,6 +1,7 @@
 import { useCustomShelves } from '@/queries/useCustomShelves';
+import { useDefaultShelves } from '@/queries/useDefaultShelves';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Shelf } from '@/types/shelf.types';
+import { CustomShelf, DefaultShelf } from '@/types/shelf.types';
 import { ChevronRight } from 'lucide-react';
 import { SearchForm } from '@/components/SearchForm';
 import {
@@ -48,14 +49,24 @@ type SidebarMenuItem = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userId = useAuthStore((state) => state.user?.userId);
-  const { data: customShelves, isPending } = useCustomShelves(userId);
+  const { data: customShelves, isPending: isPendingCustom } =
+    useCustomShelves(userId);
+  const { data: defaultShelves, isPending: isPendingDefault } =
+    useDefaultShelves(userId);
 
-  const getCombinedNavData = (customShelves: Shelf[]) => {
+  if (!isPendingCustom) console.log(customShelves);
+  if (!isPendingDefault) console.log(defaultShelves);
+
+  const getCombinedNavData = (
+    customShelves: CustomShelf[],
+    defaultShelves: DefaultShelf[],
+  ) => {
     // 1. Static items that will always be rendered
     const staticNavMain = [...data.navMain];
 
     // 2. Transform the dynamic shelf data if it exists
     let customShelvesItems: SidebarMenuItem[];
+    let defaultShelvesItems: SidebarMenuItem[];
 
     if (customShelves && customShelves.length > 0) {
       customShelvesItems = [...customShelves]
@@ -66,19 +77,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }));
     }
 
+    if (defaultShelves && defaultShelves.length > 0) {
+      defaultShelvesItems = [...defaultShelves]
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+        .map((shelf) => ({
+          title: `${shelf.name} (${shelf.bookCount})`,
+          url: `/users/${shelf.userId}/books?shelfSlug=${shelf.slug}`,
+        }));
+    }
+
     // 3. Find the 'Custom Bookshelf' parent item in the static structure
-    const bookshelfParent = staticNavMain.find(
+    const customBookShelfParent = staticNavMain.find(
       (item) => item.title === 'Custom Bookshelf',
+    );
+    const defaultBookShelfParent = staticNavMain.find(
+      (item) => item.title === 'Default Bookshelf',
     );
 
     // 4. Replace the hardcoded items array with the shelf items
-    if (bookshelfParent) {
-      bookshelfParent.items = customShelvesItems;
+    if (customBookShelfParent) {
+      customBookShelfParent.items = customShelvesItems;
+    }
+    if (defaultBookShelfParent) {
+      defaultBookShelfParent.items = defaultShelvesItems;
     }
 
     return staticNavMain;
   };
-  const combinedNavData = getCombinedNavData(customShelves);
+  const combinedNavData = getCombinedNavData(customShelves, defaultShelves);
 
   return (
     <>
@@ -90,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           />
           <SearchForm />
         </SidebarHeader>
-        {!isPending && combinedNavData && (
+        {!isPendingCustom && !isPendingDefault && combinedNavData && (
           <SidebarContent className="gap-0">
             {/* We create a collapsible SidebarGroup for each parent. */}
             {combinedNavData.map((item) => (
