@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.shared.config;
 
+import com.yurakim.readingtrace.auth.enums.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +17,13 @@ public class DataInitializer {
     public CommandLineRunner initData() {
         return args -> {
 
-            jdbcTemplate.execute("INSERT INTO role (id, name) VALUES (1, 'ROLE_USER') ON DUPLICATE KEY UPDATE name=VALUES(name)");
-            jdbcTemplate.execute("INSERT INTO role (id, name) VALUES (2, 'ROLE_ADMIN') ON DUPLICATE KEY UPDATE name=VALUES(name)");
+            //ROLE table seeding (idempotent)
+            for (RoleType role : RoleType.values()) {
+                jdbcTemplate.update(
+                        "INSERT INTO role (name) VALUES (?) ON DUPLICATE KEY UPDATE name=VALUES(name)",
+                        role.name()
+                );
+            }
 
         };
     }
