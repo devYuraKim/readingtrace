@@ -30,7 +30,7 @@ public class DataInitializer {
             for (DefaultShelfType type : DefaultShelfType.values()) {
                 jdbcTemplate.update(
                     """
-                        INSERT INTO default_shelf (name, slug, orderIndex) 
+                        INSERT INTO default_shelf (name, slug, order_index) 
                         VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name=VALUES(name)
                         """,
                         type.getName(), type.getSlug(), type.getOrderIndex()
