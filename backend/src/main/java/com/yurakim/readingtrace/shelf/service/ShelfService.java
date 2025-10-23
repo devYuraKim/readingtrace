@@ -1,13 +1,13 @@
 package com.yurakim.readingtrace.shelf.service;
 
-import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.dto.CustomShelfDto;
 
 import java.util.List;
 
 public interface ShelfService {
 
-    List<ShelfDto> getUserShelves(Long userId);
+    List<CustomShelfDto> getCustomShelves(Long userId);
 
-    ShelfDto createUserShelf(Long userId, String shelfName);
+    CustomShelfDto createCustomShelf(Long userId, String shelfName);
 
     }

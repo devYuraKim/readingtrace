@@ -2,7 +2,7 @@ package com.yurakim.readingtrace.shelf.controller;
 
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import com.yurakim.readingtrace.shelf.dto.CreateShelfRequestDto;
-import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.dto.CustomShelfDto;
 import com.yurakim.readingtrace.shelf.service.ShelfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +17,16 @@ public class UserShelfController {
 
     private final ShelfService shelfService;
 
-    //  UserShelf
+    // CustomShelf
     @GetMapping("/custom")
-    public ResponseEntity<List<ShelfDto>> getUserShelves(@PathVariable Long userId) {
-        List<ShelfDto> resultList = shelfService.getUserShelves(userId);
+    public ResponseEntity<List<CustomShelfDto>> getCustomShelves(@PathVariable Long userId) {
+        List<CustomShelfDto> resultList = shelfService.getCustomShelves(userId);
         return ResponseEntity.ok(resultList);
     }
 
     @PostMapping
-    public ResponseEntity<ShelfDto> createUserShelf(@PathVariable Long userId, @RequestBody CreateShelfRequestDto csrDto){
-        ShelfDto resultShelf = shelfService.createUserShelf(userId, csrDto.getShelfName());
+    public ResponseEntity<CustomShelfDto> createUserShelf(@PathVariable Long userId, @RequestBody CreateShelfRequestDto csrDto){
+        CustomShelfDto resultShelf = shelfService.createCustomShelf(userId, csrDto.getShelfName());
         return ResponseEntity.ok(resultShelf);
     }
 

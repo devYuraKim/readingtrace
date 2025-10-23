@@ -8,7 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
-public class ShelfDto {
+public class CustomShelfDto {
     private Long shelfId;
     private Long userId;
     private String name;

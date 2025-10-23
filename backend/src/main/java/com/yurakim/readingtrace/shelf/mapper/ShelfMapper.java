@@ -1,14 +1,14 @@
 package com.yurakim.readingtrace.shelf.mapper;
 
-import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.dto.CustomShelfDto;
 import com.yurakim.readingtrace.shelf.entity.Shelf;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ShelfMapper {
 
-    public ShelfDto mapToDto(Shelf shelf){
-        ShelfDto shelfDto = new ShelfDto();
+    public CustomShelfDto mapToDto(Shelf shelf){
+        CustomShelfDto shelfDto = new CustomShelfDto();
         shelfDto.setShelfId(shelf.getId());
         shelfDto.setUserId(shelf.getUserId());
         shelfDto.setName(shelf.getName());

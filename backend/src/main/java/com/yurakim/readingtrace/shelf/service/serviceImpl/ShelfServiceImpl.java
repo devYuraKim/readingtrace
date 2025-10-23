@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.shelf.service.serviceImpl;
 
-import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.dto.CustomShelfDto;
 import com.yurakim.readingtrace.shelf.entity.Shelf;
 import com.yurakim.readingtrace.shelf.mapper.ShelfMapper;
 import com.yurakim.readingtrace.shelf.repository.ShelfRepository;
@@ -18,13 +18,13 @@ public class ShelfServiceImpl implements ShelfService {
     private final ShelfMapper shelfMapper;
 
     @Override
-    public List<ShelfDto> getUserShelves(Long userId) {
+    public List<CustomShelfDto> getCustomShelves(Long userId) {
         List<Shelf> userShelves = shelfRepository.findByUserId(userId);
         return userShelves.stream().map(shelfMapper::mapToDto).toList();
     }
 
     @Override
-    public ShelfDto createUserShelf(Long userId, String shelfName) {
+    public CustomShelfDto createCustomShelf(Long userId, String shelfName) {
         Shelf newShelf = new Shelf();
         newShelf.setUserId(userId);
         newShelf.setName(shelfName);
