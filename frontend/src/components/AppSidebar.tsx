@@ -55,11 +55,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // 2. Transform the dynamic shelf data if it exists
     let shelvesItems: SidebarMenuItem[];
+
     if (shelves && shelves.length > 0) {
-      shelvesItems = shelves.map((shelf) => ({
-        title: `${shelf.name} (${shelf.bookCount})`,
-        url: `/users/${shelf.userId}/books?shelfId=${shelf.shelfId}`,
-      }));
+      shelvesItems = [...shelves]
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+        .map((shelf) => ({
+          title: `${shelf.name} (${shelf.bookCount})`,
+          url: `/users/${shelf.userId}/books?shelfId=${shelf.shelfId}`,
+        }));
     }
 
     // 3. Find the 'Your Bookshelf' parent item in the static structure
