@@ -1,4 +1,4 @@
-import React from 'react';
+import { Status, StatusSlug } from '@/constants/reading-status.constants';
 import {
   Select,
   SelectContent,
@@ -27,10 +27,21 @@ const BookStatusSelect = ({
         <SelectValue placeholder="Select Status" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="want-to-read">🤩 Want to Read</SelectItem>
-        <SelectItem value="already-read">😎 Already Read</SelectItem>
-        <SelectItem value="currently-reading"> 🧐 Currently Reading</SelectItem>
-        <SelectItem value="never-finished">😔 Never Finished</SelectItem>
+        <SelectItem value={StatusSlug.ALREADY_READ}>
+          😎 {Status.ALREADY_READ}
+        </SelectItem>
+        <SelectItem value={StatusSlug.WANT_TO_READ}>
+          🤩 {Status.WANT_TO_READ}
+        </SelectItem>
+        <SelectItem value={StatusSlug.CURRENTLY_READING}>
+          🧐 {Status.CURRENTLY_READING}
+        </SelectItem>
+        <SelectItem value={StatusSlug.PAUSED_READING}>
+          😪 {Status.PAUSED_READING}
+        </SelectItem>
+        <SelectItem value={StatusSlug.NEVER_FINISHED}>
+          😔 {Status.NEVER_FINISHED}
+        </SelectItem>
       </SelectContent>
     </Select>
   );

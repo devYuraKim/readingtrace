@@ -1,9 +1,16 @@
+import { StatusSlug } from '@/constants/reading-status.constants';
 import z from 'zod';
 
 export const readingStatusFormSchema = z.object({
   userReadingStatusId: z.number().nullish(),
   status: z.enum(
-    ['want-to-read', 'already-read', 'currently-reading', 'never-finished'],
+    [
+      StatusSlug.ALREADY_READ,
+      StatusSlug.WANT_TO_READ,
+      StatusSlug.CURRENTLY_READING,
+      StatusSlug.PAUSED_READING,
+      StatusSlug.NEVER_FINISHED,
+    ],
     {
       message: 'Please select a reading status.',
     },
