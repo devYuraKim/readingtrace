@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,31 +27,27 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     @Override
     @Transactional
     public void createUserReadingStatus(UserReadingStatusDto ursDto) {
-        Shelf shelf;
+        if(null == ursDto.getStatus()) throw new RuntimeException("FAILED TO CREATE: status cannot be null");
         UserReadingStatus urs = userReadingStatusMapper.mapToEntity(ursDto);
-        //case A. default shelves
-        if(urs.getShelfId() == null) {
-            String shelfSlug = urs.getStatus();
-            Long userId = urs.getUserId();
-            shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-            //case B. custom shelves
-        } else{
-            Long shelfId = urs.getShelfId();
-            shelf = shelfRepository.findById(shelfId).orElseThrow(() -> new RuntimeException(
+        //check if shelfId exists or not
+        Long shelfId = urs.getShelfId();
+        if(null != shelfId){
+            //check if the shelf exists by the shelfId
+            Shelf shelf = shelfRepository.findById(shelfId).orElseThrow(() -> new RuntimeException(
                     String.format("FAILED TO CREATE: No shelf found for [ShelfId: %d]", shelfId)
             ));
+            //check if the book already exists in the shelf
+            boolean exists = userReadingStatusRepository.existsByUserIdAndBookIdAndShelfId(
+                    urs.getUserId(), urs.getBookId(), shelf.getId()
+            );
+            if (exists) throw new RuntimeException(
+                    String.format("FAILED TO CREATE: Book with [BookId: %d] already exists in shelf [ShelfId: %d]", urs.getBookId(), urs.getShelfId())
+            );
+            //if all checks cleared, increase bookCount by 1 and save in the shelf
+            shelf.setBookCount(shelf.getBookCount()+1);
+            shelfRepository.save(shelf);
+            urs.setShelfId(shelf.getId());
         }
-        //check if the book already exists in the shelf
-        boolean exists = userReadingStatusRepository.existsByUserIdAndBookIdAndShelfId(
-                urs.getUserId(), urs.getBookId(), shelf.getId()
-        );
-        if (exists) throw new RuntimeException(
-                String.format("FAILED TO CREATE: Book with [BookId: %d] already exists in shelf [ShelfId: %d]", urs.getBookId(), urs.getShelfId())
-        );
-        //if not, add the book to the shelf
-        shelf.setBookCount(shelf.getBookCount()+1);
-        shelfRepository.save(shelf);
-        urs.setShelfId(shelf.getId());
         userReadingStatusRepository.save(urs);
     }
 
@@ -64,43 +61,53 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     }
 
     @Override
-    public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto newUrsDto){
-        Long userId = newUrsDto.getUserId();
-        Long bookId = newUrsDto.getBookId();
-        UserReadingStatus existingUrsEntity = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+    @Transactional
+    public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto ursDto){
+        Long userId = ursDto.getUserId();
+        Long bookId = ursDto.getBookId();
+        //check if original record exists
+        UserReadingStatus existingUrs = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
                 .orElseThrow(()-> new RuntimeException(String.format("FAILED TO UPDATE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));
+        System.out.println("existing URS: " + existingUrs);
+        Long existingShelfId = existingUrs.getShelfId();
         //overwrite updateUrsDto to existingUrsEntity
-        UserReadingStatus mappedURS = userReadingStatusMapper.mapToEntity(newUrsDto, existingUrsEntity);
-
-        Long newShelfId = newUrsDto.getShelfId();
-        Long existingShelfId = existingUrsEntity.getShelfId();
-
-        Shelf newShelf = shelfRepository.findById(newShelfId).orElseGet(null);
-        Shelf existingShelf = shelfRepository.findById(existingShelfId).orElseGet(null);
-
-        String isNewShelfDefault = newShelf.getIsDefault().toString();
-        String isExistingShelfDefault = existingShelf.getIsDefault().toString();
-
-        System.out.println(String.format("Existing shelf id %d, default %s",  existingShelfId, isExistingShelfDefault));
-        System.out.println(String.format("New shelf: id %d, default %s", newShelfId, isNewShelfDefault));
-
-//        if(mappedURS.getShelfId() == null) {
-//            String shelfSlug = mappedURS.getStatus();
-//            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-//            mappedURS.setShelfId(shelf.getId());
-//        } else{
-//            mappedURS.setShelfId(mappedURS.getShelfId());
-//        }
-        UserReadingStatus updatedURS = userReadingStatusRepository.save(mappedURS);
-        UserReadingStatusDto mappedURSDto = userReadingStatusMapper.mapToDto(updatedURS);
-        return mappedURSDto;
+        UserReadingStatus updatedUrs = userReadingStatusMapper.mapToEntity(ursDto, existingUrs);
+        System.out.println("new URS: " + updatedUrs);
+        Long updatedShelfId = updatedUrs.getShelfId();
+        //if existing and updated shelfIds differ
+        if (!Objects.equals(existingShelfId, updatedShelfId)){
+            //if existing shelf is not 'default(logical group)', decrement bookCount of that shelf
+            if(null != existingShelfId){
+                Shelf existingShelf = shelfRepository.findById(existingShelfId)
+                    .orElseThrow(() -> new RuntimeException(String.format("FAILED TO UPDATE: No existing shelf found with [ShelfId: %d]", existingShelfId)));
+                existingShelf.setBookCount(existingShelf.getBookCount()-1);
+                shelfRepository.save(existingShelf);
+            }
+            //if updated shelf is not 'default(logical group)', increment bookCount of that shelf
+            if(null != updatedShelfId){
+            Shelf updatedShelf = shelfRepository.findById(updatedShelfId)
+                    .orElseThrow(() -> new RuntimeException(String.format("FAILED TO UPDATE: No shelf found with [ShelfId: %d]", updatedShelfId)));
+            updatedShelf.setBookCount(updatedShelf.getBookCount()+1);
+            shelfRepository.save(updatedShelf);
+            }
+        }
+        UserReadingStatus resultUrs = userReadingStatusRepository.save(updatedUrs);
+        UserReadingStatusDto resultUrsDto = userReadingStatusMapper.mapToDto(resultUrs);
+        return resultUrsDto;
     }
 
     @Override
     public void deleteUserReadingStatus(Long userId, Long bookId) {
-        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+        UserReadingStatus existingUrs = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
                 .orElseThrow(()-> new RuntimeException(String.format("FAILED TO DELETE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));
-        if(foundURS != null) userReadingStatusRepository.delete(foundURS);
+        Long existingShelfId =  existingUrs.getShelfId();
+        if(null != existingShelfId){
+            Shelf existingShelf = shelfRepository.findById(existingShelfId)
+                    .orElseThrow(() -> new RuntimeException(String.format("FAILED TO DELETE: No existing shelf found with [ShelfId: %d]", existingShelfId)));
+            existingShelf.setBookCount(existingShelf.getBookCount()-1);
+            shelfRepository.save(existingShelf);
+        }
+        userReadingStatusRepository.delete(existingUrs);
     }
 
     @Override
