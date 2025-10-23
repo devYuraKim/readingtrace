@@ -1,3 +1,4 @@
+//Status
 export enum Status {
   ALREADY_READ = 'Already Read',
   WANT_TO_READ = 'Want To Read',
@@ -12,4 +13,16 @@ export enum StatusSlug {
   CURRENTLY_READING = 'currently-reading',
   PAUSED_READING = 'paused-reading',
   NEVER_FINISHED = 'never-finished',
+}
+
+export enum Visibility {
+  PUBLIC = 'Public',
+  PRIVATE = 'Private',
+  FRIENDS = 'Friends',
+}
+
+export enum VisibilitySlug {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+  FRIENDS = 'friends',
 }

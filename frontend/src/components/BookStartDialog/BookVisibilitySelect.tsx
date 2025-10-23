@@ -1,5 +1,9 @@
 import React from 'react';
 import {
+  Visibility,
+  VisibilitySlug,
+} from '@/constants/reading-status.constants';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -27,9 +31,15 @@ const BookVisibilitySelect = ({
         <SelectValue placeholder="Select Visibility" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="public">🌍 Public</SelectItem>
-        <SelectItem value="friends">👥 Friends</SelectItem>
-        <SelectItem value="private">🔒 Private</SelectItem>
+        <SelectItem value={VisibilitySlug.PUBLIC}>
+          🌍 {Visibility.PUBLIC}
+        </SelectItem>
+        <SelectItem value={VisibilitySlug.FRIENDS}>
+          👥 {Visibility.FRIENDS}
+        </SelectItem>
+        <SelectItem value={VisibilitySlug.PRIVATE}>
+          🔒 {Visibility.PRIVATE}
+        </SelectItem>
       </SelectContent>
     </Select>
   );

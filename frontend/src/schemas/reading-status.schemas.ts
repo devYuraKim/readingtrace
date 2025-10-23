@@ -1,4 +1,7 @@
-import { StatusSlug } from '@/constants/reading-status.constants';
+import {
+  StatusSlug,
+  VisibilitySlug,
+} from '@/constants/reading-status.constants';
 import z from 'zod';
 
 export const readingStatusFormSchema = z.object({
@@ -15,9 +18,12 @@ export const readingStatusFormSchema = z.object({
       message: 'Please select a reading status.',
     },
   ),
-  visibility: z.enum(['public', 'private', 'friends'], {
-    message: 'Please select a visibility option.',
-  }),
+  visibility: z.enum(
+    [VisibilitySlug.PUBLIC, VisibilitySlug.FRIENDS, VisibilitySlug.PRIVATE],
+    {
+      message: 'Please select a visibility option.',
+    },
+  ),
   rating: z
     .number({ message: 'Please provide a rating.' })
     .min(0)
