@@ -23,7 +23,6 @@ function SupportChat() {
       onConnect: () => {
         stompClient.subscribe('/queue/sessions', (message) => {
           const data = JSON.parse(message.body);
-          console.log(data);
         });
         stompClient.publish({
           destination: '/app/sessions',

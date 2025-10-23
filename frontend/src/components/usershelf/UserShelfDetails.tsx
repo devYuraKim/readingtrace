@@ -16,7 +16,6 @@ const UserShelfDetails = () => {
       const res = await apiClient.get(
         `/users/${userId}/books?shelfId=${shelfId}`,
       );
-      console.log(`UserBookDtoList: ${JSON.stringify(res.data)}`);
       return res.data;
     },
     queryKey: ['userShelf', userId, shelfId],

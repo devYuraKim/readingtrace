@@ -29,7 +29,6 @@ const BookShelfSelect = ({
   const { data: shelves } = useUserShelves(userId);
 
   const nonDefaultShelves = shelves?.filter((shelf) => !shelf.isDefault) ?? [];
-  console.log(nonDefaultShelves);
 
   return (
     <>

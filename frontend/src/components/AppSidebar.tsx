@@ -78,7 +78,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return staticNavMain;
   };
   const combinedNavData = getCombinedNavData(shelves);
-  console.log(combinedNavData);
 
   return (
     <>

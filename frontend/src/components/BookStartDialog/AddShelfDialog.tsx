@@ -55,7 +55,6 @@ function AddShelfDialog({ isAddOpen, setIsAddOpen }: AddShelfDialogProps) {
       const res = await apiClient.post(`users/${userId}/shelves`, {
         shelfName: shelfName,
       });
-      console.log(res.data);
       return res.data;
     },
     onSuccess: () => {
