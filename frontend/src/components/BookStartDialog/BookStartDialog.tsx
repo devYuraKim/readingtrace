@@ -70,9 +70,9 @@ const BookStartDialog = ({
     onOpenChange(open);
   };
 
-  const handleChange = (
-    field: keyof ReadingStatusFormValues,
-    value: ReadingStatusFormValues,
+  const handleChange = <K extends keyof ReadingStatusFormValues>(
+    field: K,
+    value: ReadingStatusFormValues[K],
   ) => {
     setFormValues((prev) => {
       const updated = { ...prev, [field]: value };
