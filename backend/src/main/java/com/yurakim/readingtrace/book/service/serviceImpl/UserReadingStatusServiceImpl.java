@@ -26,15 +26,31 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     @Override
     @Transactional
     public void createUserReadingStatus(UserReadingStatusDto ursDto) {
+        Shelf shelf;
         UserReadingStatus urs = userReadingStatusMapper.mapToEntity(ursDto);
+        //case A. default shelves
         if(urs.getShelfId() == null) {
             String shelfSlug = urs.getStatus();
             Long userId = urs.getUserId();
-            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-            urs.setShelfId(shelf.getId());
+            shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
+            //case B. custom shelves
         } else{
-            urs.setShelfId(urs.getShelfId());
+            Long shelfId = urs.getShelfId();
+            shelf = shelfRepository.findById(shelfId).orElseThrow(() -> new RuntimeException(
+                    String.format("FAILED TO CREATE: No shelf found for [ShelfId: %d]", shelfId)
+            ));
         }
+        //check if the book already exists in the shelf
+        boolean exists = userReadingStatusRepository.existsByUserIdAndBookIdAndShelfId(
+                urs.getUserId(), urs.getBookId(), shelf.getId()
+        );
+        if (exists) throw new RuntimeException(
+                String.format("FAILED TO CREATE: Book with [BookId: %d] already exists in shelf [ShelfId: %d]", urs.getBookId(), urs.getShelfId())
+        );
+        //if not, add the book to the shelf
+        shelf.setBookCount(shelf.getBookCount()+1);
+        shelfRepository.save(shelf);
+        urs.setShelfId(shelf.getId());
         userReadingStatusRepository.save(urs);
     }
 
@@ -48,19 +64,33 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     }
 
     @Override
-    public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto ursDto){
-        Long userId = ursDto.getUserId();
-        Long bookId = ursDto.getBookId();
-        UserReadingStatus foundURS = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
+    public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto newUrsDto){
+        Long userId = newUrsDto.getUserId();
+        Long bookId = newUrsDto.getBookId();
+        UserReadingStatus existingUrsEntity = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
                 .orElseThrow(()-> new RuntimeException(String.format("FAILED TO UPDATE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));
-        UserReadingStatus mappedURS = userReadingStatusMapper.mapToEntity(ursDto, foundURS);
-        if(mappedURS.getShelfId() == null) {
-            String shelfSlug = mappedURS.getStatus();
-            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
-            mappedURS.setShelfId(shelf.getId());
-        } else{
-            mappedURS.setShelfId(mappedURS.getShelfId());
-        }
+        //overwrite updateUrsDto to existingUrsEntity
+        UserReadingStatus mappedURS = userReadingStatusMapper.mapToEntity(newUrsDto, existingUrsEntity);
+
+        Long newShelfId = newUrsDto.getShelfId();
+        Long existingShelfId = existingUrsEntity.getShelfId();
+
+        Shelf newShelf = shelfRepository.findById(newShelfId).orElseGet(null);
+        Shelf existingShelf = shelfRepository.findById(existingShelfId).orElseGet(null);
+
+        String isNewShelfDefault = newShelf.getIsDefault().toString();
+        String isExistingShelfDefault = existingShelf.getIsDefault().toString();
+
+        System.out.println(String.format("Existing shelf id %d, default %s",  existingShelfId, isExistingShelfDefault));
+        System.out.println(String.format("New shelf: id %d, default %s", newShelfId, isNewShelfDefault));
+
+//        if(mappedURS.getShelfId() == null) {
+//            String shelfSlug = mappedURS.getStatus();
+//            Shelf shelf = shelfRepository.findByUserIdAndSlug(userId, shelfSlug);
+//            mappedURS.setShelfId(shelf.getId());
+//        } else{
+//            mappedURS.setShelfId(mappedURS.getShelfId());
+//        }
         UserReadingStatus updatedURS = userReadingStatusRepository.save(mappedURS);
         UserReadingStatusDto mappedURSDto = userReadingStatusMapper.mapToDto(updatedURS);
         return mappedURSDto;
