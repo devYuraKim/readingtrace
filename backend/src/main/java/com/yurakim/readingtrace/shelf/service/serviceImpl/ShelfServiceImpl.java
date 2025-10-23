@@ -1,8 +1,10 @@
 package com.yurakim.readingtrace.shelf.service.serviceImpl;
 
 import com.yurakim.readingtrace.shelf.dto.ShelfDto;
+import com.yurakim.readingtrace.shelf.entity.DefaultShelf;
 import com.yurakim.readingtrace.shelf.entity.Shelf;
 import com.yurakim.readingtrace.shelf.mapper.ShelfMapper;
+import com.yurakim.readingtrace.shelf.repository.DefaultShelfRepository;
 import com.yurakim.readingtrace.shelf.repository.ShelfRepository;
 import com.yurakim.readingtrace.shelf.service.ShelfService;
 import jakarta.transaction.Transactional;
@@ -15,28 +17,26 @@ import java.util.List;
 @Service
 public class ShelfServiceImpl implements ShelfService {
 
+    private final DefaultShelfRepository defaultShelfRepository;
     private final ShelfRepository shelfRepository;
     private final ShelfMapper shelfMapper;
-
-    private static final List<String> DEFAULT_SHELF_NAMES = List.of(
-            "Want to Read",
-            "Currently Reading",
-            "Already Read",
-            "Never Finished"
-    );
 
     @Override
     @Transactional
     public void createDefaultShelves(Long userId) {
-        List<Shelf> defaultShelves = DEFAULT_SHELF_NAMES.stream().map( name -> {
+        List<DefaultShelf> defaultShelves = defaultShelfRepository.findAll();
+
+        List<Shelf> userDefaultShelves = defaultShelves.stream().map( defaultShelf -> {
             Shelf shelf  = new Shelf();
             shelf.setUserId(userId);
-            shelf.setName(name);
-            shelf.setSlug(name.toLowerCase().replace(" ", "-"));
+            shelf.setName(defaultShelf.getName());
+            shelf.setSlug(defaultShelf.getSlug());
             shelf.setIsDefault(true);
+            shelf.setDefaultShelfId(defaultShelf.getId());
+            shelf.setOrderIndex(defaultShelf.getOrderIndex());
             return shelf;
         }).toList();
-        shelfRepository.saveAll(defaultShelves);
+        shelfRepository.saveAll(userDefaultShelves);
     }
 
     @Override
