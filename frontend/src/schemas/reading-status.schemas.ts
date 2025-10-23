@@ -16,7 +16,7 @@ export const readingStatusFormSchema = z.object({
     .min(0)
     .max(5)
     .nullish(),
-  shelfId: z.number().nullish(),
+  shelfId: z.number(),
   startDate: z.date().nullish(),
   endDate: z.date().nullish(),
 });

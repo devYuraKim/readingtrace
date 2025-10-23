@@ -55,7 +55,7 @@ const BookStartDialog = ({
     status: initialData?.status ?? null,
     visibility: initialData?.visibility ?? null,
     rating: initialData?.rating ?? null,
-    shelfId: initialData?.shelfId ?? null,
+    shelfId: initialData?.shelfId ?? 0,
     startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
     endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
   };
@@ -113,7 +113,7 @@ const BookStartDialog = ({
       status: formValues.status,
       visibility: formValues.visibility,
       rating: formValues.rating,
-      shelfId: formValues.shelfId ?? null,
+      shelfId: formValues.shelfId,
       startDate: formValues.startDate,
       endDate: formValues.endDate,
       // Book
@@ -250,9 +250,7 @@ const BookStartDialog = ({
                   <BookShelfSelect
                     className="w-3/5 text-xs"
                     value={formValues.shelfId}
-                    onChange={(value: number) =>
-                      handleChange('shelfId', value === 0 ? null : value)
-                    }
+                    onChange={(value: number) => handleChange('shelfId', value)}
                   />
                 </div>
 
