@@ -12,7 +12,7 @@ import {
 import AddShelfDialog from './AddShelfDialog';
 
 type BookShelfSelectProps = {
-  value: number;
+  value: number | null | undefined;
   onChange: (value: number) => void;
   className?: string;
 };
@@ -30,13 +30,13 @@ const BookShelfSelect = ({
   return (
     <>
       <Select
-        value={value !== 0 ? value.toString() : undefined}
+        value={value ? value.toString() : undefined}
         onValueChange={(value) => {
           if (value === 'add') {
             setIsAddOpen(true);
             return;
           }
-          onChange(value ? Number(value) : 0);
+          onChange(Number(value));
         }}
       >
         <SelectTrigger className={className}>

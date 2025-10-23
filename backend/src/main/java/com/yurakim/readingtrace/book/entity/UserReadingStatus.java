@@ -19,7 +19,6 @@ public class UserReadingStatus extends BaseEntity {
     @Column(nullable = false)
     private Long userId;
     
-    @Column(nullable = false)
     private Long shelfId;
 
     @Column(nullable = false)

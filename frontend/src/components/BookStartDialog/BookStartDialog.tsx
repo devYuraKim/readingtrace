@@ -55,7 +55,7 @@ const BookStartDialog = ({
     status: initialData?.status ?? null,
     visibility: initialData?.visibility ?? null,
     rating: initialData?.rating ?? null,
-    shelfId: initialData?.shelfId ?? 0,
+    shelfId: initialData?.shelfId ?? null,
     startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
     endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
   };
