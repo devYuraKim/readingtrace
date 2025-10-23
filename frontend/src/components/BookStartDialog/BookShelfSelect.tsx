@@ -27,8 +27,6 @@ const BookShelfSelect = ({
   const userId = useAuthStore((state) => state.user?.userId);
   const { data: shelves } = useUserShelves(userId);
 
-  const nonDefaultShelves = shelves?.filter((shelf) => !shelf.isDefault) ?? [];
-
   return (
     <>
       <Select
@@ -45,8 +43,8 @@ const BookShelfSelect = ({
           <SelectValue placeholder="Select Shelf" />
         </SelectTrigger>
         <SelectContent>
-          {nonDefaultShelves &&
-            nonDefaultShelves.map((shelf) => (
+          {shelves &&
+            shelves.map((shelf) => (
               <SelectItem key={shelf.shelfId} value={shelf.shelfId.toString()}>
                 {shelf.name}
               </SelectItem>

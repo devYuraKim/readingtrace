@@ -38,11 +38,6 @@ public class Shelf extends BaseEntity {
     private Integer bookCount = 0;
 
     @Column(nullable = false)
-    private Boolean isDefault;
-
-    private Long defaultShelfId;
-
-    @Column(nullable = false)
     private Boolean isHidden = false;
 
     private Integer orderIndex;

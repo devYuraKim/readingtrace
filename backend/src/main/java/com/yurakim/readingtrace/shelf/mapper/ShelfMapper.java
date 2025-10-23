@@ -15,7 +15,6 @@ public class ShelfMapper {
         shelfDto.setSlug(shelf.getSlug());
         shelfDto.setDescription(shelf.getDescription());
         shelfDto.setBookCount(shelf.getBookCount());
-        shelfDto.setIsDefault(shelf.getIsDefault());
         shelfDto.setIsHidden(shelf.getIsHidden());
         shelfDto.setOrderIndex(shelf.getOrderIndex());
         return shelfDto;

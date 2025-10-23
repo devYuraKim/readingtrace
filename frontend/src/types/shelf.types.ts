@@ -5,8 +5,6 @@ export type Shelf = {
   slug: string;
   description: string;
   bookCount: number;
-  isDefault: boolean;
-  defaultShelfId: number;
   isHidden: boolean;
   orderIndex: number;
 };

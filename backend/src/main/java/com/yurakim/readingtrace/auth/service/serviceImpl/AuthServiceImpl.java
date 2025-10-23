@@ -135,7 +135,6 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(roles);
 
         userRepository.save(user);
-        shelfService.createDefaultShelves(user.getId());
 
         return "User registered";
     }
