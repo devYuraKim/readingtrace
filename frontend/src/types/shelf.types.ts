@@ -6,4 +6,7 @@ export type Shelf = {
   description: string;
   bookCount: number;
   isDefault: boolean;
+  defaultShelfId: number;
+  isHidden: boolean;
+  orderIndex: number;
 };
