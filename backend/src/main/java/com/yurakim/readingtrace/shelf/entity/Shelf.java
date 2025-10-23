@@ -31,9 +31,10 @@ public class Shelf extends BaseEntity {
     @Column(nullable = false)
     private String slug;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
-    @Column(nullable = false,  columnDefinition = "INT DEFAULT 0")
+    @Column(nullable = false)
     private Integer bookCount = 0;
 
     @Column(nullable = false)
