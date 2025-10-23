@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useUserShelves } from '@/queries/useUserShelves';
+import { useCustomShelves } from '@/queries/useCustomShelves';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Plus } from 'lucide-react';
 import {
@@ -25,7 +25,7 @@ const BookShelfSelect = ({
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   const userId = useAuthStore((state) => state.user?.userId);
-  const { data: shelves } = useUserShelves(userId);
+  const { data: customShelves } = useCustomShelves(userId);
 
   return (
     <>
@@ -43,8 +43,8 @@ const BookShelfSelect = ({
           <SelectValue placeholder="Select Shelf" />
         </SelectTrigger>
         <SelectContent>
-          {shelves &&
-            shelves.map((shelf) => (
+          {customShelves &&
+            customShelves.map((shelf) => (
               <SelectItem key={shelf.shelfId} value={shelf.shelfId.toString()}>
                 {shelf.name}
               </SelectItem>

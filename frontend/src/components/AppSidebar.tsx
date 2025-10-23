@@ -1,4 +1,4 @@
-import { useUserShelves } from '@/queries/useUserShelves';
+import { useCustomShelves } from '@/queries/useCustomShelves';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Shelf } from '@/types/shelf.types';
 import { ChevronRight } from 'lucide-react';
@@ -48,17 +48,17 @@ type SidebarMenuItem = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userId = useAuthStore((state) => state.user?.userId);
-  const { data: shelves, isPending } = useUserShelves(userId);
+  const { data: customShelves, isPending } = useCustomShelves(userId);
 
-  const getCombinedNavData = (shelves: Shelf[]) => {
+  const getCombinedNavData = (customShelves: Shelf[]) => {
     // 1. Static items that will always be rendered
     const staticNavMain = [...data.navMain];
 
     // 2. Transform the dynamic shelf data if it exists
-    let shelvesItems: SidebarMenuItem[];
+    let customShelvesItems: SidebarMenuItem[];
 
-    if (shelves && shelves.length > 0) {
-      shelvesItems = [...shelves]
+    if (customShelves && customShelves.length > 0) {
+      customShelvesItems = [...customShelves]
         .sort((a, b) => a.orderIndex - b.orderIndex)
         .map((shelf) => ({
           title: `${shelf.name} (${shelf.bookCount})`,
@@ -73,12 +73,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // 4. Replace the hardcoded items array with the shelf items
     if (bookshelfParent) {
-      bookshelfParent.items = shelvesItems;
+      bookshelfParent.items = customShelvesItems;
     }
 
     return staticNavMain;
   };
-  const combinedNavData = getCombinedNavData(shelves);
+  const combinedNavData = getCombinedNavData(customShelves);
 
   return (
     <>

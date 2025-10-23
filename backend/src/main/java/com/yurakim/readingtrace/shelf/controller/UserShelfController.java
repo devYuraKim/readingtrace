@@ -18,7 +18,7 @@ public class UserShelfController {
     private final ShelfService shelfService;
 
     //  UserShelf
-    @GetMapping
+    @GetMapping("/custom")
     public ResponseEntity<List<ShelfDto>> getUserShelves(@PathVariable Long userId) {
         List<ShelfDto> resultList = shelfService.getUserShelves(userId);
         return ResponseEntity.ok(resultList);
