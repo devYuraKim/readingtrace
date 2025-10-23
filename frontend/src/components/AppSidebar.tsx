@@ -66,9 +66,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }));
     }
 
-    // 3. Find the 'Default Bookshelf' parent item in the static structure
+    // 3. Find the 'Custom Bookshelf' parent item in the static structure
     const bookshelfParent = staticNavMain.find(
-      (item) => item.title === 'Default Bookshelf',
+      (item) => item.title === 'Custom Bookshelf',
     );
 
     // 4. Replace the hardcoded items array with the shelf items
