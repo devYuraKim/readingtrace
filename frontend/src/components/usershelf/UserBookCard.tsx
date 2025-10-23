@@ -1,6 +1,8 @@
+import { useDeleteUserBook } from '@/queries/book-status.mutation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
 import { useQueryClient } from '@tanstack/react-query';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
@@ -8,10 +10,21 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const queryClient = useQueryClient();
 
   const userId = useAuthStore((state) => state.user?.userId);
+  const deleteMutation = useDeleteUserBook(userId, userBook.bookId);
 
   const handleClick = () => {
     queryClient.setQueryData(['userBook', userId, userBook.bookId], userBook);
     navigate(`/users/${userId}/books/${userBook.bookId}`);
+  };
+
+  const handleClickEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    alert('edit');
+  };
+
+  const handleClickDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteMutation.mutate();
   };
 
   return (
@@ -45,6 +58,19 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
         <div>
           <div>added on {userBook.userReadingStatusCreatedAt}</div>
           <div>updated on {userBook.userReadingStatusUpdatedAt}</div>
+        </div>
+
+        <div>empty</div>
+
+        <div className="flex flex-col gap-y-1">
+          <SquarePen
+            className="hover:stroke-accent-foreground/40"
+            onClick={handleClickEdit}
+          />
+          <Trash2
+            className="hover:stroke-accent-foreground/40"
+            onClick={handleClickDelete}
+          />
         </div>
       </div>
     </>
