@@ -8,18 +8,24 @@ import UserBookCard from './UserBookCard';
 const UserShelfDetails = () => {
   const [searchParams] = useSearchParams();
   const shelfId = searchParams.get('shelfId');
+  const shelfSlug = searchParams.get('shelfSlug');
 
   const userId = useAuthStore((state) => state.user?.userId);
 
+  let url = `/users/${userId}/books`;
+  if (shelfId) {
+    url += `?shelfId=${shelfId}`;
+  } else if (shelfSlug) {
+    url += `?shelfSlug=${shelfSlug}`;
+  }
+
   const { data: userBooks, isPending } = useQuery<UserBookDto[]>({
     queryFn: async () => {
-      const res = await apiClient.get(
-        `/users/${userId}/books?shelfId=${shelfId}`,
-      );
+      const res = await apiClient.get(url);
       return res.data;
     },
-    queryKey: ['userShelf', userId, shelfId],
-    enabled: !!userId && !!shelfId,
+    queryKey: ['userShelf', userId, shelfId ?? shelfSlug],
+    enabled: !!userId && (!!shelfId || !!shelfSlug),
   });
 
   return (

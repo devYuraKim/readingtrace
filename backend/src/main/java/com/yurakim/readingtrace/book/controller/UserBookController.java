@@ -70,9 +70,19 @@ public class UserBookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserBookDto>> getUserBooks(@PathVariable Long userId, @RequestParam Long shelfId) {
-        //TODO: separate this logic to Service layer
+    public ResponseEntity<List<UserBookDto>> getUserBooks(@PathVariable Long userId,
+                                                          @RequestParam(required = false) Long shelfId,
+                                                          @RequestParam(required = false) String shelfSlug) {
+
         List<UserReadingStatusDto> ursDtoList = userReadingStatusService.getUserReadingStatuses(userId, shelfId, null, null, null);
+        if (shelfId != null) {
+            ursDtoList = userReadingStatusService.getUserReadingStatuses(userId, shelfId, null, null, null);
+        } else if (shelfSlug != null) {
+            ursDtoList = userReadingStatusService.getUserReadingStatuses(userId, null, shelfSlug, null, null);
+        } else {
+            throw new IllegalArgumentException("FAILED TO GET BOOKS: Either shelfId or shelfSlug must be provided");
+        }
+        //TODO: separate this logic to Service layer
         List<UserBookDto> userBookDtoList = ursDtoList.stream().map(ursDto -> {
             BookDto bookDto = bookService.getBookById(ursDto.getBookId());
             return userBookMapper.combineDTOs(bookDto, ursDto);
