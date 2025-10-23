@@ -26,7 +26,8 @@ import { VersionSwitcher } from '@/components/VersionSwitcher';
 const data = {
   versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
   navMain: [
-    { title: 'Your Bookshelf' },
+    { title: 'Default Bookshelf' },
+    { title: 'Custom Bookshelf' },
     {
       title: 'Static',
       url: '#',
@@ -65,9 +66,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }));
     }
 
-    // 3. Find the 'Your Bookshelf' parent item in the static structure
+    // 3. Find the 'Default Bookshelf' parent item in the static structure
     const bookshelfParent = staticNavMain.find(
-      (item) => item.title === 'Your Bookshelf',
+      (item) => item.title === 'Default Bookshelf',
     );
 
     // 4. Replace the hardcoded items array with the shelf items
@@ -112,7 +113,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <CollapsibleContent>
                     <SidebarGroupContent>
                       <SidebarMenu>
-                        {item.items.map((item) => (
+                        {item.items?.map((item) => (
                           <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton
                               asChild
