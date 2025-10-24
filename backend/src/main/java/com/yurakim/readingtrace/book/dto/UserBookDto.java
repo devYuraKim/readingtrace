@@ -29,6 +29,7 @@ public class UserBookDto {
     private Double averageRating;
     private Long ratingsCount;
     private String language;
+    private Boolean isAdded;
     //UserReadingStatus
     private Long userReadingStatusId;
     private Long userId;

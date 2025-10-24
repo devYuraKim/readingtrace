@@ -1,17 +1,21 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
+import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.book.dto.BookDto;
 import com.yurakim.readingtrace.book.dto.GoogleBookDto;
 import com.yurakim.readingtrace.book.dto.GoogleBooksSearchResultDto;
 import com.yurakim.readingtrace.book.entity.Book;
 import com.yurakim.readingtrace.book.mapper.BookMapper;
 import com.yurakim.readingtrace.book.repository.BookRepository;
+import com.yurakim.readingtrace.book.repository.UserReadingStatusRepository;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestClient;
@@ -20,8 +24,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,6 +38,7 @@ public class BookServiceImpl implements BookService {
     private final Environment env;
 
     private final BookRepository bookRepository;
+    private final UserReadingStatusRepository userReadingStatusRepository;
     private final BookMapper bookMapper;
 
     @Override
@@ -80,11 +87,37 @@ public class BookServiceImpl implements BookService {
             return new GoogleBooksSearchResultDto(Collections.emptyList(), 0);
         }
 
-        List<BookDto> books =  response.getItems().stream()
-            .map(this::mapToBookDto)
-            .collect(Collectors.toList());
+        //TODO: check if single query would be better than multiple steps (note for Oct 24)
+        //1. when converting the Google API response to BookDto, collect a set of externalIds
+        List<BookDto> bookDtoList = new ArrayList<>();
+        Set<String> externalIds =  response.getItems().stream()
+            .map(bookItem -> {
+                BookDto bookDto = mapToBookDto(bookItem);
+                bookDtoList.add(bookDto);
+                return bookDto.getExternalId();
+            })
+            .collect(Collectors.toSet());
 
-        return new GoogleBooksSearchResultDto(books, response.getTotalItems());
+        //2. [conversion: externalId → bookId] use externalIds to query the Book table and retrieve a set of internal bookIds (indicating the books already exist in the DB)
+        Set<Long> existingBookIds = bookRepository.findIdsIn(externalIds);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        //3. using the retrieved bookIds and the current userId, query UserReadingStatus to find matching entries (indicating the user has added those books)
+        Set<Long> addedBookIds = userReadingStatusRepository.findByUserIdAndBookIdsIn(userId, existingBookIds);
+
+        //4. [conversion: bookId → externalId] use the matching bookIds to look up their corresponding externalIds from the Book table
+        Set<String> addedExternalIds = bookRepository.findExternalIdsIn(addedBookIds);
+
+        //5. iterate through the BookDto list and, for each entry, set isAdded = true if its externalId is found in the above set
+        bookDtoList.forEach(bookDto -> {
+            boolean isAdded = addedExternalIds.contains(bookDto.getExternalId());
+            bookDto.setIsAdded(isAdded);
+        });
+
+        return new GoogleBooksSearchResultDto(bookDtoList, response.getTotalItems());
     }
 
     @Override
@@ -149,26 +182,9 @@ public class BookServiceImpl implements BookService {
                 vi.getCategories(), //categories
                 vi.getAverageRating(), //Double averageRatings
                 vi.getRatingsCount(), //Long ratingsCount
-                vi.getLanguage() //String lanauge
+                vi.getLanguage(), //String lanauge
+                false
         );
     }
-
-    private Long bookId;
-    private String externalId;
-    private String title;
-    private String authors;
-    private String imageLinks;
-    private String publisher;
-    private String publishedDate;
-    private String description;
-    private String isbn10;
-    private String isbn13;
-    private Integer pageCount;
-    private String mainCategory;
-    private String categories;
-    private Double averageRating;
-    private Long ratingsCount;
-    private String language;
-
 
 }

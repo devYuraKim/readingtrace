@@ -26,6 +26,7 @@ public class UserBookMapper {
         bookDto.setAverageRating(userBookDto.getAverageRating());
         bookDto.setRatingsCount(userBookDto.getRatingsCount());
         bookDto.setLanguage(userBookDto.getLanguage());
+        bookDto.setIsAdded(userBookDto.getIsAdded());
         return bookDto;
     }
 
@@ -67,6 +68,7 @@ public class UserBookMapper {
         userBookDto.setAverageRating(bookDto.getAverageRating());
         userBookDto.setRatingsCount(bookDto.getRatingsCount());
         userBookDto.setLanguage(bookDto.getLanguage());
+        userBookDto.setIsAdded(bookDto.getIsAdded());
         //UserReadingStatus
         userBookDto.setUserReadingStatusId(ursDto.getUserReadingStatusId());
         userBookDto.setUserId(ursDto.getUserId());

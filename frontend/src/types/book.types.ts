@@ -17,6 +17,7 @@ export type BookDto = {
   averageRating: number | null;
   ratingsCount: number | null;
   language: string | null;
+  isAdded: boolean | null;
 };
 
 export type UserBookDto = BookDto & UserReadingStatusDto;

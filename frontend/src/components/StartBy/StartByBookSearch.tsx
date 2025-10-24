@@ -1,5 +1,6 @@
 import React from 'react';
 import { apiClient } from '@/queries/axios';
+import { BookDto } from '@/types/book.types';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -20,18 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BookDto } from '@/lib/books';
 import BookStartDialog from '../BookStartDialog/BookStartDialog';
 
-interface responseType {
+type BookSearchResultDto = {
   totalItems: number | null;
   books: BookDto[];
-}
+};
 
 const StartByBookSearch = () => {
   const [searchType, setSearchType] = React.useState('title');
   const [searchWord, setSearchWord] = React.useState('');
-  const [results, setResults] = React.useState<responseType>({
+  const [results, setResults] = React.useState<BookSearchResultDto>({
     totalItems: null,
     books: [],
   });
@@ -135,13 +135,14 @@ const StartByBookSearch = () => {
       <div className="grid grid-cols-2 gap-4 mt-10 mb-5">
         {results.books.map((book) => (
           <div
-            key={book.bookId}
+            key={book.externalId}
             className="p-2 border flex flex-row gap-4 hover:bg-muted-foreground/10 hover:cursor-pointer"
             onClick={() => {
               setSelectedBook(book);
               setDialogOpen(true);
             }}
           >
+            <div>{book.isAdded ? 'added' : ''}</div>
             <div className="w-15">
               <img
                 src={
@@ -157,7 +158,9 @@ const StartByBookSearch = () => {
             <div className="w-4/5 flex flex-col gap-1">
               <h3 className="font-bold text-sm">{book.title}</h3>
               <p className="text-xs text-muted-foreground">
-                {!book.authors?.trim() ? 'Author N/A' : book.authors}
+                {!book?.authors || book.authors.length === 0
+                  ? 'Author N/A'
+                  : book.authors.join(', ')}
               </p>
               <div className="flex flex-col gap-y-0.5 text-xs text-muted-foreground">
                 <div>

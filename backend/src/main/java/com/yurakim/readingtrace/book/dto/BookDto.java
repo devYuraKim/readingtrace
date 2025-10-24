@@ -29,6 +29,7 @@ public class BookDto {
     private Double averageRating;
     private Long ratingsCount;
     private String language;
+    private Boolean isAdded;
 
     //TODO: Dimensions, AccessInfo >> include these?
 }
