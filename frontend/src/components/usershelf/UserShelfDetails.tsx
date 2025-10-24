@@ -7,7 +7,7 @@ import UserBookCard from './UserBookCard';
 
 const UserShelfDetails = () => {
   const [searchParams] = useSearchParams();
-  const shelfId = searchParams.get('shelfId');
+  const shelfId = Number(searchParams.get('shelfId'));
   const shelfSlug = searchParams.get('shelfSlug');
 
   const userId = useAuthStore((state) => state.user?.userId);

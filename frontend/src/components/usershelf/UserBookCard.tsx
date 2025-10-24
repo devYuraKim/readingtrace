@@ -3,18 +3,23 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
 import { useQueryClient } from '@tanstack/react-query';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [searchParams] = useSearchParams();
+  const shelfId = Number(searchParams.get('shelfId'));
+  const shelfSlug = searchParams.get('shelfSlug');
+
   const userId = useAuthStore((state) => state.user?.userId);
-  const deleteMutation = useDeleteUserBook(userId, userBook.bookId);
+  const bookId = userBook.bookId;
+  const deleteMutation = useDeleteUserBook(userId, bookId, shelfId, shelfSlug);
 
   const handleClick = () => {
-    queryClient.setQueryData(['userBook', userId, userBook.bookId], userBook);
-    navigate(`/users/${userId}/books/${userBook.bookId}`);
+    queryClient.setQueryData(['userBook', userId, bookId], userBook);
+    navigate(`/users/${userId}/books/${bookId}`);
   };
 
   const handleClickEdit = (e: React.MouseEvent) => {

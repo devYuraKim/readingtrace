@@ -44,10 +44,16 @@ const BookStartDialog = ({
   //TODO: make sure book.bookId is not null
   const updateMutation = useUpdateUserBook(userId, book.bookId);
   //TODO: make sure book.bookId is not null
-  const deleteMutation = useDeleteUserBook(userId, book.bookId, () => {
-    handleOpenChange(false);
-    setOpenConfirmDialog(false);
-  });
+  const deleteMutation = useDeleteUserBook(
+    userId,
+    book.bookId,
+    null,
+    null,
+    () => {
+      handleOpenChange(false);
+      setOpenConfirmDialog(false);
+    },
+  );
 
   //TODO: check if userReadingStatusId should be included in the initialFormValues or can be separated
   const initialFormValues = {

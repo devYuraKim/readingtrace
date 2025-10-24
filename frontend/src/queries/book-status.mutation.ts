@@ -45,8 +45,10 @@ export const useUpdateUserBook = (
 };
 
 export const useDeleteUserBook = (
-  userId: number | undefined,
-  bookId: number | null,
+  userId?: number | null,
+  bookId?: number | null,
+  shelfId?: number | null,
+  shelfSlug?: string | null,
   onSuccessCallback?: () => void,
 ) => {
   const queryClient = useQueryClient();
@@ -57,6 +59,10 @@ export const useDeleteUserBook = (
       queryClient.invalidateQueries({
         queryKey: ['userBook', userId, bookId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['userShelf', userId, shelfId ?? shelfSlug],
+      });
+
       toast.success('Book deleted successfully!');
       onSuccessCallback?.();
     },
