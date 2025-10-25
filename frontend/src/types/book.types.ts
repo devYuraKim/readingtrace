@@ -21,3 +21,8 @@ export type BookDto = {
 };
 
 export type UserBookDto = BookDto & UserReadingStatusDto;
+
+export type BookSearchResultDto = {
+  totalItems: number | null;
+  books: BookDto[];
+};

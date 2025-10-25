@@ -18,3 +18,10 @@ export type BookStartDialogProps = {
 export type UserBookCardProps = {
   data: UserBookDto;
 };
+
+export type GetSearchedBooksProps = {
+  activeSearchType: string | null;
+  activeSearchWord: string | null;
+  page: number;
+  booksPerPage: number;
+};

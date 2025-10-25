@@ -1,7 +1,6 @@
 import React from 'react';
-import { apiClient } from '@/queries/axios';
+import { useGetSearchedBooks } from '@/queries/book.query';
 import { BookDto } from '@/types/book.types';
-import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -25,11 +24,6 @@ import {
 import BookStartDialog from '../BookStartDialog/BookStartDialog';
 import { Spinner } from '../ui/spinner';
 
-type BookSearchResultDto = {
-  totalItems: number | null;
-  books: BookDto[];
-};
-
 const StartByBookSearch = () => {
   const [searchType, setSearchType] = React.useState('title');
   const [searchWord, setSearchWord] = React.useState('');
@@ -51,18 +45,11 @@ const StartByBookSearch = () => {
     isPending,
     isError,
     error,
-  } = useQuery({
-    queryKey: ['bookSearch', activeSearchType, activeSearchWord, page],
-    queryFn: async () => {
-      const startIndex = (page - 1) * booksPerPage;
-      const response = await apiClient.get(
-        `/books?searchType=${activeSearchType}&searchWord=${activeSearchWord}&startIndex=${startIndex}&maxResults=${booksPerPage}`,
-      );
-      return response.data as BookSearchResultDto;
-    },
-    enabled: !!activeSearchWord && !!activeSearchType, // Only run when we have search params
-    staleTime: 5 * 60 * 1000, // Cache results for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  } = useGetSearchedBooks({
+    activeSearchType,
+    activeSearchWord,
+    page,
+    booksPerPage,
   });
 
   const handleSearch = () => {
