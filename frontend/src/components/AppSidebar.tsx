@@ -3,6 +3,7 @@ import { useDefaultShelves } from '@/queries/useDefaultShelves';
 import { useAuthStore } from '@/store/useAuthStore';
 import { CustomShelf, DefaultShelf } from '@/types/shelf.types';
 import { ChevronRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { SearchForm } from '@/components/SearchForm';
 import {
   Collapsible,
@@ -48,14 +49,13 @@ type SidebarMenuItem = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation();
+
   const userId = useAuthStore((state) => state.user?.userId);
   const { data: customShelves, isPending: isPendingCustom } =
     useCustomShelves(userId);
   const { data: defaultShelves, isPending: isPendingDefault } =
     useDefaultShelves(userId);
-
-  if (!isPendingCustom) console.log(customShelves);
-  if (!isPendingDefault) console.log(defaultShelves);
 
   const getCombinedNavData = (
     customShelves: CustomShelf[],
@@ -139,17 +139,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <CollapsibleContent>
                     <SidebarGroupContent>
                       <SidebarMenu>
-                        {item.items?.map((item) => (
-                          <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                              asChild
-                              isActive={item.isActive}
-                              className="ml-2"
-                            >
-                              <a href={item.url}>{item.title}</a>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
+                        {item.items?.map((subItem) => {
+                          const url = new URL(
+                            subItem.url,
+                            window.location.origin,
+                          );
+                          const isActive =
+                            location.pathname === url.pathname &&
+                            location.search === url.search;
+                          return (
+                            <SidebarMenuItem key={subItem.title}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={isActive}
+                                className="pl-7"
+                              >
+                                <a href={subItem.url}>{subItem.title}</a>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
                       </SidebarMenu>
                     </SidebarGroupContent>
                   </CollapsibleContent>
