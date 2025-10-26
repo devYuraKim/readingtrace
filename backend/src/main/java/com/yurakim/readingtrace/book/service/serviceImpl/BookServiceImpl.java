@@ -68,7 +68,7 @@ public class BookServiceImpl implements BookService {
         };
 
         String url = ApiPath.GOOGLE_BOOK_BASE
-                + "?key=" + env.getProperty("api.google.books.key")
+                + "?key=" + env.getProperty("google.books.api.key")
                 + "&printType=" + "books"
                 + "&q=" + searchPrefix + trimmedSerchWord
                 + "&maxResults=" + booksPerPage
@@ -131,7 +131,7 @@ public class BookServiceImpl implements BookService {
         String rawQuery = searchPrefix + trimmedSerchWord;
 
         String url = ApiPath.GOOGLE_BOOK_BASE
-                + "?key=" + env.getProperty("api.google.books.key")
+                + "?key=" + env.getProperty("google.books.api.key")
                 + "&printType=" + "books"
                 + "&q=" + rawQuery;
 
