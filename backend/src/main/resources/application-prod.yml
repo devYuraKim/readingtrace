@@ -66,6 +66,10 @@ logging:
     file: ${LOG_PATTERN:%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
     console: ${CONSOLE_LOG_PATTERN:%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n}
 
+openai:
+  base-url: https://api.openai.com/v1
+  api-key: ${OPENAI_API_KEY}
+
 jwt:
   issuer: readingtrace
   expiration-hours: 12
