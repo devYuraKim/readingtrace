@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AiController {
 
-    String systemMessage = "You are a reading companion. Always focus on the book and the user's questions. Provide clear, concise explanations, summaries, or insights on content, characters, themes, or context. If the user strays, gently redirect them back to the book.";
-
     private final @Qualifier("googleGenAiChatClient") ChatClient googleGenAiChatClient;
     private final @Qualifier("openAiChatClient") ChatClient openAiChatClient;
 
@@ -28,15 +26,15 @@ public class AiController {
             default: throw new IllegalArgumentException("Unknown model: " + model);
         }
 
-        systemMessage += String.format("""
-                        [Book Info] title: %s, author: %s, publisher: %s, publishedDate: %s,
-                        isbn10: %s, isbn13: %s, lanaguage: %s
-                        """,
-                        dto.getTitle(), dto.getAuthor(), dto.getPublisher(), dto.getPublishedDate(),
-                        dto.getIsbn10(), dto.getIsbn13(), dto.getLanguage());
-        System.out.println(String.format("FULL SYSTEM MESSAGE: %s", systemMessage));
+//        add bookInfo to system message for context
+//        String bookInfo = String.format("""
+//                        [Book Info] title: %s, author: %s, publisher: %s, publishedDate: %s,
+//                        isbn10: %s, isbn13: %s, lanaguage: %s
+//                        """,
+//                        dto.getTitle(), dto.getAuthor(), dto.getPublisher(), dto.getPublishedDate(),
+//                        dto.getIsbn10(), dto.getIsbn13(), dto.getLanguage());
 
-        String response = client.prompt().user(dto.getUserMessage()).system(systemMessage).call().content();
+        String response = client.prompt().user(dto.getUserMessage()).call().content();
         return ResponseEntity.ok(response);
     }
 
