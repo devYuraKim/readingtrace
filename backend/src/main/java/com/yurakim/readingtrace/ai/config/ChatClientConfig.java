@@ -11,11 +11,13 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient openAiChatClient(OpenAiChatModel chatModel) {
-        return ChatClient.create(chatModel);
+        ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel);
+        return chatClientBuilder.build();
     }
 
     @Bean
     public ChatClient googleGenAiChatClient(GoogleGenAiChatModel chatModel){
-        return ChatClient.create(chatModel);
+        ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel);
+        return chatClientBuilder.build();
     }
 }

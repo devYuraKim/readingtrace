@@ -14,6 +14,7 @@ public final class ApiPath {
 
     public static final String USERBOOK = BASE_WITH_USERID + "/books";
     public static final String USERSHELF = BASE_WITH_USERID + "/shelves";
+    public static final String USERAI = BASE_WITH_USERID + "/ai";
 
     public static final String GOOGLE_BOOK_BASE = "https://www.googleapis.com/books/v1/volumes";
 
