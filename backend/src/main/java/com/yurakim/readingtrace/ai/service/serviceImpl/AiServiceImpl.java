@@ -1,12 +1,12 @@
 package com.yurakim.readingtrace.ai.service.serviceImpl;
 
+import com.yurakim.readingtrace.ai.config.ChatClientConfig;
 import com.yurakim.readingtrace.ai.dto.ChatResponseDto;
 import com.yurakim.readingtrace.ai.dto.UserMessageDto;
 import com.yurakim.readingtrace.ai.entity.ChatRecord;
 import com.yurakim.readingtrace.ai.mapper.ChatMapper;
 import com.yurakim.readingtrace.ai.repository.ChatRepository;
 import com.yurakim.readingtrace.ai.service.AiService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -32,10 +32,19 @@ public class AiServiceImpl implements AiService {
             default: throw new IllegalArgumentException("Unknown model: " + model);
         }
 
+        String bookInfo = String.format("""
+                [Book Info] title: %s, author: %s, publisher: %s, publishedDate: %s,
+                isbn10: %s, isbn13: %s, lanaguage: %s
+                """,
+                umDto.getTitle(), umDto.getAuthor(), umDto.getPublisher(), umDto.getPublishedDate(),
+                umDto.getIsbn10(), umDto.getIsbn13(), umDto.getLanguage());
+
+        String systemMessage = ChatClientConfig.DEFAULT_SYSTEM_MESSAGE + bookInfo;
+
         ChatRecord chatRecord = new ChatRecord();
         ChatResponseDto chatResponseDto = null;
         try{
-            ChatResponse chatResponse = client.prompt().user(umDto.getUserMessage()).call().chatResponse();
+            ChatResponse chatResponse = client.prompt().user(umDto.getUserMessage()).system(systemMessage).call().chatResponse();
             chatRecord.setModel(model);
             chatRecord.setTimestamp(umDto.getTimestamp());
             chatRecord.setUserMessage(umDto.getUserMessage());
@@ -53,13 +62,6 @@ public class AiServiceImpl implements AiService {
             chatResponseDto = chatMapper.toChatResponseDto(chatRecord);
             return chatResponseDto;
         }
-
-//        String bookInfo = String.format("""
-//                        [Book Info] title: %s, author: %s, publisher: %s, publishedDate: %s,
-//                        isbn10: %s, isbn13: %s, lanaguage: %s
-//                        """,
-//                        dto.getTitle(), dto.getAuthor(), dto.getPublisher(), dto.getPublishedDate(),
-//                        dto.getIsbn10(), dto.getIsbn13(), dto.getLanguage());
     }
 
 }

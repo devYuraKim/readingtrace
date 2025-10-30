@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ChatClientConfig {
 
-    private static final String DEFAULT_SYSTEM_MESSAGE = "You are a reading companion. Always focus on the book and the user's questions. Provide clear, concise explanations, summaries, or insights on content, characters, themes, or context. If the user strays, gently redirect them back to the book.";
+    public static final String DEFAULT_SYSTEM_MESSAGE = "You are a reading companion. Always focus on the book and the user's questions. Provide clear, concise explanations, summaries, or insights on content, characters, themes, or context. If the user strays, gently redirect them back to the book.";
 
     @Bean
     public ChatClient openAiChatClient(OpenAiChatModel chatModel) {
