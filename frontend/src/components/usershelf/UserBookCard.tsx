@@ -1,9 +1,11 @@
 import { useDeleteUserBook } from '@/queries/book-status.mutation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
+import { TooltipArrow } from '@radix-ui/react-tooltip';
 import { useQueryClient } from '@tanstack/react-query';
 import { SquarePen, Trash2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const navigate = useNavigate();
@@ -53,11 +55,10 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
         <div>
           <div>{userBook.rating ?? 'no rating available'}</div>
           <div>
-            {userBook.startDate?.toLocaleDateString() ??
-              'no start date available'}
+            {userBook.startDate.toLocaleString() ?? 'no start date available'}
           </div>
           <div>
-            {userBook.endDate?.toLocaleDateString() ?? 'no end date available'}
+            {userBook.endDate.toLocaleString() ?? 'no end date available'}
           </div>
         </div>
         <div>
@@ -68,14 +69,33 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
         <div>empty</div>
 
         <div className="flex flex-col gap-y-1">
-          <SquarePen
-            className="hover:stroke-accent-foreground/40"
-            onClick={handleClickEdit}
-          />
-          <Trash2
-            className="hover:stroke-accent-foreground/40"
-            onClick={handleClickDelete}
-          />
+          <Tooltip>
+            <TooltipTrigger>
+              <SquarePen
+                className="cursor-pointer hover:stroke-accent-foreground/50"
+                onClick={handleClickEdit}
+              />
+            </TooltipTrigger>
+
+            <TooltipContent className="bg-black text-white p-1 rounded-sm">
+              <TooltipArrow />
+              <p>Edit</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Trash2
+                className="cursor-pointer hover:stroke-accent-foreground/50"
+                onClick={handleClickEdit}
+              />
+            </TooltipTrigger>
+
+            <TooltipContent className="bg-black text-white p-1 rounded-sm">
+              <TooltipArrow />
+              <p>Delete</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </>
