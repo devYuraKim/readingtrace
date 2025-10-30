@@ -25,6 +25,17 @@ import { Tooltip, TooltipTrigger } from '../ui/tooltip';
 type AiChat = {
   userInput: string;
   assistantOutput: string;
+  timestamp: Date;
+};
+
+type ChatResponseDto = {
+  timestamp: Date;
+  textContent: string;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  messageType: string;
+  finishReason: string;
 };
 
 export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
@@ -57,6 +68,7 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
     mutationFn: async () => {
       const res = await apiClient.post(`users/${userId}/ai?model=${model}`, {
         userMessage,
+        timestamp: new Date(),
         title: userBook.title ?? '',
         author: userBook.authors?.join(',') ?? '',
         publisher: userBook.publisher ?? '',
@@ -68,14 +80,22 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
       console.log(res.data);
       return res.data;
     },
-    onSuccess: (aiResponse) => {
+    onSuccess: (aiResponse: ChatResponseDto) => {
       setAiChatList((prev) => [
         ...prev,
-        { userInput: finalUserMessage, assistantOutput: aiResponse },
+        {
+          userInput: finalUserMessage,
+          assistantOutput: aiResponse.textContent,
+          timestamp: aiResponse.timestamp,
+        },
       ]);
       setUserMessage('');
     },
   });
+
+  const handleClickSave = (aiChat: AiChat) => {
+    alert(aiChat.assistantOutput);
+  };
 
   return (
     <div>
@@ -84,10 +104,15 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
         aiChatList.map((aiChat) => (
           <div className="border-1 mb-2 rounded-sm">
             <div className="flex justify-between m-2 font-extralight text-xs ">
-              {new Date().toLocaleString()}
+              {aiChat.timestamp.toLocaleString()}
               <Tooltip>
                 <TooltipTrigger>
-                  <Save className="cursor-pointer hover:stroke-accent-foreground/50" />
+                  <Save
+                    className="cursor-pointer hover:stroke-accent-foreground/50"
+                    onClick={() => {
+                      handleClickSave(aiChat);
+                    }}
+                  />
                 </TooltipTrigger>
 
                 <TooltipContent className="bg-black text-white p-1 rounded-sm">

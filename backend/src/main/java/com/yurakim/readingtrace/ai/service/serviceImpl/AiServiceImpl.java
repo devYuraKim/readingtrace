@@ -1,6 +1,8 @@
 package com.yurakim.readingtrace.ai.service.serviceImpl;
 
+import com.yurakim.readingtrace.ai.dto.ChatResponseDto;
 import com.yurakim.readingtrace.ai.dto.UserMessageDto;
+import com.yurakim.readingtrace.ai.mapper.ChatMapper;
 import com.yurakim.readingtrace.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,8 +17,10 @@ public class AiServiceImpl implements AiService {
     private final @Qualifier("googleGenAiChatClient") ChatClient googleGenAiChatClient;
     private final @Qualifier("openAiChatClient") ChatClient openAiChatClient;
 
+    private final ChatMapper chatMapper;
+
     @Override
-    public String getResponseFromChatModel(UserMessageDto dto, String model) {
+    public ChatResponseDto getResponseFromChatModel(UserMessageDto umDto, String model) {
         ChatClient client;
         switch (model.toLowerCase()) {
             case "gemini": client = googleGenAiChatClient; break;
@@ -31,9 +35,10 @@ public class AiServiceImpl implements AiService {
 //                        dto.getTitle(), dto.getAuthor(), dto.getPublisher(), dto.getPublishedDate(),
 //                        dto.getIsbn10(), dto.getIsbn13(), dto.getLanguage());
 
-        ChatResponse chatResponse = client.prompt().user(dto.getUserMessage()).call().chatResponse();
-        System.out.println("Full ChatResponse: " + chatResponse);
-
-        return chatResponse.getResult().getOutput().getText();
+        ChatResponse chatResponse = client.prompt().user(umDto.getUserMessage()).call().chatResponse();
+        ChatResponseDto crDto = chatMapper.toChatResponseDto(chatResponse);
+        crDto.setTimestamp(umDto.getTimestamp());
+        return crDto;
     }
+
 }
