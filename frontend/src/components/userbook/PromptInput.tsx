@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { apiClient } from '@/queries/axios';
+import { usePostUserMessage } from '@/queries/ai-chat.mutation';
 import { useAuthStore } from '@/store/useAuthStore';
+import { AiChat } from '@/types/ai-chat.types';
 import { UserBookDto } from '@/types/book.types';
 import {
   DropdownMenu,
@@ -10,7 +11,6 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import { Separator } from '@radix-ui/react-separator';
 import { TooltipArrow, TooltipContent } from '@radix-ui/react-tooltip';
-import { useMutation } from '@tanstack/react-query';
 import { ArrowUpIcon, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -21,22 +21,6 @@ import {
   InputGroupTextarea,
 } from '../ui/input-group';
 import { Tooltip, TooltipTrigger } from '../ui/tooltip';
-
-type AiChat = {
-  userInput: string;
-  assistantOutput: string;
-  timestamp: Date;
-};
-
-type ChatResponseDto = {
-  timestamp: Date;
-  textContent: string;
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
-  messageType: string;
-  finishReason: string;
-};
 
 export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
   const [model, setModel] = useState('');
@@ -50,6 +34,20 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
     setModel(value);
   };
 
+  const {
+    mutate: mutatePostUserMessage,
+    isPending: isPendingPostUserMessage,
+    isSuccess: isSuccessPostUserMessage,
+  } = usePostUserMessage(
+    userId,
+    model,
+    userMessage,
+    userBook,
+    setAiChatList,
+    setUserMessage,
+    finalUserMessage,
+  );
+
   const handleSubmit = () => {
     const normalizedUserMessage = userMessage.trim().replace(/\s+/g, ' ');
 
@@ -60,38 +58,8 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
     setUserMessage(normalizedUserMessage);
     setFinalUserMessage(userMessage);
 
-    mutate();
+    mutatePostUserMessage();
   };
-
-  const { mutate, isPending, isSuccess } = useMutation({
-    mutationKey: ['sendUserMessage'],
-    mutationFn: async () => {
-      const res = await apiClient.post(`users/${userId}/ai?model=${model}`, {
-        userMessage,
-        timestamp: new Date(),
-        title: userBook.title ?? '',
-        author: userBook.authors?.join(',') ?? '',
-        publisher: userBook.publisher ?? '',
-        publishedDate: userBook.publishedDate ?? '',
-        isbn10: userBook.isbn10 ?? '',
-        isbn13: userBook.isbn13 ?? '',
-        language: userBook.language ?? '',
-      });
-      console.log(res.data);
-      return res.data;
-    },
-    onSuccess: (aiResponse: ChatResponseDto) => {
-      setAiChatList((prev) => [
-        ...prev,
-        {
-          userInput: finalUserMessage,
-          assistantOutput: aiResponse.textContent,
-          timestamp: aiResponse.timestamp,
-        },
-      ]);
-      setUserMessage('');
-    },
-  });
 
   const handleClickSave = (aiChat: AiChat) => {
     alert(aiChat.assistantOutput);
@@ -99,8 +67,8 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
 
   return (
     <div>
-      {!isPending &&
-        isSuccess &&
+      {!isPendingPostUserMessage &&
+        isSuccessPostUserMessage &&
         aiChatList.map((aiChat) => (
           <div className="border-1 mb-2 rounded-sm">
             <div className="flex justify-between m-2 font-extralight text-xs ">
@@ -168,7 +136,7 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
             variant="default"
             className="rounded-full"
             size="icon-xs"
-            disabled={userMessage && !isPending ? false : true}
+            disabled={userMessage && !isPendingPostUserMessage ? false : true}
           >
             <ArrowUpIcon onClick={handleSubmit} className="cursor-pointer" />
             <span className="sr-only">Send</span>
