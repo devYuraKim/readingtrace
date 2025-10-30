@@ -10,14 +10,18 @@ import java.util.Date;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class ChatResponseDto {
 
+    private Long chatRecordId;
+    private String model;
     private Date timestamp;
-    private String textContent;
+
+    private String userMessage;
+    private String assistantMessage;
 
     private Integer promptTokens;
     private Integer completionTokens;
     private Integer totalTokens;
 
-    private String messageType;
     private String finishReason;
+    private String error;
 
 }

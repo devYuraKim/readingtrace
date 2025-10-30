@@ -1,24 +1,28 @@
 package com.yurakim.readingtrace.ai.mapper;
 
 import com.yurakim.readingtrace.ai.dto.ChatResponseDto;
-import org.springframework.ai.chat.model.ChatResponse;
+import com.yurakim.readingtrace.ai.entity.ChatRecord;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ChatMapper {
 
-    public ChatResponseDto toChatResponseDto(ChatResponse chatResponse){
+    public ChatResponseDto toChatResponseDto(ChatRecord chatRecord){
         ChatResponseDto crDto = new ChatResponseDto();
 
-        //TIMESTAMP is set based on UserMessageDto
-        crDto.setTextContent(chatResponse.getResult().getOutput().getText());
+        crDto.setChatRecordId(chatRecord.getId());
+        crDto.setModel(chatRecord.getModel());
+        crDto.setTimestamp(chatRecord.getTimestamp());
 
-        crDto.setPromptTokens(chatResponse.getMetadata().getUsage().getPromptTokens());
-        crDto.setCompletionTokens(chatResponse.getMetadata().getUsage().getCompletionTokens());
-        crDto.setTotalTokens(chatResponse.getMetadata().getUsage().getTotalTokens());
+        crDto.setUserMessage(chatRecord.getUserMessage());
+        crDto.setAssistantMessage(chatRecord.getAssistantMessage());
 
-        crDto.setMessageType(chatResponse.getResult().getOutput().getMessageType().getValue());
-        crDto.setFinishReason(chatResponse.getResult().getMetadata().getFinishReason());
+        crDto.setPromptTokens(chatRecord.getPromptTokens());
+        crDto.setCompletionTokens(chatRecord.getCompletionTokens());
+        crDto.setTotalTokens(chatRecord.getTotalTokens());
+
+        crDto.setFinishReason(chatRecord.getFinishReason());
+        crDto.setError(chatRecord.getError());
 
         return crDto;
 
