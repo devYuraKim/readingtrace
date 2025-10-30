@@ -55,10 +55,10 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
         <div>
           <div>{userBook.rating ?? 'no rating available'}</div>
           <div>
-            {userBook.startDate.toLocaleString() ?? 'no start date available'}
+            {userBook.startDate?.toLocaleString() ?? 'no start date available'}
           </div>
           <div>
-            {userBook.endDate.toLocaleString() ?? 'no end date available'}
+            {userBook.endDate?.toLocaleString() ?? 'no end date available'}
           </div>
         </div>
         <div>
