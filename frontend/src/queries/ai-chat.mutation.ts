@@ -10,7 +10,6 @@ export const usePostUserMessage = (
   userBook: UserBookDto,
   setAiChatList: React.Dispatch<React.SetStateAction<Array<AiChat>>>,
   setUserMessage: React.Dispatch<React.SetStateAction<string>>,
-  finalUserMessage: string,
 ) => {
   return useMutation({
     mutationKey: ['sendUserMessage'],
@@ -33,8 +32,8 @@ export const usePostUserMessage = (
       setAiChatList((prev) => [
         ...prev,
         {
-          userInput: finalUserMessage,
-          assistantOutput: aiResponse.textContent,
+          userMessage: aiResponse.userMessage,
+          assistantMessage: aiResponse.assistantMessage,
           timestamp: aiResponse.timestamp,
         },
       ]);

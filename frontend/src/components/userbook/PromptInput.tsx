@@ -45,7 +45,6 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
     userBook,
     setAiChatList,
     setUserMessage,
-    finalUserMessage,
   );
 
   const handleSubmit = () => {
@@ -62,7 +61,7 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
   };
 
   const handleClickSave = (aiChat: AiChat) => {
-    alert(aiChat.assistantOutput);
+    alert(aiChat.assistantMessage);
   };
 
   return (
@@ -89,8 +88,8 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
                 </TooltipContent>
               </Tooltip>
             </div>
-            <div className="m-2">{aiChat.userInput}</div>
-            <div className="m-2">{aiChat.assistantOutput}</div>
+            <div className="m-2">{aiChat.userMessage}</div>
+            <div className="m-2">{aiChat.assistantMessage}</div>
           </div>
         ))}
       <InputGroup>

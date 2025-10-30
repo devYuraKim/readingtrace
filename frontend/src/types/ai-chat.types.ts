@@ -1,15 +1,18 @@
 export type AiChat = {
-  userInput: string;
-  assistantOutput: string;
+  userMessage: string;
+  assistantMessage: string;
   timestamp: Date;
 };
 
 export type ChatResponseDto = {
+  chatRecordId: number;
+  model: string;
   timestamp: Date;
-  textContent: string;
+  userMessage: string;
+  assistantMessage: string;
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
-  messageType: string;
   finishReason: string;
+  error: string;
 };
