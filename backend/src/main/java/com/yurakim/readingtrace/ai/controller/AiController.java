@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(ApiPath.USERAI) // /api/v1/users/{userId}/ai
 @RequiredArgsConstructor
@@ -20,6 +22,12 @@ public class AiController {
                                                      @PathVariable Long userId, @RequestParam String chatModel) {
         ChatRecordDto chatRecordDto = aiService.generateChatModelResponse(userMessageDto, userId, chatModel);
         return ResponseEntity.ok(chatRecordDto);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ChatRecordDto>> getChatRecords(@PathVariable Long userId, @RequestParam Long bookId){
+        List<ChatRecordDto> chatRecordDtos = aiService.getChatRecords(userId, bookId);
+        return ResponseEntity.ok(chatRecordDtos);
     }
 
 }

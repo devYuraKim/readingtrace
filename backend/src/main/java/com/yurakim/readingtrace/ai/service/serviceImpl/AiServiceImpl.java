@@ -13,6 +13,8 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class AiServiceImpl implements AiService {
@@ -61,6 +63,12 @@ public class AiServiceImpl implements AiService {
             chatRepository.save(chatRecord);
             return chatMapper.toChatRecordDto(chatRecord);
         }
+    }
+
+    @Override
+    public List<ChatRecordDto> getChatRecords(Long userId, Long bookId) {
+        List<ChatRecord> chatRecords = chatRepository.findAllByUserIdAndBookId(userId, bookId);
+        return chatRecords.stream().map(chatRecord -> chatMapper.toChatRecordDto(chatRecord)).toList();
     }
 
 }

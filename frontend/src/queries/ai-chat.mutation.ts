@@ -1,6 +1,5 @@
-import { AiChat, ChatRecordDto } from '@/types/ai-chat.types';
 import { UserBookDto } from '@/types/book.types';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './axios';
 
 export const usePostUserMessage = (
@@ -8,9 +7,10 @@ export const usePostUserMessage = (
   chatModel: string,
   userMessage: string,
   userBook: UserBookDto,
-  setAiChatList: React.Dispatch<React.SetStateAction<Array<AiChat>>>,
   setUserMessage: React.Dispatch<React.SetStateAction<string>>,
 ) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ['sendUserMessage'],
     mutationFn: async () => {
@@ -32,15 +32,10 @@ export const usePostUserMessage = (
       console.log(res.data);
       return res.data;
     },
-    onSuccess: (aiResponse: ChatRecordDto) => {
-      setAiChatList((prev) => [
-        ...prev,
-        {
-          userMessage: aiResponse.userMessage,
-          assistantMessage: aiResponse.assistantMessage,
-          timestamp: aiResponse.timestamp,
-        },
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['userBookChat', userId, userBook.bookId],
+      });
       setUserMessage('');
     },
   });
