@@ -16,25 +16,22 @@ public class ChatRecord extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String model;
+    private Long userId;
+    private Long bookId;
 
     private Date timestamp;
-
+    private String model;
     @Column(columnDefinition = "LONGTEXT")
     private String userMessage;
-
     @Column(columnDefinition = "LONGTEXT")
     private String assistantMessage;
 
     private Integer promptTokens;
     private Integer completionTokens;
     private Integer totalTokens;
+
     private String finishReason;
-
     private Boolean isSuccess;
-
-    @Column(columnDefinition = "json")
     private String error;
 
 }

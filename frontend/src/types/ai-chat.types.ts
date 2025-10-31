@@ -4,9 +4,11 @@ export type AiChat = {
   timestamp: Date;
 };
 
-export type ChatResponseDto = {
+export type ChatRecordDto = {
   chatRecordId: number;
-  model: string;
+  userId: number;
+  bookId: number;
+  chatModel: string;
   timestamp: Date;
   userMessage: string;
   assistantMessage: string;
@@ -14,5 +16,6 @@ export type ChatResponseDto = {
   completionTokens: number;
   totalTokens: number;
   finishReason: string;
+  isSuccess: boolean;
   error: string;
 };

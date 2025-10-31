@@ -1,6 +1,6 @@
 package com.yurakim.readingtrace.ai.controller;
 
-import com.yurakim.readingtrace.ai.dto.ChatResponseDto;
+import com.yurakim.readingtrace.ai.dto.ChatRecordDto;
 import com.yurakim.readingtrace.ai.dto.UserMessageDto;
 import com.yurakim.readingtrace.ai.service.AiService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
@@ -16,10 +16,10 @@ public class AiController {
     private final AiService aiService;
 
     @PostMapping
-    public ResponseEntity<ChatResponseDto> sendPrompt(@RequestBody UserMessageDto umDto,
-                                                      @RequestParam String model) {
-        ChatResponseDto amDto = aiService.getResponseFromChatModel(umDto, model);
-        return ResponseEntity.ok(amDto);
+    public ResponseEntity<ChatRecordDto> generateChatModelResponse(@RequestBody UserMessageDto userMessageDto,
+                                                     @PathVariable Long userId, @RequestParam String chatModel) {
+        ChatRecordDto chatRecordDto = aiService.generateChatModelResponse(userMessageDto, userId, chatModel);
+        return ResponseEntity.ok(chatRecordDto);
     }
 
 }

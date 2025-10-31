@@ -7,11 +7,17 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class ChatResponseDto {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChatRecordDto {
 
     private Long chatRecordId;
-    private String model;
+    private Long userId;
+    private Long bookId;
+
+    private String chatModel;
     private Date timestamp;
 
     private String userMessage;
@@ -20,8 +26,11 @@ public class ChatResponseDto {
     private Integer promptTokens;
     private Integer completionTokens;
     private Integer totalTokens;
-
     private String finishReason;
+
+    private Boolean isSuccess;
     private String error;
+
+//    private String chatVisibility;
 
 }

@@ -14,6 +14,7 @@ public class UserMessageDto {
     private Long userId;
     private String userMessage;
     private Date timestamp;
+    private Long bookId;
     private String title;
     private String author;
     private String publisher;
