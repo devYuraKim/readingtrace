@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { BookDto } from '@/types/book.types';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -11,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BookDto } from '@/lib/books';
 import { Input } from '../ui/input';
 
 const StartByBookSearch = () => {
@@ -39,12 +39,6 @@ const StartByBookSearch = () => {
       return undefined;
     }
     const csrfToken = getCookie('XSRF-TOKEN') ?? '';
-    console.log(
-      'access from store: ',
-      accessToken,
-      ' | csrf from cookie: ',
-      csrfToken,
-    );
 
     try {
       const response = await fetch(
@@ -60,13 +54,11 @@ const StartByBookSearch = () => {
       );
 
       if (!response.ok) {
-        console.log('response', response);
         throw new Error(`HTTP ${response.status}`);
       }
 
       const reader = response?.body?.getReader();
       if (!reader) {
-        console.log('reader', reader);
         throw new Error('Unable to get stream reader');
       }
       const decoder = new TextDecoder();
@@ -141,7 +133,12 @@ const StartByBookSearch = () => {
         {results.map((book) => (
           <div key={book.bookId} className="p-2 border-b">
             <h3 className="font-bold">{book.title}</h3>
-            <p>{book.authors}</p>
+            <p>
+              {' '}
+              {!book?.authors || book.authors.length === 0
+                ? 'Author N/A'
+                : book.authors.join(', ')}
+            </p>
             <p className="text-sm text-gray-500">
               {book.publisher} ({book.publishedDate})
             </p>
