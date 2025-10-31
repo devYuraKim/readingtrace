@@ -24,51 +24,65 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
     navigate(`/users/${userId}/books/${bookId}`);
   };
 
-  const handleClickEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClickEdit = () => {
     alert('edit');
   };
 
-  const handleClickDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClickDelete = () => {
     deleteMutation.mutate();
   };
 
   return (
     <>
-      UserBookCard
       <div
         onClick={handleClick}
-        className="flex flex-row gap-2 cursor-pointer rounded-sm outline-muted-foreground-5 outline-1"
+        className="flex items-start justify-between w-full cursor-pointer rounded-lg border border-muted-foreground/10 bg-white p-3 shadow-sm hover:shadow-lg transition-shadow"
       >
-        <div>
+        <div className="flex gap-3">
           <img
-            className="h-20 w-16 rounded-sm"
+            className="h-24 w-18 rounded-md object-cover"
             src={userBook.imageLinks}
             alt={userBook.title}
           />
         </div>
-        <div>
-          <div>{userBook.title}</div>
-          <div>{userBook.authors}</div>
-        </div>
-        <div>
-          <div>{userBook.rating ?? 'no rating available'}</div>
-          <div>
-            {userBook.startDate?.toLocaleString() ?? 'no start date available'}
+
+        <div className="flex flex-col justify-between">
+          <div className="flex gap-2 mt-1">
+            <span className="text-xs p-2 py-0.5 bg-muted rounded-full capitalize">
+              {userBook.status}
+            </span>
+            <span className="text-xs text-muted-foreground capitalize">
+              {userBook.visibility}
+            </span>
           </div>
+
           <div>
-            {userBook.endDate?.toLocaleString() ?? 'no end date available'}
+            <h3 className="font-semibold text-base text-foreground">
+              {userBook.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">{userBook.authors}</p>
+          </div>
+
+          <div className="text-xs text-muted-foreground mt-1">
+            <div>⭐ {userBook.rating ?? 'No rating'}</div>
           </div>
         </div>
-        <div>
-          <div>added on {userBook.userReadingStatusCreatedAt}</div>
-          <div>updated on {userBook.userReadingStatusUpdatedAt}</div>
+
+        <div className="text-xs text-muted-foreground flex flex-col justify-center text-right pr-4">
+          <div>Start: {userBook.startDate?.toLocaleDateString() ?? '—'}</div>
+          <div>End: {userBook.endDate?.toLocaleDateString() ?? '—'}</div>
+          <div> hey </div>
+          <div>Added: {userBook.userReadingStatusCreatedAt}</div>
+          <div>Updated: {userBook.userReadingStatusUpdatedAt}</div>
         </div>
 
         <div>empty</div>
 
-        <div className="flex flex-col gap-y-1">
+        <div
+          className="flex flex-col gap-2 items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {' '}
           <Tooltip>
             <TooltipTrigger>
               <SquarePen
@@ -82,7 +96,6 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
               <p>Edit</p>
             </TooltipContent>
           </Tooltip>
-
           <Tooltip>
             <TooltipTrigger>
               <Trash2
