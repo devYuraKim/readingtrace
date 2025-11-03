@@ -12,6 +12,7 @@ import com.yurakim.readingtrace.shared.util.EmailService;
 import com.yurakim.readingtrace.shelf.service.ShelfService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
+import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -129,10 +130,13 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setEmail(signupDto.getEmail());
         user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
-
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(ROLE_USER).get());
         user.setRoles(roles);
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setUser(user);
+        user.setUserProfile(userProfile);
 
         userRepository.save(user);
 

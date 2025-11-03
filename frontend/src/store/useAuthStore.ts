@@ -5,6 +5,11 @@ type User = {
   userId: number;
   email: string;
   roles: string[];
+  nickname: string;
+  profileImageUrl: string;
+  readingGoal: number;
+  favoredGenres: string;
+  isOnboardingCompleted: boolean;
 };
 
 type AuthState = {

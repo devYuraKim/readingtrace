@@ -73,4 +73,7 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String oAuth2Provider;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
 }
