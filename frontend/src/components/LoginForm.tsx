@@ -71,9 +71,16 @@ export function LoginForm({
     onSuccess: (res) => {
       const accessToken = res.headers['authorization'];
       const user = res.data;
+      console.log(user);
+      localStorage.setItem('readingGoal', user.readingGoal);
+      localStorage.setItem('favoredGenres', user.favoredGenres);
       setAuth(user, accessToken);
       // TODO: implement protected routes
-      navigate(`/users/${user.userId}`);
+      if (!user.isOnboardingCompleted) {
+        navigate(`/users/${user.userId}/onboarding`);
+      } else {
+        navigate(`/users/${user.userId}`);
+      }
     },
     onError: (error) => {
       toast.error(error.message);
