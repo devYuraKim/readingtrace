@@ -33,7 +33,11 @@ function AuthProvider() {
           console.log(error);
           useAuthStore.getState().clearAuth();
           navigate('/login', { replace: true });
+        } finally {
+          useAuthStore.getState().setIsAuthChecked();
         }
+      } else {
+        useAuthStore.getState().setIsAuthChecked();
       }
     };
     refresh();

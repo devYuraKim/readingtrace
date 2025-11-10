@@ -5,6 +5,9 @@ type User = {
   userId: number;
   email: string;
   roles: string[];
+};
+
+type UserProfile = User & {
   nickname: string;
   profileImageUrl: string;
   readingGoal: number;
@@ -13,8 +16,11 @@ type User = {
 };
 
 type AuthState = {
+  isAuthChecked: boolean;
   user: User | null;
+  userProfile: UserProfile | null;
   accessToken: string | null;
+  setIsAuthChecked: () => void;
   setAuth: (user: User | null, token: string) => void;
   clearAuth: () => void;
 };
@@ -22,8 +28,11 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   devtools(
     (set) => ({
+      isAuthChecked: false,
       user: null,
+      userProfile: null,
       accessToken: null,
+      setIsAuthChecked: () => set({ isAuthChecked: true }),
       setAuth: (user, token) => set({ user, accessToken: token }),
       clearAuth: () => set({ user: null, accessToken: null }),
     }),

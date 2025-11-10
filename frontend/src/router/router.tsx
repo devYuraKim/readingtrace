@@ -1,5 +1,6 @@
 import Landing from '@/pages/Landing';
 import LoginPage from '@/pages/LoginPage';
+import OnboardingPage from '@/pages/OnboardingPage';
 import SignupPage from '@/pages/SignupPage';
 import {
   createBrowserRouter,
@@ -15,24 +16,31 @@ import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
 import UserBookDetails from '@/components/userbook/UserBookDetails';
 import UserShelfDetails from '@/components/usershelf/UserShelfDetails';
+import AuthenticatedRoutes from './AuthenticatedRoutes';
+import UnauthenticatedRoutes from './UnauthenticatedRoutes';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AuthProvider />}>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/oauth2/callback" element={<OAuth2Callback />} />
-
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Landing />} />
       </Route>
 
-      <Route path="/users/:userId" element={<PrivateLayout />}>
-        <Route index element={<StartByBookCollection />} />
-        <Route path="searchBook" element={<StartByBookSearch />} />
-        <Route path="supportChat" element={<SupportChat />} />
-        <Route path="books" element={<UserShelfDetails />} />
-        <Route path="books/:bookId" element={<UserBookDetails />} />
+      <Route element={<UnauthenticatedRoutes />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/oauth2/callback" element={<OAuth2Callback />} />
+      </Route>
+
+      <Route element={<AuthenticatedRoutes />}>
+        <Route path="/users/:userId/onboarding" element={<OnboardingPage />} />
+        <Route path="/users/:userId" element={<PrivateLayout />}>
+          <Route index element={<StartByBookCollection />} />
+          <Route path="searchBook" element={<StartByBookSearch />} />
+          <Route path="supportChat" element={<SupportChat />} />
+          <Route path="books" element={<UserShelfDetails />} />
+          <Route path="books/:bookId" element={<UserBookDetails />} />
+        </Route>
       </Route>
     </Route>,
   ),
