@@ -64,7 +64,7 @@ const OnboardingPage = () => {
           </div>
 
           {/* Step content */}
-          <div className="w-full max-w-md border rounded-md p-6 shadow-sm text-center">
+          <div className="w-full max-w-md px-6 pb-6 pt-3">
             {steps[currentStep]}
           </div>
         </Card>

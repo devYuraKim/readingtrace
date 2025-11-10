@@ -26,7 +26,7 @@ const ProgressBar = ({
 
       {/* Step text */}
       <div className="text-sm text-gray-700 whitespace-nowrap">
-        Step <span className="font-bold">{currentStep}</span> / {totalSteps}
+        <span className="font-bold">{currentStep}</span> / {totalSteps}
       </div>
     </div>
   );
