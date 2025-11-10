@@ -5,7 +5,9 @@ import com.yurakim.readingtrace.user.dto.AuthenticatedUserDto;
 import com.yurakim.readingtrace.user.dto.UserDto;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
+import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
+import com.yurakim.readingtrace.user.repository.UserProfileRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserProfileRepository userProfileRepository;
 
     @Override
     public LoginResponseDto getUser(Long id, String email) {
@@ -78,17 +81,26 @@ public class UserServiceImpl implements UserService {
         userDto.setAccountUnlockedAt(user.getAccountUnlockedAt());
         userDto.setOAuth2Provider(user.getOAuth2Provider());
         userDto.setOAuth2Login(user.getOAuth2Login());
-
         return userDto;
     }
 
     @Override
     public AuthenticatedUserDto getAuthenticatedUser(String email) {
-        User userRecord = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        AuthenticatedUserDto user = new AuthenticatedUserDto();
-        user.setUserId(userRecord.getId());
-        user.setEmail(userRecord.getEmail());
-        user.setRoles(userRecord.getRoles());
-        return user;
+        //TODO 방법1: profileService 만들어서 profile 정보 AuthenticatedUserDto에 추가
+        //TODO 방법2: getAuthenticatedUser()의 repository method를 join table record 반환하도록 query 작성
+        User userRecord = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found for email: " + email));
+        UserProfile userProfile = userProfileRepository.findById(userRecord.getId()).orElseThrow(() -> new UsernameNotFoundException("UserProfile not found for userId: " + userRecord.getId()));
+
+        AuthenticatedUserDto authUserDto = new AuthenticatedUserDto();
+        authUserDto.setUserId(userRecord.getId());
+        authUserDto.setEmail(userRecord.getEmail());
+        authUserDto.setRoles(userRecord.getRoles());
+        authUserDto.setNickname(userProfile.getNickname());
+        authUserDto.setFavoredGenres(userProfile.getFavoredGenres());
+        authUserDto.setProfileImageUrl(userProfile.getProfileImageUrl());
+        authUserDto.setIsOnboardingCompleted(userProfile.getIsOnboardingCompleted());
+        authUserDto.setReadingGoal(userProfile.getReadingGoal());
+        return authUserDto;
     }
+
 }
