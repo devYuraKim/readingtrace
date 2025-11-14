@@ -9,11 +9,12 @@ import { Card } from '@/components/ui/card';
 
 const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [canProceed, setCanProceed] = useState(false);
 
   const totalSteps = 3;
 
   const steps: Record<number, ReactElement> = {
-    1: <Step1 />,
+    1: <Step1 setCanProceed={setCanProceed} />,
     2: <Step2 />,
     3: <Step3 />,
   };
@@ -53,12 +54,14 @@ const OnboardingPage = () => {
             {/* Next Step */}
             <CircleChevronRight
               className={`${
-                currentStep === totalSteps
+                currentStep === totalSteps || !canProceed
                   ? 'stroke-gray-300'
                   : 'cursor-pointer stroke-accent-foreground/70 hover:stroke-accent-foreground'
               }`}
               onClick={() =>
-                currentStep < totalSteps && setCurrentStep((prev) => prev + 1)
+                currentStep < totalSteps &&
+                canProceed &&
+                setCurrentStep((prev) => prev + 1)
               }
             />
           </div>

@@ -21,7 +21,11 @@ const nicknameSchema = z
     'Nickname can only contain lowercase letters and numbers',
   );
 
-const Step1 = () => {
+type StepProps = {
+  setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const Step1 = ({ setCanProceed }: StepProps) => {
   const userId = useAuthStore((state) => state.user?.userId);
   const email = useAuthStore((state) => state.user?.email);
   const defaultNickname = email?.split('@')[0] || '';
@@ -85,6 +89,12 @@ const Step1 = () => {
     staleTime: 5 * 60 * 1000,
     refetchOnMount: false,
   });
+
+  if (!isPending && isAvailable && !inputError) {
+    setCanProceed(true);
+  } else {
+    setCanProceed(false);
+  }
 
   return (
     <>
