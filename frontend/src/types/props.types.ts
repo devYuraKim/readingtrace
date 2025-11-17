@@ -1,13 +1,6 @@
 import { BookDto, UserBookDto } from './book.types';
 import { ReadingStatusInitialFormValues } from './reading-status.types';
 
-// export type BookStartDialogProps = {
-//   open: boolean;
-//   onOpenChange: (open: boolean) => void;
-//   initialData: ReadingStatusInitialFormValues;
-//   selectedBookId: number;
-// };
-
 export type BookStartDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,4 +17,8 @@ export type GetSearchedBooksProps = {
   activeSearchWord: string | null;
   page: number;
   booksPerPage: number;
+};
+
+export type OnboardingStepProps = {
+  setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
 };
