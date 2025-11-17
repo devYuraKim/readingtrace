@@ -110,6 +110,7 @@ cors:
 
 aws:
   s3:
+    region: ap-northeast-2
     bucket:
       name: readingtrace-bucket
     credentials:
