@@ -14,10 +14,6 @@ function getCookie(name: string) {
 
 export const apiClient = axios.create({
   baseURL: '/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
   withCredentials: true,
 });
 
