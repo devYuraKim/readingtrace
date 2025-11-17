@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
+import { OnboardingStepProps } from '@/types/props.types';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Camera, CircleCheck, CircleX } from 'lucide-react';
 import { z } from 'zod';
 import {
@@ -21,11 +22,7 @@ const nicknameSchema = z
     'Nickname can only contain lowercase letters and numbers',
   );
 
-type StepProps = {
-  setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const Step1 = ({ setCanProceed }: StepProps) => {
+const Step1 = ({ setCanProceed }: OnboardingStepProps) => {
   const userId = useAuthStore((state) => state.user?.userId);
   const email = useAuthStore((state) => state.user?.email);
   const defaultNickname = email?.split('@')[0] || '';
@@ -57,12 +54,33 @@ const Step1 = ({ setCanProceed }: StepProps) => {
     imageInputRef.current?.click();
   };
 
+  const { mutate } = useMutation<string, Error, FormData>({
+    mutationKey: ['profileImage'],
+    mutationFn: async (formData) => {
+      const res = await apiClient.post(
+        `/users/${userId}/temp-profile-image`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      );
+      return res.data;
+    },
+    onSuccess: (data) => {
+      const profileImageUrl = data.url;
+      setImageUrl(profileImageUrl);
+      localStorage.setItem('on_profileImageUrl', profileImageUrl);
+    },
+  });
+
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const profileImageFile = e.target.files?.[0];
     if (profileImageFile) {
-      const url = URL.createObjectURL(profileImageFile);
-      setImageUrl(url);
-      localStorage.setItem('on_profileImageUrl', url);
+      const formData = new FormData();
+      formData.append('profileImageFile', profileImageFile);
+
+      mutate(formData);
+      // const
     }
   };
 
@@ -92,8 +110,10 @@ const Step1 = ({ setCanProceed }: StepProps) => {
 
   if (!isPending && isAvailable && !inputError) {
     setCanProceed(true);
+    localStorage.setItem('on_step', '1');
   } else {
     setCanProceed(false);
+    localStorage.setItem('on_step', '0');
   }
 
   return (
@@ -103,7 +123,7 @@ const Step1 = ({ setCanProceed }: StepProps) => {
         {imageUrl && (
           <img
             src={imageUrl}
-            alt="Uploaded"
+            alt="profile_image"
             className="w-full h-full rounded-sm object-cover"
           />
         )}

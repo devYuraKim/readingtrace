@@ -15,7 +15,7 @@ const OnboardingPage = () => {
 
   const steps: Record<number, ReactElement> = {
     1: <Step1 setCanProceed={setCanProceed} />,
-    2: <Step2 />,
+    2: <Step2 setCanProceed={setCanProceed} />,
     3: <Step3 />,
   };
 
