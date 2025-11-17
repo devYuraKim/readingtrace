@@ -80,3 +80,11 @@ frontend:
   url: https://readingtrace.site
 cors:
   allowed-origins: ${frontend.url}
+
+aws:
+  s3:
+    bucket:
+      name: readingtrace-bucket
+    credentials:
+      access-key: ${AWS_S3_ACCESS}
+      secret-key: ${AWS_S3_SECRET}
