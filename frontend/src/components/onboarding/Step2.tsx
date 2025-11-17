@@ -76,8 +76,9 @@ const Step2 = ({ setCanProceed }: OnboardingStepProps) => {
                 fontSize: '0.8rem',
                 padding: '7px 9px',
                 borderRadius: '8px',
-                border: isSelected ? '2px solid #4caf50' : '2px solid #ccc',
-                backgroundColor: isSelected ? '#e8f5e9' : '#f5f5f5',
+                border: isSelected ? '2px solid black' : '2px solid #f5f5f5',
+                backgroundColor: isSelected ? 'black' : '#f5f5f5',
+                color: isSelected ? 'white' : 'black',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 opacity: isDisabled ? 0.5 : 1,
                 userSelect: 'none',
@@ -90,9 +91,9 @@ const Step2 = ({ setCanProceed }: OnboardingStepProps) => {
       </div>
 
       {selectedGenres.length < minSelection && (
-        <p style={{ color: 'red', marginTop: '20px' }}>
+        <span className="text-sm text-red-700">
           Please select at least {minSelection} genres.
-        </p>
+        </span>
       )}
     </div>
   );
