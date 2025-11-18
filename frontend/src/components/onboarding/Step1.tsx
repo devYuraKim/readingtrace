@@ -120,7 +120,7 @@ const Step1 = ({ setCanProceed }: OnboardingStepProps) => {
     <>
       <StepTitle title="Set Your Profile Picture and Nickname" />
       <div
-        className={`m-auto relative w-1/2 h-50 rounded-sm ${imageUrl ? '' : 'bg-accent-foreground/20'}`}
+        className={`m-auto relative w-1/2 h-50 rounded-sm ${imageUrl ? '' : 'bg-[#f5f5f5]'}`}
       >
         {imageUrl && (
           <img
