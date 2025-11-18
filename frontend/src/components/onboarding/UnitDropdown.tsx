@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { UNIT } from '@/constants/onboarding.constants';
 import {
-  DropdownMenuArrow,
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@radix-ui/react-dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
-const UnitDropdown = () => {
+const UnitDropdown = ({ isPlural }: { isPlural: boolean }) => {
   const [unit, setUnit] = useState(UNIT[0].toString());
 
   const handleSelect = (unit: string) => {
@@ -17,21 +17,23 @@ const UnitDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="cursor-pointer font-extrabold text-xl">{unit}</div>
+        <div className="flex items-center cursor-pointer font-extrabold text-xl group">
+          {isPlural ? unit + 'S' : unit}
+          <ChevronDown className="w-[1rem] h-[1rem] ml-1 group-hover:stroke-black group-hover:stroke-5" />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="cursor-pointer border-1 border-red-400"
+        className="cursor-pointer shadow-md rounded-[0.3rem]  bg-white w-36 mt-2 p-2"
         align="center"
       >
-        <DropdownMenuArrow />
         {UNIT.map((unit) => (
           <DropdownMenuItem
             key={unit}
             textValue={unit}
             onSelect={() => handleSelect(unit)}
-            className="text-center focus:outline-1 focus:outline-green-500"
+            className="text-sm text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] p-1.5 focus:rounded-[0.3rem]"
           >
-            {unit}
+            {isPlural ? unit + 'S' : unit}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

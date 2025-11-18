@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { Button } from '../ui/button';
 import StepTitle from './StepTitle';
 import TimeframeDropdown from './TimeframeDropdown';
-import TimeframeSelect from './TimeframeSelect';
 import UnitDropdown from './UnitDropdown';
-import UnitSelect from './UnitSelect';
 
 const Step3 = () => {
   const [count, setCount] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const inputRef = useRef(null);
+  useEffect(() => {
+    inputRef?.current.focus();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -21,75 +25,53 @@ const Step3 = () => {
   };
 
   const handleDecrement = () => {
-    if (count > 0) {
-      setCount((prev) => prev - 1);
-    } else {
-      setErrorMessage("Can't go minus");
-    }
+    setCount((prev) => prev - 1);
   };
 
   const handleIncrement = () => {
-    if (count <= 100_000_000) {
-      setCount((prev) => prev + 1);
-    }
-    if (count > 100_000_000) {
-      setErrorMessage("Bit too ambitious, don't you think?");
-    }
+    setCount((prev) => prev + 1);
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center">
       <StepTitle title="Set Your Reading Goal" />
 
-      <div className="flex items-center gap-5 bg-gray-100 rounded-lg p-10">
-        <Minus
-          className={`rounded-full p-1 cursor-pointer stroke-accent-foreground/70 hover:stroke-accent-foreground ${
-            count === 0 || count === '' ? 'opacity-50 pointer-events-none' : ''
-          }`}
-          onClick={handleDecrement}
-        />
+      <div className="flex items-center bg-[#f5f5f5] rounded-lg gap-5 p-10 py-7">
+        <div className="flex items-center gap-1">
+          <Minus
+            className={`rounded-full p-1 cursor-pointer stroke-accent-foreground/70 hover:stroke-black hover:stroke-5 ${
+              count === 0 || count === ''
+                ? 'opacity-50 pointer-events-none'
+                : ''
+            }`}
+            onClick={handleDecrement}
+          />
 
-        <input
-          type="number"
-          value={count}
-          onChange={handleChange}
-          min={0}
-          className="text-center font-extrabold text-2xl bg-transparent outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          style={{ width: `${Math.max(String(count || 0).length + 1, 3)}ch` }}
-        />
+          <input
+            ref={inputRef}
+            type="number"
+            value={count}
+            onChange={handleChange}
+            min={0}
+            className="text-center font-extrabold text-2xl bg-transparent outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none "
+            style={{ width: `${Math.max(String(count || 0).length, 0)}ch` }}
+          />
 
-        <Plus
-          className="rounded-full p-1 cursor-pointer stroke-accent-foreground/70 hover:stroke-accent-foreground"
-          onClick={handleIncrement}
-        />
-        <UnitDropdown />
+          <Plus
+            className="rounded-full p-1 cursor-pointer stroke-accent-foreground/70  hover:stroke-black hover:stroke-5"
+            onClick={handleIncrement}
+          />
+        </div>
+
+        <UnitDropdown isPlural={count >= 2} />
         <TimeframeDropdown />
       </div>
-      {errorMessage}
 
-      <div className="flex items-center gap-5 bg-gray-100 rounded-lg p-10">
-        <Minus
-          className={`rounded-full p-1 cursor-pointer stroke-accent-foreground/70 hover:stroke-accent-foreground ${
-            count === 0 || count === '' ? 'opacity-50 pointer-events-none' : ''
-          }`}
-          onClick={handleDecrement}
-        />
-
-        <input
-          type="number"
-          value={count}
-          onChange={handleChange}
-          min={0}
-          className="text-center font-extrabold text-2xl bg-transparent outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          style={{ width: `${Math.max(String(count || 0).length + 1, 3)}ch` }}
-        />
-
-        <Plus
-          className="rounded-full p-1 cursor-pointer stroke-accent-foreground/70 hover:stroke-accent-foreground"
-          onClick={handleIncrement}
-        />
-        <UnitSelect />
-        <TimeframeSelect />
+      <div className="mt-10">
+        {count == 0 && "Let's set up a goal!"}
+        {count < 0 && "Can't go minus"}
+        {count > 100_000_000 && "A bit too ambitious, don't you think?"}
+        {count > 0 && count <= 100_000_000 && <Button>DONE</Button>}
       </div>
     </div>
   );

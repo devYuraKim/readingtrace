@@ -1,4 +1,4 @@
-export const TIMEFRAME = ['DAY', 'WEEK', 'MONTH', 'YEAR'] as const;
+export const TIMEFRAME = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'] as const;
 
 export const UNIT = [
   'WORD',
