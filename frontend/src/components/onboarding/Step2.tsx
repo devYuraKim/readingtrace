@@ -35,12 +35,12 @@ const Step2 = ({ setCanProceed }: OnboardingStepProps) => {
   const maxSelection = 5;
 
   useEffect(() => {
-    const content = localStorage.getItem('ob_favoredGenres');
+    const content = localStorage.getItem('on_favoredGenres');
     if (content) setSelectedGenres(content.split(','));
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('ob_favoredGenres', selectedGenres.toString());
+    localStorage.setItem('on_favoredGenres', selectedGenres.toString());
   }, [selectedGenres]);
 
   const handleClick = (genre) => {
