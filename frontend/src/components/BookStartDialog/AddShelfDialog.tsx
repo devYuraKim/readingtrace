@@ -60,7 +60,7 @@ function AddShelfDialog({ isAddOpen, setIsAddOpen }: AddShelfDialogProps) {
     onSuccess: () => {
       toast.success('Shelf added successfully');
       queryClient.invalidateQueries({
-        queryKey: ['userShelves', userId],
+        queryKey: ['customShelves', userId],
       });
     },
     onError: (_error, shelfName) => {
