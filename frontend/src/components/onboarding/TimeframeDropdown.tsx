@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TIMEFRAME } from '@/constants/onboarding.constants';
 import {
   DropdownMenuContent,
@@ -9,6 +9,15 @@ import { DropdownMenu, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const TimeframeDropdown = () => {
   const [timeframe, setTimeframe] = useState(TIMEFRAME[0].toString());
+
+  useEffect(() => {
+    const goalTimeframe = localStorage.getItem('on_goalTimeframe');
+    if (goalTimeframe) setTimeframe(goalTimeframe);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('on_goalTimeframe', timeframe);
+  }, [timeframe]);
 
   const handleSelect = (timeframe: string) => {
     setTimeframe(timeframe);

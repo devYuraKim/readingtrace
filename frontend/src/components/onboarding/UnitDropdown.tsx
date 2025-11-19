@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UNIT } from '@/constants/onboarding.constants';
 import {
   DropdownMenuContent,
@@ -9,6 +9,15 @@ import { DropdownMenu, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const UnitDropdown = ({ isPlural }: { isPlural: boolean }) => {
   const [unit, setUnit] = useState(UNIT[0].toString());
+
+  useEffect(() => {
+    const goalUnit = localStorage.getItem('on_goalUnit');
+    if (goalUnit) setUnit(goalUnit);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('on_goalUnit', unit);
+  }, [unit]);
 
   const handleSelect = (unit: string) => {
     setUnit(unit);

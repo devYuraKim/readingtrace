@@ -7,12 +7,19 @@ import UnitDropdown from './UnitDropdown';
 
 const Step3 = () => {
   const [count, setCount] = useState(0);
-  const [errorMessage, setErrorMessage] = useState('');
 
   const inputRef = useRef(null);
+
   useEffect(() => {
     inputRef?.current.focus();
+
+    const goalCount = localStorage.getItem('on_goalCount');
+    if (goalCount) setCount(Number(goalCount));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('on_goalCount', count.toString());
+  }, [count]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -21,7 +28,9 @@ const Step3 = () => {
       return;
     }
     const numberValue = parseInt(value, 10);
-    if (!isNaN(numberValue)) setCount(numberValue);
+    if (!isNaN(numberValue)) {
+      setCount(numberValue);
+    }
   };
 
   const handleDecrement = () => {
@@ -69,8 +78,16 @@ const Step3 = () => {
 
       <div className="mt-10">
         {count == 0 && "Let's set up a goal!"}
-        {count < 0 && "Can't go minus"}
-        {count > 100_000_000 && "A bit too ambitious, don't you think?"}
+        {count < 0 && (
+          <span className="text-sm text-red-700">
+            Please enter a non-negative number
+          </span>
+        )}
+        {count > 100_000_000 && (
+          <span className="text-sm text-red-700">
+            Please enter a number under 100,000,000
+          </span>
+        )}
         {count > 0 && count <= 100_000_000 && <Button>DONE</Button>}
       </div>
     </div>
