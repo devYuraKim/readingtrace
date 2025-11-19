@@ -23,7 +23,7 @@ public class UserBookController {
     private final BookService bookService;
 
     @PostMapping
-    public ResponseEntity<Void> createUserBook(@PathVariable Long userId, @RequestBody UserBookDto userBookDto) {
+    public ResponseEntity<UserBookDto> createUserBook(@PathVariable Long userId, @RequestBody UserBookDto userBookDto) {
         //Separate BookDto fields from UserBookDto
         BookDto bookDto = userBookMapper.extractBookDto(userBookDto);
         //TODO: check if need to return BookDto, because this method's return type is 'VOID'
@@ -34,8 +34,9 @@ public class UserBookController {
         UserReadingStatusDto ursDto = userBookMapper.extractUserReadingStatusDto(userBookDto);
         ursDto.setBookId(resultBookDto.getBookId());
         userReadingStatusService.createUserReadingStatus(ursDto);
-        //TODO: check if need to return UserBookDto
-        return ResponseEntity.ok().build();
+
+        UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(resultBookDto, ursDto);
+        return ResponseEntity.ok().body(compositeUserBookDto);
     }
 
     @GetMapping("/{bookId}")

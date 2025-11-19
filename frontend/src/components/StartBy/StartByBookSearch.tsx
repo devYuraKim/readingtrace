@@ -38,7 +38,7 @@ const StartByBookSearch = () => {
 
   const booksPerPage = 6;
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [selectedBook, setSelectedBook] = React.useState<BookDto | null>(null);
+  const [selectedBook, setSelectedBook] = React.useState<BookDto>();
 
   const {
     data: results,
@@ -141,47 +141,52 @@ const StartByBookSearch = () => {
         <>
           <div className="grid grid-cols-2 gap-4 mt-10 mb-5">
             {results.books.map((book) => (
-              <div
-                key={book.externalId}
-                className="p-2 border flex flex-row gap-4 hover:bg-muted-foreground/10 hover:cursor-pointer"
-                onClick={() => {
-                  setSelectedBook(book);
-                  setDialogOpen(true);
-                }}
-              >
-                <div>{book.isAdded ? 'added' : ''}</div>
-                <div className="w-15">
-                  <img
-                    src={
-                      !book.imageLinks?.trim()
-                        ? '/placeholder.png'
-                        : book.imageLinks
-                    }
-                    alt={book.title}
-                    className="w-full object-cover text-xs text-muted-foreground"
-                  />
-                </div>
+              <div key={book.externalId}>
+                {book.isAdded && (
+                  <div className="absolute m-1 bg-green-700  shadow-md rounded-full border-1 border-white text-white text-[0.5rem] px-2 py-1">
+                    ADDED
+                  </div>
+                )}
+                <div
+                  className="p-2 border flex flex-row gap-4 hover:bg-muted-foreground/10 hover:cursor-pointer"
+                  onClick={() => {
+                    setSelectedBook(book);
+                    setDialogOpen(true);
+                  }}
+                >
+                  <div className="w-15">
+                    <img
+                      src={
+                        !book.imageLinks?.trim()
+                          ? '/placeholder.png'
+                          : book.imageLinks
+                      }
+                      alt={book.title}
+                      className="w-full object-cover text-xs text-muted-foreground"
+                    />
+                  </div>
 
-                <div className="w-4/5 flex flex-col gap-1">
-                  <h3 className="font-bold text-sm">{book.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {!book?.authors || book.authors.length === 0
-                      ? 'Author N/A'
-                      : book.authors.join(', ')}
-                  </p>
-                  <div className="flex flex-col gap-y-0.5 text-xs text-muted-foreground">
-                    <div>
-                      {!book.publisher?.trim()
-                        ? 'Publisher N/A'
-                        : book.publisher}{' '}
-                      |{' '}
-                      {!book.publishedDate?.trim()
-                        ? 'Published Date N/A'
-                        : book.publishedDate}
-                    </div>
-                    <div>
-                      {!book.isbn10?.trim() ? 'ISBN10 N/A' : book.isbn10} |{' '}
-                      {!book.isbn13?.trim() ? 'ISBN13 N/A' : book.isbn13}
+                  <div className="w-4/5 flex flex-col gap-1">
+                    <h3 className="font-bold text-sm">{book.title}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {!book?.authors || book.authors.length === 0
+                        ? 'Author N/A'
+                        : book.authors.join(', ')}
+                    </p>
+                    <div className="flex flex-col gap-y-0.5 text-xs text-muted-foreground">
+                      <div>
+                        {!book.publisher?.trim()
+                          ? 'Publisher N/A'
+                          : book.publisher}{' '}
+                        |{' '}
+                        {!book.publishedDate?.trim()
+                          ? 'Published Date N/A'
+                          : book.publishedDate}
+                      </div>
+                      <div>
+                        {!book.isbn10?.trim() ? 'ISBN10 N/A' : book.isbn10} |{' '}
+                        {!book.isbn13?.trim() ? 'ISBN13 N/A' : book.isbn13}
+                      </div>
                     </div>
                   </div>
                 </div>

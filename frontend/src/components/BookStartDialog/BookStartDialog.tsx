@@ -4,6 +4,7 @@ import {
   useDeleteUserBook,
   useUpdateUserBook,
 } from '@/queries/book-status.mutation';
+import { useGetUserBook } from '@/queries/book-status.query';
 import {
   readingStatusFormSchema,
   ReadingStatusFormValues,
@@ -32,13 +33,16 @@ import BookVisibilitySelect from './BookVisibilitySelect';
 const BookStartDialog = ({
   open,
   onOpenChange,
-  initialData,
   book,
 }: BookStartDialogProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
   const userId = useAuthStore.getState().user?.userId;
+
+  const { data: initialData, isPending } = useGetUserBook(userId, book.bookId);
+  if (!isPending) console.log(initialData);
+  console.log(book);
 
   const createMutation = useCreateUserBook(userId);
   //TODO: make sure book.bookId is not null
