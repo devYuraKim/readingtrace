@@ -62,7 +62,7 @@ const Step2 = ({ setCanProceed }: OnboardingStepProps) => {
   return (
     <div>
       <StepTitle title="Select Your Favorite Genres (3-5)" />
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+      <div className="flex flex-wrap gap-2 gap-y-3">
         {genresList.map((genre) => {
           const isSelected = selectedGenres.includes(genre);
           const isDisabled =
@@ -88,13 +88,15 @@ const Step2 = ({ setCanProceed }: OnboardingStepProps) => {
             </div>
           );
         })}
-      </div>
 
-      {selectedGenres.length < minSelection && (
-        <span className="text-sm text-red-700">
-          Please select at least {minSelection} genres.
-        </span>
-      )}
+        <div className="mt-5 m-auto">
+          {selectedGenres.length < minSelection && (
+            <span className="text-sm text-red-700">
+              Please select at least {minSelection} genres.
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
