@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CHATMODEL } from '@/constants/prompt.constants';
 import { usePostUserMessage } from '@/queries/ai-chat.mutation';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -22,7 +23,7 @@ import {
 } from '../ui/input-group';
 
 export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
-  const [chatModel, setChatModel] = useState('');
+  const [chatModel, setChatModel] = useState('ChatModel');
   const [userMessage, setUserMessage] = useState('');
   const [finalUserMessage, setFinalUserMessage] = useState('');
 
@@ -74,33 +75,32 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
           if (e.key === 'Enter') handleSubmit();
         }}
         value={userMessage}
+        disabled={!isPendingPostUserMessage ? false : true}
       />
 
       <InputGroupAddon align="block-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <InputGroupButton variant="ghost">ChatModel</InputGroupButton>
+            <InputGroupButton className="text-black cursor-pointer">
+              {chatModel}
+            </InputGroupButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             side="top"
             align="start"
-            className="[--radius:0.95rem] cursor-pointer p-1 bg-white border-1 rounded-[0.3rem] font-light"
+            className="cursor-pointer p-1 bg-white border-1 rounded-[0.3rem] font-light w-25"
             sideOffset={5}
           >
-            <DropdownMenuItem
-              className="p-1"
-              textValue="gemini"
-              onSelect={() => handleSelect('gemini')}
-            >
-              Gemini
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-1"
-              textValue="chatgpt"
-              onSelect={() => handleSelect('chatgpt')}
-            >
-              ChatGPT
-            </DropdownMenuItem>
+            {CHATMODEL.map((model) => (
+              <DropdownMenuItem
+                key={model}
+                textValue={model}
+                onSelect={() => handleSelect(model)}
+                className="text-sm text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] focus:text-black p-1.5 focus:rounded-[0.3rem]"
+              >
+                {model}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
         <InputGroupText className="ml-auto">52% used</InputGroupText>

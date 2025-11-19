@@ -14,7 +14,7 @@ import OAuth2Callback from '@/components/OAuth2Callback';
 import StartByBookCollection from '@/components/StartBy/StartByBookCollection';
 import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
-import UserBookDetails from '@/components/userbook/UserBookDetails';
+import UserBookChatDetails from '@/components/userbook/UserBookChatDetails';
 import UserShelfDetails from '@/components/usershelf/UserShelfDetails';
 import AuthenticatedRoutes from './AuthenticatedRoutes';
 import UnauthenticatedRoutes from './UnauthenticatedRoutes';
@@ -39,7 +39,7 @@ const router = createBrowserRouter(
           <Route path="searchBook" element={<StartByBookSearch />} />
           <Route path="supportChat" element={<SupportChat />} />
           <Route path="books" element={<UserShelfDetails />} />
-          <Route path="books/:bookId" element={<UserBookDetails />} />
+          <Route path="books/:bookId" element={<UserBookChatDetails />} />
         </Route>
       </Route>
     </Route>,
