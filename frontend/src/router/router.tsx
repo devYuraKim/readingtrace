@@ -15,6 +15,7 @@ import StartByBookCollection from '@/components/StartBy/StartByBookCollection';
 import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
 import UserBookChatDetails from '@/components/userbook/UserBookChatDetails';
+import UserBookNoteDetails from '@/components/userbook/UserBookNoteDetails';
 import UserShelfDetails from '@/components/usershelf/UserShelfDetails';
 import AuthenticatedRoutes from './AuthenticatedRoutes';
 import UnauthenticatedRoutes from './UnauthenticatedRoutes';
@@ -39,7 +40,8 @@ const router = createBrowserRouter(
           <Route path="searchBook" element={<StartByBookSearch />} />
           <Route path="supportChat" element={<SupportChat />} />
           <Route path="books" element={<UserShelfDetails />} />
-          <Route path="books/:bookId" element={<UserBookChatDetails />} />
+          <Route path="books/:bookId/chats" element={<UserBookChatDetails />} />
+          <Route path="books/:bookId/notes" element={<UserBookNoteDetails />} />
         </Route>
       </Route>
     </Route>,
