@@ -29,7 +29,6 @@ export const usePostUserMessage = (
           language: userBook.language ?? '',
         },
       );
-      console.log(res.data);
       return res.data;
     },
     onSuccess: () => {
