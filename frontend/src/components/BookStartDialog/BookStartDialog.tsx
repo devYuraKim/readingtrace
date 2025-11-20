@@ -4,7 +4,6 @@ import {
   useDeleteUserBook,
   useUpdateUserBook,
 } from '@/queries/book-status.mutation';
-import { useGetUserBook } from '@/queries/book-status.query';
 import {
   readingStatusFormSchema,
   ReadingStatusFormValues,
@@ -33,6 +32,7 @@ import BookVisibilitySelect from './BookVisibilitySelect';
 const BookStartDialog = ({
   open,
   onOpenChange,
+  initialData,
   book,
 }: BookStartDialogProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,14 +40,8 @@ const BookStartDialog = ({
 
   const userId = useAuthStore.getState().user?.userId;
 
-  const { data: initialData, isPending } = useGetUserBook(userId, book.bookId);
-  if (!isPending) console.log(initialData);
-  console.log(book);
-
   const createMutation = useCreateUserBook(userId);
-  //TODO: make sure book.bookId is not null
   const updateMutation = useUpdateUserBook(userId, book.bookId);
-  //TODO: make sure book.bookId is not null
   const deleteMutation = useDeleteUserBook(
     userId,
     book.bookId,
@@ -59,15 +53,14 @@ const BookStartDialog = ({
     },
   );
 
-  //TODO: check if userReadingStatusId should be included in the initialFormValues or can be separated
   const initialFormValues = {
-    userReadingStatusId: initialData?.userReadingStatusId ?? null,
-    status: initialData?.status ?? null,
-    visibility: initialData?.visibility ?? null,
-    rating: initialData?.rating ?? null,
-    shelfId: initialData?.shelfId ?? null,
-    startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
-    endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
+    userReadingStatusId: initialData.userReadingStatusId ?? null,
+    status: initialData.status ?? null,
+    visibility: initialData.visibility ?? null,
+    rating: initialData.rating ?? null,
+    shelfId: initialData.shelfId ?? null,
+    startDate: initialData.startDate ? new Date(initialData.startDate) : null,
+    endDate: initialData.endDate ? new Date(initialData.endDate) : null,
   };
 
   const [formValues, setFormValues] =

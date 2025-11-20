@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDeleteUserBook } from '@/queries/book-status.mutation';
+import { useGetUserBook } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
 import { TooltipArrow } from '@radix-ui/react-tooltip';
@@ -43,6 +44,8 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const handleClickDelete = () => {
     deleteMutation.mutate();
   };
+
+  const { data: userBookRecord, isPending } = useGetUserBook(userId, bookId);
 
   return (
     <>
@@ -189,6 +192,7 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           book={userBook}
+          initialData={userBookRecord}
         />
       )}
     </>
