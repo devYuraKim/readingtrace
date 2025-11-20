@@ -52,7 +52,7 @@ const UserBookChatDetails = () => {
               className="border-1 mb-2 rounded-sm p-2 shadow-md"
             >
               <div className="flex justify-between m-2 font-extralight text-xs">
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-center mb-2">
                   <span className="rounded-full px-2 border-1 shadow-xs">
                     {userBookChat.chatModel}
                   </span>
