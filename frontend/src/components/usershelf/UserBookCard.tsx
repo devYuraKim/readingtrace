@@ -29,7 +29,6 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   };
 
   const handleClickChats = () => {
-    queryClient.setQueryData(['userBook', userId, bookId], userBook);
     navigate(`/users/${userId}/books/${bookId}/chats`);
   };
 
