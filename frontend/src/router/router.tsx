@@ -36,8 +36,8 @@ const router = createBrowserRouter(
       <Route element={<AuthenticatedRoutes />}>
         <Route path="/users/:userId/onboarding" element={<OnboardingPage />} />
         <Route path="/users/:userId" element={<PrivateLayout />}>
-          <Route index element={<StartByBookCollection />} />
-          <Route path="searchBook" element={<StartByBookSearch />} />
+          <Route path="collection" element={<StartByBookCollection />} />
+          <Route path="search" element={<StartByBookSearch />} />
           <Route path="supportChat" element={<SupportChat />} />
           <Route path="books" element={<UserShelfDetails />} />
           <Route path="books/:bookId/chats" element={<UserBookChatDetails />} />
