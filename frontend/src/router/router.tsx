@@ -8,6 +8,8 @@ import {
   Route,
 } from 'react-router-dom';
 import AuthProvider from '@/components/AuthProvider';
+import ChatDetails from '@/components/Community/ChatDetails';
+import MeetupDetails from '@/components/Community/MeetupDetails';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import OAuth2Callback from '@/components/OAuth2Callback';
@@ -42,6 +44,8 @@ const router = createBrowserRouter(
           <Route path="books" element={<UserShelfDetails />} />
           <Route path="books/:bookId/chats" element={<UserBookChatDetails />} />
           <Route path="books/:bookId/notes" element={<UserBookNoteDetails />} />
+          <Route path="community/chats" element={<ChatDetails />} />
+          <Route path="community/meetups" element={<MeetupDetails />} />
         </Route>
       </Route>
     </Route>,

@@ -43,6 +43,13 @@ const data = {
     },
     { title: 'Default Bookshelf' },
     { title: 'Custom Bookshelf' },
+    {
+      title: 'Community',
+      items: [
+        { title: 'Chat', url: '/users/userId/community/chats' },
+        { title: 'Meetup', url: '/users/userId/community/meetups' },
+      ],
+    },
   ],
 };
 

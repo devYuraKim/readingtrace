@@ -3,12 +3,7 @@ import { apiClient } from '@/queries/axios';
 import { useGetUserBook } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Tooltip, TooltipContent } from '@radix-ui/react-tooltip';
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
@@ -22,11 +17,18 @@ import { Label } from '../ui/label';
 import { TooltipTrigger } from '../ui/tooltip';
 
 const UserBookNoteDetails = () => {
-  const [userNote, setUserNote] = useState('');
-  const [finalUserNote, setFinalUserNote] = useState('');
   const { bookId } = useParams();
   const numericBookId = Number(bookId);
   const userId = useAuthStore((state) => state.user?.userId);
+
+  const [userNoteForm, setUserNoteForm] = useState({
+    userId,
+    bookId: numericBookId,
+    referencePage: '',
+    referenceLine: '',
+    noteTitle: '',
+    noteContent: '',
+  });
 
   const { data: userBook, isPending: isPendingUserBook } = useGetUserBook(
     userId,
@@ -46,10 +48,7 @@ const UserBookNoteDetails = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending: isPendingSaveNote } = useMutation({
     mutationFn: async () => {
-      const res = await apiClient.post(`/users/${userId}/notes`, {
-        finalUserNote,
-        bookId: numericBookId,
-      });
+      const res = await apiClient.post(`/users/${userId}/notes`, userNoteForm);
       return res.data;
     },
     mutationKey: ['saveUserNote'],
@@ -61,16 +60,21 @@ const UserBookNoteDetails = () => {
   });
 
   const handleSubmit = () => {
-    const normalizedUserNote = userNote.trim();
+    const normalizedNoteContent = userNoteForm.noteContent.trim();
+    const normalizedNoteTitle = userNoteForm.noteTitle.trim();
 
-    if (normalizedUserNote === '') {
-      toast.error('note cannot be empty');
+    setUserNoteForm((prev) => ({
+      ...prev,
+      noteContent: normalizedNoteContent,
+      noteTitle: normalizedNoteTitle,
+    }));
+
+    if (normalizedNoteContent === '') {
+      toast.error('note content cannot be empty');
       return;
     }
-    setUserNote(normalizedUserNote);
-    setFinalUserNote(normalizedUserNote);
 
-    alert(normalizedUserNote);
+    alert(JSON.stringify(userNoteForm));
   };
 
   return (
@@ -96,14 +100,26 @@ const UserBookNoteDetails = () => {
               <InputGroupInput
                 placeholder="title (optional)"
                 className="p-0 text-black font-light"
+                value={userNoteForm.noteTitle}
+                onChange={(e) =>
+                  setUserNoteForm((prev) => ({
+                    ...prev,
+                    noteTitle: e.target.value,
+                  }))
+                }
               />
             </TooltipTrigger>
           </Tooltip>
         </InputGroupAddon>
         <InputGroupTextarea
           placeholder={`Start your notes on '${userBook?.title}'`}
-          onChange={(e) => setUserNote(e.target.value)}
-          value={userNote}
+          value={userNoteForm.noteContent}
+          onChange={(e) =>
+            setUserNoteForm((prev) => ({
+              ...prev,
+              noteContent: e.target.value,
+            }))
+          }
         />
 
         <InputGroupAddon align="block-end" className="py-2">
@@ -119,19 +135,37 @@ const UserBookNoteDetails = () => {
                 <span className="mr-3 font-light">Reference</span>
                 <Label className="text-xs font-light">
                   Page
-                  <InputGroupInput className="border-1 border-gray-200 rounded-sm w-15 h-7 text-xs text-black font-light" />
+                  <InputGroupInput
+                    className="border-1 border-gray-200 rounded-sm w-15 h-7 text-xs text-black font-light"
+                    value={userNoteForm.referencePage}
+                    onChange={(e) =>
+                      setUserNoteForm((prev) => ({
+                        ...prev,
+                        referencePage: e.target.value,
+                      }))
+                    }
+                  />
                 </Label>
 
                 <Label className="text-xs font-light">
                   Line
-                  <InputGroupInput className="border-1 border-gray-200 rounded-sm w-15 h-7 text-xs text-black font-light" />
+                  <InputGroupInput
+                    className="border-1 border-gray-200 rounded-sm w-15 h-7 text-xs text-black font-light"
+                    value={userNoteForm.referenceLine}
+                    onChange={(e) =>
+                      setUserNoteForm((prev) => ({
+                        ...prev,
+                        referenceLine: e.target.value,
+                      }))
+                    }
+                  />
                 </Label>
               </div>
             </TooltipTrigger>
           </Tooltip>
           <InputGroupButton
             variant="default"
-            className="ml-auto rounded-sm cursor-pointer focus:ring-0"
+            className="ml-auto rounded-sm cursor-pointer focus:ring-0 text-sm"
             onClick={handleSubmit}
           >
             Save
