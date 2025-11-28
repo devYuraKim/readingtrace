@@ -68,6 +68,11 @@ const Step3 = () => {
     },
     onSuccess: () => {
       alert('success');
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('on_')) {
+          localStorage.removeItem(key);
+        }
+      });
       navigate(`/users/${userId}`);
     },
     onError: () => {
