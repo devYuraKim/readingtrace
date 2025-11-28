@@ -1,5 +1,5 @@
 import ReadingTraceIcon from '@/assets/readingtrace.svg';
-import { LoginForm } from '@/components/LoginForm';
+import { LoginForm } from '@/components/Auth/LoginForm';
 
 export default function LoginPage() {
   return (

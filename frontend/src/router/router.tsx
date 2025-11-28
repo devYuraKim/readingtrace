@@ -7,13 +7,13 @@ import {
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
-import AuthProvider from '@/components/AuthProvider';
+import AuthProvider from '@/components/Auth/AuthProvider';
+import OAuth2Callback from '@/components/Auth/OAuth2Callback';
 import ChatDetails from '@/components/Community/ChatDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
 import PublicLayout from '@/components/layouts/PublicLayout';
-import OAuth2Callback from '@/components/OAuth2Callback';
 import StartByBookCollection from '@/components/StartBy/StartByBookCollection';
 import StartByBookSearch from '@/components/StartBy/StartByBookSearch';
 import SupportChat from '@/components/SupportChat';
