@@ -1,7 +1,9 @@
+import { apiClient } from '@/queries/axios';
 import { useCustomShelves } from '@/queries/useCustomShelves';
 import { useDefaultShelves } from '@/queries/useDefaultShelves';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore, UserProfile } from '@/store/useAuthStore';
 import { CustomShelf, DefaultShelf } from '@/types/shelf.types';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { SearchForm } from '@/components/SearchForm';
@@ -22,11 +24,9 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { VersionSwitcher } from '@/components/VersionSwitcher';
+import { NavUser } from './NavUser';
 
-// This is sample data.
 const data = {
-  versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
   navMain: [
     {
       title: 'Book Search',
@@ -116,13 +116,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
   const combinedNavData = getCombinedNavData(customShelves, defaultShelves);
 
+  const { data: userProfile, isPending: isPendingUserProfile } =
+    useQuery<UserProfile>({
+      queryKey: ['userProfile', userId],
+      queryFn: async () => {
+        const res = await apiClient.get(`/users/${userId}/profile`);
+        return res.data;
+      },
+    });
+
   return (
     <>
       <Sidebar {...props}>
         <SidebarHeader>
-          <VersionSwitcher
-            versions={data.versions}
-            defaultVersion={data.versions[0]}
+          <NavUser
+            profileImageUrl={userProfile?.profileImageUrl}
+            nickname={userProfile?.nickname}
           />
           <SearchForm />
         </SidebarHeader>
@@ -133,13 +142,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <Collapsible
                 key={item.title}
                 title={item.title}
-                defaultOpen
                 className="group/collapsible"
               >
                 <SidebarGroup>
                   <SidebarGroupLabel
                     asChild
-                    className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+                    className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm cursor-pointer"
                   >
                     <CollapsibleTrigger>
                       {item.title}{' '}
