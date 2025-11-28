@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "user")
 @Entity
 public class UserProfile extends BaseEntity {
 
