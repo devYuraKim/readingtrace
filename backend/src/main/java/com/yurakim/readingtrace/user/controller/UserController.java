@@ -5,10 +5,12 @@ import com.yurakim.readingtrace.shared.constant.ApiPath;
 import com.yurakim.readingtrace.shared.constant.UploadType;
 import com.yurakim.readingtrace.shared.service.S3Service;
 import com.yurakim.readingtrace.user.dto.UserProfileRequestDto;
+import com.yurakim.readingtrace.user.dto.UserProfileResponseDto;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.UserProfileRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
+import com.yurakim.readingtrace.user.service.UserProfileService;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
@@ -28,6 +30,7 @@ public class UserController {
     private final UserService userService;
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
+    private final UserProfileService userProfileService;
     @Lazy
     private final S3Service s3Service;
 
@@ -73,5 +76,24 @@ public class UserController {
         userProfileRepository.save(userProfile);
 
         return null;
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<UserProfileResponseDto> getUserProfile(@PathVariable Long userId) {
+        UserProfile entity = userProfileService.getUserProfileByUserId(userId);
+        UserProfileResponseDto dto = new UserProfileResponseDto();
+        if(entity.getIsOnboardingCompleted() == true) {
+            //TODO: handle case where isOnboardingCompleted == false
+            dto.setUserProfileId(entity.getId());
+            dto.setUserId(userId);
+            dto.setNickname(entity.getNickname());
+            dto.setProfileImageUrl(entity.getProfileImageUrl());
+            dto.setReadingGoalCount(entity.getReadingGoalCount());
+            dto.setReadingGoalUnit(entity.getReadingGoalUnit());
+            dto.setReadingGoalTimeframe(entity.getReadingGoalTimeframe());
+            dto.setFavoredGenres(entity.getFavoredGenres());
+            dto.setIsOnboardingCompleted(entity.getIsOnboardingCompleted());
+        }
+        return ResponseEntity.ok(dto);
     }
 }

@@ -3,6 +3,7 @@ import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMutation } from '@tanstack/react-query';
 import { Minus, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import StepTitle from './StepTitle';
 import TimeframeDropdown from './TimeframeDropdown';
@@ -12,6 +13,7 @@ const Step3 = () => {
   const [count, setCount] = useState(0);
 
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     inputRef?.current.focus();
@@ -66,6 +68,7 @@ const Step3 = () => {
     },
     onSuccess: () => {
       alert('success');
+      navigate(`/users/${userId}`);
     },
     onError: () => {
       alert('error');

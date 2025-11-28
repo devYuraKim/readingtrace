@@ -7,7 +7,7 @@ type User = {
   roles: string[];
 };
 
-type UserProfile = User & {
+export type UserProfile = User & {
   nickname: string;
   profileImageUrl: string;
   readingGoalCount: number;

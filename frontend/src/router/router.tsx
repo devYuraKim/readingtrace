@@ -10,6 +10,7 @@ import {
 import AuthProvider from '@/components/AuthProvider';
 import ChatDetails from '@/components/Community/ChatDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
 import PublicLayout from '@/components/layouts/PublicLayout';
 import OAuth2Callback from '@/components/OAuth2Callback';
@@ -38,6 +39,7 @@ const router = createBrowserRouter(
       <Route element={<AuthenticatedRoutes />}>
         <Route path="/users/:userId/onboarding" element={<OnboardingPage />} />
         <Route path="/users/:userId" element={<PrivateLayout />}>
+          <Route index element={<Dashboard />} />
           <Route path="collection" element={<StartByBookCollection />} />
           <Route path="search" element={<StartByBookSearch />} />
           <Route path="supportChat" element={<SupportChat />} />
