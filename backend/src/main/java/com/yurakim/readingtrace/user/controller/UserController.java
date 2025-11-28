@@ -67,7 +67,7 @@ public class UserController {
         userProfile.setUser(user);
         userProfile.setNickname(userProfileRequestDto.getNickname());
         //TODO: profile image temp에서 확정 파일로 이동하는 로직 필요
-        userProfile.setProfileImageUrl(userProfileRequestDto.getProfileImageUrl());
+        userProfile.setProfileImageUrl(s3Service.moveTempToPermanent(user.getId(), userProfileRequestDto.getProfileImageUrl()));
         userProfile.setReadingGoalCount(userProfileRequestDto.getReadingGoalCount());
         userProfile.setReadingGoalUnit(userProfileRequestDto.getReadingGoalUnit());
         userProfile.setReadingGoalTimeframe(userProfileRequestDto.getReadingGoalTimeframe());

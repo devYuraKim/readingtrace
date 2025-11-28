@@ -8,4 +8,6 @@ public interface S3Service {
     boolean checkBucketExistence();
 
     String uploadFile(Long userId, MultipartFile file, UploadType uploadType);
+
+    String moveTempToPermanent(Long userId, String tempUrl);
 }
