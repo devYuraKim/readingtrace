@@ -10,7 +10,9 @@ type User = {
 type UserProfile = User & {
   nickname: string;
   profileImageUrl: string;
-  readingGoal: number;
+  readingGoalCount: number;
+  readingGoalUnit: string;
+  readingGoalTimeframe: string;
   favoredGenres: string;
   isOnboardingCompleted: boolean;
 };

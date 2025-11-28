@@ -71,9 +71,6 @@ export function LoginForm({
     onSuccess: (res) => {
       const accessToken = res.headers['authorization'];
       const user = res.data;
-      console.log(user);
-      localStorage.setItem('readingGoal', user.readingGoal);
-      localStorage.setItem('favoredGenres', user.favoredGenres);
       setAuth(user, accessToken);
       // TODO: implement protected routes
       if (!user.isOnboardingCompleted) {
