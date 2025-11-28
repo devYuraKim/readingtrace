@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { apiClient } from '@/queries/axios';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useMutation } from '@tanstack/react-query';
 import { Minus, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import StepTitle from './StepTitle';
@@ -40,6 +43,34 @@ const Step3 = () => {
   const handleIncrement = () => {
     setCount((prev) => prev + 1);
   };
+
+  const userId = useAuthStore((state) => state.user?.userId);
+
+  const handleClickDone = () => {
+    localStorage.setItem('on_step', '3');
+    mutate();
+  };
+
+  const { mutate } = useMutation({
+    mutationKey: ['onboarding_completion', userId],
+    mutationFn: async () => {
+      const res = await apiClient.post(`/users/${userId}/onboarding`, {
+        nickname: localStorage.getItem('on_nickname'),
+        profileImageUrl: localStorage.getItem('on_profileImageUrl'),
+        readingGoalCount: localStorage.getItem('on_goalCount'),
+        readingGoalUnit: localStorage.getItem('on_goalUnit'),
+        readingGoalTimeframe: localStorage.getItem('on_goalTimeframe'),
+        favoredGenres: localStorage.getItem('on_favoredGenres'),
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      alert('success');
+    },
+    onError: () => {
+      alert('error');
+    },
+  });
 
   return (
     <div className="flex flex-col items-center">
@@ -88,7 +119,11 @@ const Step3 = () => {
             Please enter a number under 100,000,000
           </span>
         )}
-        {count > 0 && count <= 100_000_000 && <Button>DONE</Button>}
+        {count > 0 && count <= 100_000_000 && (
+          <Button onClick={handleClickDone} className="cursor-pointer">
+            DONE
+          </Button>
+        )}
       </div>
     </div>
   );

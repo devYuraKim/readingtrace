@@ -22,9 +22,10 @@ public class UserProfile extends BaseEntity {
 
     private String profileImageUrl;
 
-    private Long readingGoal;
+    private Long readingGoalCount;
+    private String readingGoalUnit;
+    private String readingGoalTimeframe;
 
-    @Column(columnDefinition = "JSON")
     private String favoredGenres;
 
     @Column(nullable = false)

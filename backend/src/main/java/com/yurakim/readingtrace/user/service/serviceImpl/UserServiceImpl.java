@@ -99,7 +99,9 @@ public class UserServiceImpl implements UserService {
         authUserDto.setFavoredGenres(userProfile.getFavoredGenres());
         authUserDto.setProfileImageUrl(userProfile.getProfileImageUrl());
         authUserDto.setIsOnboardingCompleted(userProfile.getIsOnboardingCompleted());
-        authUserDto.setReadingGoal(userProfile.getReadingGoal());
+        authUserDto.setReadingGoalCount(userProfile.getReadingGoalCount());
+        authUserDto.setReadingGoalUnit(userProfile.getReadingGoalUnit());
+        authUserDto.setReadingGoalTimeframe(userProfile.getReadingGoalTimeframe());
         return authUserDto;
     }
 
