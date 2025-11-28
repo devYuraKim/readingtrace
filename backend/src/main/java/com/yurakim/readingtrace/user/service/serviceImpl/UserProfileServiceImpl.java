@@ -14,6 +14,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
    @Override
    public UserProfile getUserProfileByUserId(Long userId){
-       return userProfileRepository.findById(userId).orElse(null);
+       return userProfileRepository.findByUserId(userId);
    }
 }
