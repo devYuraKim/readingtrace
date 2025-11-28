@@ -7,8 +7,8 @@ import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
-import com.yurakim.readingtrace.user.repository.UserProfileRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
+import com.yurakim.readingtrace.user.service.UserProfileService;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final UserProfileService userProfileService;
 
     @Override
     public LoginResponseDto getUser(Long id, String email) {
@@ -89,19 +89,21 @@ public class UserServiceImpl implements UserService {
         //TODO 방법1: profileService 만들어서 profile 정보 AuthenticatedUserDto에 추가
         //TODO 방법2: getAuthenticatedUser()의 repository method를 join table record 반환하도록 query 작성
         User userRecord = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found for email: " + email));
-        UserProfile userProfile = userProfileRepository.findById(userRecord.getId()).orElseThrow(() -> new UsernameNotFoundException("UserProfile not found for userId: " + userRecord.getId()));
+        UserProfile userProfile = userProfileService.getUserProfileByUserId(userRecord.getId());
 
         AuthenticatedUserDto authUserDto = new AuthenticatedUserDto();
         authUserDto.setUserId(userRecord.getId());
         authUserDto.setEmail(userRecord.getEmail());
         authUserDto.setRoles(userRecord.getRoles());
-        authUserDto.setNickname(userProfile.getNickname());
-        authUserDto.setFavoredGenres(userProfile.getFavoredGenres());
-        authUserDto.setProfileImageUrl(userProfile.getProfileImageUrl());
-        authUserDto.setIsOnboardingCompleted(userProfile.getIsOnboardingCompleted());
-        authUserDto.setReadingGoalCount(userProfile.getReadingGoalCount());
-        authUserDto.setReadingGoalUnit(userProfile.getReadingGoalUnit());
-        authUserDto.setReadingGoalTimeframe(userProfile.getReadingGoalTimeframe());
+        if(userProfile != null){
+            authUserDto.setNickname(userProfile.getNickname());
+            authUserDto.setFavoredGenres(userProfile.getFavoredGenres());
+            authUserDto.setProfileImageUrl(userProfile.getProfileImageUrl());
+            authUserDto.setIsOnboardingCompleted(userProfile.getIsOnboardingCompleted());
+            authUserDto.setReadingGoalCount(userProfile.getReadingGoalCount());
+            authUserDto.setReadingGoalUnit(userProfile.getReadingGoalUnit());
+            authUserDto.setReadingGoalTimeframe(userProfile.getReadingGoalTimeframe());
+        }
         return authUserDto;
     }
 
