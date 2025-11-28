@@ -30,8 +30,9 @@ function OAuth2Callback() {
       }
     },
     onSuccess: () => {
+      // TODO: handle different onboarding completion cases
       const userId = useAuthStore.getState().user?.userId;
-      navigate(`/${userId}`);
+      navigate(`/users/${userId}`);
     },
     onError: () => {
       toast.error('Unable to complete Google login. Please try again.');
