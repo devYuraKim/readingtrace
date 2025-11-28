@@ -153,8 +153,9 @@ const Step1 = ({ setCanProceed }: OnboardingStepProps) => {
             {!isPending && isAvailable && !inputError && (
               <CircleCheck className="stroke-green-700" />
             )}
-            {(!isPending && !isAvailable) ||
-              (inputError && <CircleX className="stroke-red-700" />)}
+            {((!isPending && !isAvailable) || inputError) && (
+              <CircleX className="stroke-red-700" />
+            )}
             {isPending && inputNickname.length >= 3 && <Spinner />}
           </InputGroupAddon>
         </InputGroup>
