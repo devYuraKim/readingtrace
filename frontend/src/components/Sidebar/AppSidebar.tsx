@@ -30,16 +30,7 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
 
 export function AppSidebar({ completeNav, ...props }: AppSidebarProps) {
   const location = useLocation();
-  const userId = useAuthStore((state) => state.user?.userId);
-
-  const { data: userProfile, isPending: isPendingUserProfile } =
-    useQuery<UserProfile>({
-      queryKey: ['userProfile', userId],
-      queryFn: async () => {
-        const res = await apiClient.get(`/users/${userId}/profile`);
-        return res.data;
-      },
-    });
+  const userProfile = useAuthStore((state) => state.userProfile);
 
   return (
     <>
