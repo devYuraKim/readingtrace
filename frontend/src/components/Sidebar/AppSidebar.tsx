@@ -1,6 +1,4 @@
-import { apiClient } from '@/queries/axios';
-import { useAuthStore, UserProfile } from '@/store/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '@/store/useAuthStore';
 import { ChevronRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { SearchForm } from '@/components/SearchForm';
