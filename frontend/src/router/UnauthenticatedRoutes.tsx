@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { Spinner } from '@/components/ui/spinner';
 
 const UnauthenticatedRoutes = () => {
-  const user = useAuthStore((state) => state.userProfile);
+  const user = useAuthStore((state) => state.user);
   const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
   if (!isAuthChecked) {
