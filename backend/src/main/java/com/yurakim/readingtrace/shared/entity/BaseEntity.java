@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties({"createdAt", "createdBy", "updatedAt", "updatedBy"})
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @ToString
-@MappedSuperclass
+@MappedSuperclass //테이블 미생성 entity
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
