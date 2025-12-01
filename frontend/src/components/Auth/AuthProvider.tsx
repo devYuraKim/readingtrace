@@ -26,6 +26,7 @@ function AuthProvider() {
                 email: payload.email,
                 roles: payload.roles,
               },
+              null,
               newAccessToken,
             );
           }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import GoogleLogo from '@/assets/google.png';
 import { apiClient } from '@/queries/axios';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore, User, UserProfile } from '@/store/useAuthStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
@@ -70,10 +70,26 @@ export function LoginForm({
     },
     onSuccess: (res) => {
       const accessToken = res.headers['authorization'];
-      const user = res.data;
-      setAuth(user, accessToken);
+      const authenticatedUser = res.data;
+
+      const user: User = {
+        userId: authenticatedUser.userId,
+        email: authenticatedUser.email,
+        roles: authenticatedUser.roles,
+      };
+      const userProfile: UserProfile = {
+        nickname: authenticatedUser.nickname,
+        profileImageUrl: authenticatedUser.profileImageUrl,
+        readingGoalCount: authenticatedUser.readingGoalCount,
+        readingGoalUnit: authenticatedUser.readingGoalUnit,
+        readingGoalTimeframe: authenticatedUser.readingGoalTimeframe,
+        favoredGenres: authenticatedUser.favoredGenres,
+        isOnboardingCompleted: authenticatedUser.isOnboardingCompleted,
+      };
+
+      setAuth(user, userProfile, accessToken);
       // TODO: implement protected routes
-      if (!user.isOnboardingCompleted) {
+      if (!userProfile.isOnboardingCompleted) {
         navigate(`/users/${user.userId}/onboarding`);
       } else {
         navigate(`/users/${user.userId}`);
