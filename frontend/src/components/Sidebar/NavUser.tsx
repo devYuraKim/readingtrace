@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   BadgeCheck,
   Bell,
@@ -25,6 +26,11 @@ import {
 
 export function NavUser({ profileImageUrl, nickname }) {
   const { isMobile } = useSidebar();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  const handleClickLogout = () => {
+    clearAuth();
+  };
 
   return (
     <SidebarMenu>
@@ -85,7 +91,10 @@ export function NavUser({ profileImageUrl, nickname }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleClickLogout}
+              className="cursor-pointer"
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>
