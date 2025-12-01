@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookDto } from '@/types/book.types';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import AddBookCta from './AddBookCta';
 import UserBookCard from './UserBookCard';
 
 const UserShelfDetails = () => {
@@ -30,11 +31,12 @@ const UserShelfDetails = () => {
 
   return (
     <>
-      <div>ShelfDetails</div>
       {!isPending &&
         userBooks?.map((userBook) => (
           <UserBookCard key={userBook.bookId} data={userBook} />
         ))}
+
+      {!isPending && userBooks?.length === 0 && <AddBookCta />}
     </>
   );
 };
