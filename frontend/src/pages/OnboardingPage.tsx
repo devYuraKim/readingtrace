@@ -1,6 +1,8 @@
 import { ReactElement, useState } from 'react';
 import ReadingTraceIcon from '@/assets/readingtrace.svg';
+import { useAuthStore } from '@/store/useAuthStore';
 import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Step1 from '@/components/onboarding/Step1';
 import Step2 from '@/components/onboarding/Step2';
@@ -8,6 +10,15 @@ import Step3 from '@/components/onboarding/Step3';
 import { Card } from '@/components/ui/card';
 
 const OnboardingPage = () => {
+  const navigate = useNavigate();
+
+  const isOnboardingCompleted = useAuthStore(
+    (state) => state.userProfile?.isOnboardingCompleted,
+  );
+  const userId = useAuthStore((state) => state.user?.userId);
+
+  if (isOnboardingCompleted) navigate(`/users/${userId}`);
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [canProceed, setCanProceed] = useState(false);
 
