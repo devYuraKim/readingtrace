@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 import AuthProvider from '@/components/Auth/AuthProvider';
 import OAuth2Callback from '@/components/Auth/OAuth2Callback';
+import UserProfileProvider from '@/components/Auth/UserProfileProvider';
 import ChatDetails from '@/components/Community/ChatDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
 import Dashboard from '@/components/Dashboard/Dashboard';
@@ -37,17 +38,28 @@ const router = createBrowserRouter(
       </Route>
 
       <Route element={<AuthenticatedRoutes />}>
-        <Route path="/users/:userId/onboarding" element={<OnboardingPage />} />
-        <Route path="/users/:userId" element={<PrivateLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="collection" element={<StartByBookCollection />} />
-          <Route path="search" element={<StartByBookSearch />} />
-          <Route path="supportChat" element={<SupportChat />} />
-          <Route path="books" element={<UserShelfDetails />} />
-          <Route path="books/:bookId/chats" element={<UserBookChatDetails />} />
-          <Route path="books/:bookId/notes" element={<UserBookNoteDetails />} />
-          <Route path="community/chats" element={<ChatDetails />} />
-          <Route path="community/meetups" element={<MeetupDetails />} />
+        <Route element={<UserProfileProvider />}>
+          <Route
+            path="/users/:userId/onboarding"
+            element={<OnboardingPage />}
+          />
+          <Route path="/users/:userId" element={<PrivateLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="collection" element={<StartByBookCollection />} />
+            <Route path="search" element={<StartByBookSearch />} />
+            <Route path="supportChat" element={<SupportChat />} />
+            <Route path="books" element={<UserShelfDetails />} />
+            <Route
+              path="books/:bookId/chats"
+              element={<UserBookChatDetails />}
+            />
+            <Route
+              path="books/:bookId/notes"
+              element={<UserBookNoteDetails />}
+            />
+            <Route path="community/chats" element={<ChatDetails />} />
+            <Route path="community/meetups" element={<MeetupDetails />} />
+          </Route>
         </Route>
       </Route>
     </Route>,

@@ -23,6 +23,7 @@ type AuthState = {
   userProfile: UserProfile | null;
   accessToken: string | null;
   setIsAuthChecked: () => void;
+  setUserProfile: (userProfile: UserProfile | null) => void;
   setAuth: (
     user: User | null,
     userProfile: UserProfile | null,
@@ -39,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
       userProfile: null,
       accessToken: null,
       setIsAuthChecked: () => set({ isAuthChecked: true }),
+      setUserProfile: (userProfile) => set({ userProfile }),
       setAuth: (user, userProfile, token) =>
         set({ user, userProfile, accessToken: token }),
       clearAuth: () =>
