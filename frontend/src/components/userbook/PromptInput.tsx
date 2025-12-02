@@ -53,6 +53,11 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
       toast.error('prompt input cannot be empty');
       return;
     }
+
+    if (chatModel === 'ChatModel') {
+      toast.error('please select a chat model');
+      return;
+    }
     setUserMessage(normalizedUserMessage);
     setFinalUserMessage(userMessage);
 
