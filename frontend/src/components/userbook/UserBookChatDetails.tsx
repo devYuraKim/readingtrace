@@ -1,22 +1,30 @@
+import { useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useGetUserBook } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
-import { AiChat, ChatRecordDto } from '@/types/ai-chat.types';
+import { ChatRecordDto } from '@/types/ai-chat.types';
 import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
-} from '@radix-ui/react-tooltip';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@radix-ui/react-dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
-import { Ellipsis } from 'lucide-react';
+import { Bookmark, Ellipsis, Pencil, Trash2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+import { DropdownMenuGroup } from '../ui/dropdown-menu';
+import { Skeleton } from '../ui/skeleton';
+import { Spinner } from '../ui/spinner';
+import AddChatCta from './AddChatCta';
 import { PromptInput } from './PromptInput';
 
 const UserBookChatDetails = () => {
   const { bookId } = useParams();
   const numericBookId = Number(bookId);
   const userId = useAuthStore((state) => state.user?.userId);
+
+  const [isPendingPostUserMessage, setIsPendingPostUserMessage] =
+    useState(false);
 
   const { data: userBook, isPending: isPendingUserBook } = useGetUserBook(
     userId,
@@ -31,20 +39,44 @@ const UserBookChatDetails = () => {
       );
       return res.data;
     },
+    select: (data) =>
+      [...data].sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      ),
   });
 
-  const handleClickSave = (aiChat: AiChat) => {
-    alert(aiChat.chatRecordId);
+  const handleClickBookmark = (chatRecordId: number) => {
+    alert(chatRecordId);
   };
+
+  const handleClickNote = () => {};
+
+  const handleClickDelete = () => {};
 
   return (
     <>
-      <div>
-        UserBookChatDetails
-        <div className="font-semibold text-lg">{userBook?.title}</div>
-        <div className="text-sm text-muted-foreground">{userBook?.authors}</div>
+      <div className="flex justify-between items-center mx-1">
+        <div>
+          <div className="font-semibold text-lg">{userBook?.title}</div>
+          <div className="text-sm text-muted-foreground">
+            {userBook?.authors}
+          </div>
+        </div>
+        <Bookmark className="cursor-pointer hover:fill-amber-400" />
       </div>
       <div>
+        {isPendingPostUserMessage && (
+          <Skeleton
+            className="w-full h-10
+         rounded-sm shadow-md mb-4 text-xs flex gap-2 items-center justify-center"
+          >
+            <Spinner /> Generating a response...
+          </Skeleton>
+        )}
+        {!isPendingUserBookChat && userBookChats?.length === 0 && (
+          <AddChatCta />
+        )}
         {!isPendingUserBookChat &&
           userBookChats?.map((userBookChat: ChatRecordDto) => (
             <div
@@ -70,21 +102,41 @@ const UserBookChatDetails = () => {
                       .replace(',', ' at ')}{' '}
                   </span>
                 </div>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Ellipsis
-                      className="cursor-pointer w-4 h-4 rounded-xs  mr-1"
-                      onClick={() => {
-                        handleClickSave(userBookChat);
-                      }}
-                    />
-                  </TooltipTrigger>
-
-                  <TooltipContent className="bg-black text-white p-1 rounded-sm mr-1">
-                    <TooltipArrow className="mr-1" />
-                    <p>Save</p>
-                  </TooltipContent>
-                </Tooltip>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Ellipsis className="cursor-pointer w-4 h-4 rounded-xs  mr-1" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="cursor-pointer shadow-md rounded-[0.3rem] p-2 bg-white mt-2"
+                    align="center"
+                  >
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        className="text-xs text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] p-1.5 focus:rounded-[0.3rem]"
+                        textValue="bookmark"
+                        onClick={() =>
+                          handleClickBookmark(userBookChat.chatRecordId)
+                        }
+                      >
+                        <Bookmark className="w-4 h-4" />
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-xs text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] p-1.5 focus:rounded-[0.3rem]"
+                        textValue="note"
+                        onClick={handleClickNote}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-xs text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] p-1.5 focus:rounded-[0.3rem]"
+                        textValue="delete"
+                        onClick={handleClickDelete}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="m-2 text-sm font-light bg-neutral-200 p-2 px-3 rounded-sm">
                 {userBookChat.userMessage}
@@ -97,7 +149,10 @@ const UserBookChatDetails = () => {
       </div>
       {!isPendingUserBook && (
         <div className="sticky bottom-5 bg-white">
-          <PromptInput userBook={userBook} />
+          <PromptInput
+            userBook={userBook}
+            onPendingChange={setIsPendingPostUserMessage}
+          />
         </div>
       )}
     </>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CHATMODEL } from '@/constants/prompt.constants';
 import { usePostUserMessage } from '@/queries/ai-chat.mutation';
 import { apiClient } from '@/queries/axios';
@@ -22,7 +22,12 @@ import {
   InputGroupTextarea,
 } from '../ui/input-group';
 
-export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
+export const PromptInput = ({
+  userBook,
+  onPendingChange,
+}: {
+  userBook: UserBookDto;
+}) => {
   const [chatModel, setChatModel] = useState('ChatModel');
   const [userMessage, setUserMessage] = useState('');
   const [finalUserMessage, setFinalUserMessage] = useState('');
@@ -45,6 +50,10 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
     userBook,
     setUserMessage,
   );
+
+  useEffect(() => {
+    onPendingChange(isPendingPostUserMessage);
+  }, [isPendingPostUserMessage, onPendingChange]);
 
   const handleSubmit = () => {
     const normalizedUserMessage = userMessage.trim().replace(/\s+/g, ' ');
@@ -72,55 +81,60 @@ export const PromptInput = ({ userBook }: { userBook: UserBookDto }) => {
   });
 
   return (
-    <InputGroup>
-      <InputGroupTextarea
-        placeholder={`Start your discussion on '${userBook.title}'`}
-        onChange={(e) => setUserMessage(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') handleSubmit();
-        }}
-        value={userMessage}
-        disabled={!isPendingPostUserMessage ? false : true}
-      />
+    <>
+      <InputGroup>
+        <InputGroupTextarea
+          placeholder={`Start your discussion on '${userBook.title}'`}
+          onChange={(e) => setUserMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSubmit();
+          }}
+          value={userMessage}
+          disabled={!isPendingPostUserMessage ? false : true}
+        />
 
-      <InputGroupAddon align="block-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <InputGroupButton className="text-black cursor-pointer">
-              {chatModel}
-            </InputGroupButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="start"
-            className="cursor-pointer p-1 bg-white border-1 rounded-[0.3rem] font-light w-25"
-            sideOffset={5}
-          >
-            {CHATMODEL.map((model) => (
-              <DropdownMenuItem
-                key={model}
-                textValue={model}
-                onSelect={() => handleSelect(model)}
-                className="text-sm text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] focus:text-black p-1.5 focus:rounded-[0.3rem]"
+        <InputGroupAddon align="block-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <InputGroupButton
+                className="text-black cursor-pointer"
+                disabled={!isPendingPostUserMessage ? false : true}
               >
-                {model}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <InputGroupText className="ml-auto">52% used</InputGroupText>
-        <Separator orientation="vertical" className="!h-4" />
-        <InputGroupButton
-          variant="default"
-          className="rounded-full"
-          size="icon-xs"
-          disabled={userMessage && !isPendingPostUserMessage ? false : true}
-        >
-          <ArrowUpIcon onClick={handleSubmit} className="cursor-pointer" />
-          <span className="sr-only">Send</span>
-        </InputGroupButton>
-      </InputGroupAddon>
-    </InputGroup>
+                {chatModel}
+              </InputGroupButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="cursor-pointer p-1 bg-white border-1 rounded-[0.3rem] font-light w-25"
+              sideOffset={5}
+            >
+              {CHATMODEL.map((model) => (
+                <DropdownMenuItem
+                  key={model}
+                  textValue={model}
+                  onSelect={() => handleSelect(model)}
+                  className="text-sm text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] focus:text-black p-1.5 focus:rounded-[0.3rem]"
+                >
+                  {model}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <InputGroupText className="ml-auto">52% used</InputGroupText>
+          <Separator orientation="vertical" className="!h-4" />
+          <InputGroupButton
+            variant="default"
+            className="rounded-full"
+            size="icon-xs"
+            disabled={userMessage && !isPendingPostUserMessage ? false : true}
+          >
+            <ArrowUpIcon onClick={handleSubmit} className="cursor-pointer" />
+            <span className="sr-only">Send</span>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    </>
   );
 };
 
