@@ -160,10 +160,7 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
           {' '}
           <Tooltip>
             <TooltipTrigger>
-              <SquarePen
-                className="cursor-pointer hover:stroke-accent-foreground/50"
-                onClick={handleClickEdit}
-              />
+              <SquarePen className="cursor-pointer" onClick={handleClickEdit} />
             </TooltipTrigger>
 
             <TooltipContent className="bg-black text-white p-1 rounded-sm">
@@ -173,13 +170,13 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger>
-              <Trash2
-                className="cursor-pointer hover:stroke-accent-foreground/50"
-                onClick={handleClickEdit}
-              />
+              <Trash2 className="cursor-pointer" onClick={handleClickDelete} />
             </TooltipTrigger>
 
-            <TooltipContent className="bg-black text-white p-1 rounded-sm">
+            <TooltipContent
+              className="bg-black text-white p-1 rounded-sm"
+              onClick={handleClickDelete}
+            >
               <TooltipArrow />
               <p>Delete</p>
             </TooltipContent>

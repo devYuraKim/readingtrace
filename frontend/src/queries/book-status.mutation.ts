@@ -60,7 +60,10 @@ export const useDeleteUserBook = (
         queryKey: ['userBook', userId, bookId],
       });
       queryClient.invalidateQueries({
-        queryKey: ['userShelf', userId, shelfId ?? shelfSlug],
+        queryKey: ['customShelves', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['defaultShelves', userId],
       });
 
       toast.success('Book deleted successfully!');
