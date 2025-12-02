@@ -16,6 +16,12 @@ export const useCreateUserBook = (userId: number | undefined) => {
       queryClient.invalidateQueries({
         queryKey: ['userBook', userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['customShelves', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['defaultShelves', userId],
+      });
     },
     onError: () => {
       toast.error('Failed to add book');
@@ -35,6 +41,12 @@ export const useUpdateUserBook = (
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['userBook', userId, bookId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['customShelves', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['defaultShelves', userId],
       });
       toast.success('Book updated successfully!');
     },
