@@ -68,7 +68,24 @@ public class AiServiceImpl implements AiService {
     @Override
     public List<ChatRecordDto> getChatRecords(Long userId, Long bookId) {
         List<ChatRecord> chatRecords = chatRepository.findAllByUserIdAndBookId(userId, bookId);
-        return chatRecords.stream().map(chatRecord -> chatMapper.toChatRecordDto(chatRecord)).toList();
+        return chatRecords.stream()
+                .filter(chatRecord -> chatRecord.getIsDeleted()==Boolean.FALSE)
+                .map(chatRecord -> chatMapper.toChatRecordDto(chatRecord)).toList();
     }
+
+    @Override
+    public void toggleChatRecordBookmark(Long userId, Long chatRecordId) {
+        ChatRecord chatRecord = chatRepository.findByUserIdAndId(userId, chatRecordId).orElseThrow(IllegalArgumentException::new);
+        chatRecord.setIsBookmarked(!chatRecord.getIsBookmarked());
+        chatRepository.save(chatRecord);
+    }
+
+    @Override
+    public void softDeleteChatRecord(Long userId, Long chatRecordId) {
+        ChatRecord chatRecord = chatRepository.findByUserIdAndId(userId, chatRecordId).orElseThrow(IllegalArgumentException::new);
+        chatRecord.setIsDeleted(true);
+        chatRepository.save(chatRecord);
+    }
+
 
 }

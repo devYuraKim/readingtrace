@@ -9,5 +9,7 @@ public interface AiService {
 
     ChatRecordDto generateChatModelResponse(UserMessageDto userMessageDto, Long userId, String chatModel);
     List<ChatRecordDto> getChatRecords(Long userId, Long bookId);
+    void toggleChatRecordBookmark(Long userId, Long chatRecordId);
+    void softDeleteChatRecord(Long userId, Long chatRecordId);
 
 }

@@ -30,4 +30,12 @@ public class AiController {
         return ResponseEntity.ok(chatRecordDtos);
     }
 
+    @PostMapping("/chats/{chatRecordId}")
+    public ResponseEntity<Void> bookmarkOrDeleteChatRecord(@PathVariable Long userId, @PathVariable Long chatRecordId, @RequestParam String action){
+        if(action.toLowerCase().equals("bookmark")) aiService.toggleChatRecordBookmark(userId, chatRecordId);
+        if(action.toLowerCase().equals("delete")) aiService.softDeleteChatRecord(userId, chatRecordId);
+        return null;
+    }
+
+
 }

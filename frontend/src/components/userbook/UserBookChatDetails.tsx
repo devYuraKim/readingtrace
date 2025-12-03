@@ -9,8 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu';
-import { useQuery } from '@tanstack/react-query';
-import { Bookmark, Ellipsis, Pencil, Trash2 } from 'lucide-react';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { Book, Bookmark, Ellipsis, Pencil, Trash2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { DropdownMenuGroup } from '../ui/dropdown-menu';
 import { Skeleton } from '../ui/skeleton';
@@ -46,13 +51,48 @@ const UserBookChatDetails = () => {
       ),
   });
 
+  const queryClient = useQueryClient();
+
+  const { mutate: bookmarkChatRecord } = useMutation({
+    mutationFn: async (chatRecordId: number) => {
+      const res = await apiClient.post(
+        `users/${userId}/ai/chats/${chatRecordId}?action=bookmark`,
+      );
+      return res.data;
+    },
+    mutationKey: ['bookmarkChatRecord', userId],
+    // TODO: check if we can update only one chat record, not the entire record
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['userBookChat', userId, numericBookId],
+      });
+    },
+  });
+
   const handleClickBookmark = (chatRecordId: number) => {
-    alert(chatRecordId);
+    bookmarkChatRecord(chatRecordId);
   };
 
   const handleClickNote = () => {};
 
-  const handleClickDelete = () => {};
+  const { mutate: softDeleteChatRecord } = useMutation({
+    mutationFn: async (chatRecordId: number) => {
+      const res = await apiClient.post(
+        `users/${userId}/ai/chats/${chatRecordId}?action=delete`,
+      );
+      return res.data;
+    },
+    mutationKey: ['softDeleteChatRecord', userId],
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['userBookChat', userId, numericBookId],
+      });
+    },
+  });
+
+  const handleClickDelete = (chatRecordId: number) => {
+    softDeleteChatRecord(chatRecordId);
+  };
 
   return (
     <>
@@ -85,6 +125,9 @@ const UserBookChatDetails = () => {
             >
               <div className="flex justify-between m-2 font-extralight text-xs">
                 <div className="flex gap-2 items-center mb-2">
+                  {userBookChat.isBookmarked && (
+                    <Bookmark className="border-none stroke-amber-400 fill-amber-400" />
+                  )}
                   <span className="rounded-full px-2 border-1 shadow-xs">
                     {userBookChat.chatModel}
                   </span>
@@ -130,7 +173,9 @@ const UserBookChatDetails = () => {
                       <DropdownMenuItem
                         className="text-xs text-center focus:outline-none focus:font-bold focus:bg-[#f5f5f5] p-1.5 focus:rounded-[0.3rem]"
                         textValue="delete"
-                        onClick={handleClickDelete}
+                        onClick={() =>
+                          handleClickDelete(userBookChat.chatRecordId)
+                        }
                       >
                         <Trash2 className="w-4 h-4" />
                       </DropdownMenuItem>

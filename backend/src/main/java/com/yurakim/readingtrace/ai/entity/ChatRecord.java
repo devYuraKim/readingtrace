@@ -34,4 +34,7 @@ public class ChatRecord extends BaseEntity {
     private Boolean isSuccess;
     private String error;
 
+    private Boolean isBookmarked = false;
+    private Boolean isDeleted = false;
+
 }

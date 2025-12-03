@@ -31,6 +31,9 @@ public class ChatRecordDto {
     private Boolean isSuccess;
     private String error;
 
+    private Boolean isBookmarked;
+    private Boolean isDeleted;
+
 //    private String chatVisibility;
 
 }

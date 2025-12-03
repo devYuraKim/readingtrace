@@ -27,6 +27,9 @@ public class ChatMapper {
         crDto.setIsSuccess(chatRecord.getIsSuccess());
         crDto.setError(chatRecord.getError());
 
+        crDto.setIsBookmarked(chatRecord.getIsBookmarked());
+        crDto.setIsDeleted(chatRecord.getIsDeleted());
+
         return crDto;
 
 //        ChatRecordDto

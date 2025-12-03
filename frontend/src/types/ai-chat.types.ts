@@ -18,4 +18,6 @@ export type ChatRecordDto = {
   finishReason: string;
   isSuccess: boolean;
   error: string;
+  isBookmarked: boolean;
+  isDeleted: boolean;
 };
