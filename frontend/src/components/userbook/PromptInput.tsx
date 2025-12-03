@@ -91,6 +91,7 @@ export const PromptInput = ({
           }}
           value={userMessage}
           disabled={!isPendingPostUserMessage ? false : true}
+          className="ml-3"
         />
 
         <InputGroupAddon align="block-end">
