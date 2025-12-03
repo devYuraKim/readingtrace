@@ -119,7 +119,7 @@ const UserBookChatDetails = () => {
     <>
       <div className="flex justify-between items-center mx-1">
         <div>
-          <div className="font-semibold text-lg text-indigo-900">
+          <div className="font-semibold text-lg text-indigo-950 leading-tight">
             {userBook?.title}
           </div>
           <div className="text-sm text-indigo-900/70">{userBook?.authors}</div>
@@ -157,9 +157,10 @@ const UserBookChatDetails = () => {
         {isPendingPostUserMessage && (
           <Skeleton
             className="w-full h-10
-         rounded-sm shadow-md mb-4 text-xs flex gap-2 items-center justify-center"
+         rounded-md shadow-md mb-4 text-xs flex gap-2 items-center justify-center bg-indigo-50 text-indigo-600"
           >
-            <Spinner /> Generating a response...
+            <Spinner className="stroke-indigo-600" /> AI generating a
+            response...
           </Skeleton>
         )}
         {!isPendingUserBookChat && userBookChats?.length === 0 && (
@@ -169,18 +170,20 @@ const UserBookChatDetails = () => {
           userBookChats?.map((userBookChat: ChatRecordDto) => (
             <div
               key={userBookChat.chatRecordId}
-              className="border-1 border-indigo-100 mb-5 rounded-sm p-2 shadow-md shadow-indigo-50"
+              className="border-1 border-indigo-50 mb-5 rounded-xl p-2 shadow-md shadow-indigo-50 hover:border-indigo-400/50 hover:border-1.5 hover:bg-gradient-to-l hover:to-indigo-50/20 hover:from-teal-50/20 group"
             >
               <div className="flex justify-between m-2 font-extralight text-xs">
                 <div className="flex gap-1 items-center mb-2">
                   <Tooltip>
                     <TooltipTrigger>
                       <Bookmark
-                        className={`cursor-pointer ${
+                        className={`cursor-pointer mx-1 transition-all duration-300 ease-in-out stroke-[1.5px] hover:scale-110 ${
                           userBookChat.isBookmarked
-                            ? 'stroke-indigo-700 fill-indigo-700'
-                            : 'stroke-gray-300'
+                            ? 'stroke-indigo-500 fill-indigo-700 drop-shadow-sm' // Active: Filled, soft indigo, slight glow
+                            : 'stroke-slate-300 hover:stroke-indigo-700 hover:fill-indigo-50'
                         }`}
+                        width={22}
+                        height={22}
                         onClick={() =>
                           handleClickBookmark(userBookChat.chatRecordId)
                         }
@@ -188,33 +191,38 @@ const UserBookChatDetails = () => {
                     </TooltipTrigger>
                     <TooltipContent
                       align="start"
-                      className="-mb-[1.8rem] ml-7 bg-black text-white px-2 py-1 font-normal rounded-sm"
+                      className="-mb-[1.8rem] ml-7 bg-indigo-700 text-white px-2 py-1 font-normal rounded-sm"
                     >
                       {userBookChat.isBookmarked
                         ? 'Remove Bookmark'
                         : 'Add Bookmark'}
                     </TooltipContent>
                   </Tooltip>
-                  <span className="rounded-full px-2 border-1 shadow-xs">
-                    {userBookChat.chatModel}
-                  </span>
-                  <span>
-                    {new Date(userBookChat.timestamp)
-                      .toLocaleString('en-GB', {
-                        year: '2-digit',
-                        month: 'short',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false,
-                      })
-                      .replace(',', ' at ')}{' '}
-                  </span>
+                  <div className="flex justify-between items-center text-xs text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full border border-slate-200 font-medium text-[10px] uppercase tracking-tight">
+                        {userBookChat.chatModel}
+                      </span>
+                      <span className="font-light tracking-tight">
+                        {new Date(userBookChat.timestamp)
+                          .toLocaleString('en-GB', {
+                            year: '2-digit',
+                            month: 'short',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                          })
+                          .replace(',', ' at ')}{' '}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Ellipsis className="cursor-pointer w-4 h-4 rounded-xs  mr-1 stroke-indigo-900" />
+                    <button className="p-1.5 rounded-md hover:shadow-sm transition-colors mr-1">
+                      <Ellipsis className="cursor-pointer w-4 h-4 rounded-[0.3rem] stroke-indigo-900 " />
+                    </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     className="cursor-pointer shadow-md rounded-[0.3rem] p-2 bg-white mt-2"
@@ -226,7 +234,7 @@ const UserBookChatDetails = () => {
                         textValue="note"
                         onClick={handleClickNote}
                       >
-                        <Pencil className="w-4 h-4 stroke-indigo-900" />
+                        <Pencil className="w-4 h-4 stroke-indigo-700" />
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-xs text-center focus:outline-none focus:font-bold focus:bg-indigo-50 p-1.5 focus:rounded-[0.3rem]"
@@ -241,17 +249,17 @@ const UserBookChatDetails = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="m-2 text-sm font-light bg-indigo-50 text-indigo-900 font-normal p-2 px-3 rounded-sm">
+              <div className="m-2 text-sm  text-indigo-900 font-normal p-4 px-5 rounded-lg bg-gradient-to-l to-indigo-50/50 from-teal-50/50 border-1 border-indigo-50 group-hover:border-indigo-200/50">
                 {userBookChat.userMessage}
               </div>
-              <div className="m-2 text-sm p-2 leading-relaxed ">
+              <div className="m-2 text-sm p-2 leading-relaxed text-indigo-950">
                 {userBookChat.assistantMessage}
               </div>
             </div>
           ))}
       </div>
       {!isPendingUserBook && (
-        <div className="sticky bottom-5 bg-white">
+        <div className="flex sticky bottom-0 bg-white py-5 ">
           <PromptInput
             userBook={userBook}
             onPendingChange={setIsPendingPostUserMessage}
