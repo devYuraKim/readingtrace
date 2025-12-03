@@ -280,6 +280,38 @@ const BookStartDialog = ({
                     />
                   </div>
                 </div>
+
+                {/* Reading Progress */}
+                <div className="flex col-start-1 col-span-2">
+                  <Label className="w-2/5 text-right">Progress</Label>
+                  <div className="w-3/5 text-xs flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      max={book?.pageCount || 9999}
+                      value={formValues.progress || 0}
+                      onChange={(e) =>
+                        handleChange('progress', Number(e.target.value))
+                      }
+                      className="w-1/2 border rounded px-2 py-1 text-xs"
+                    />
+                    <span className="text-muted-foreground text-xs">
+                      / {book?.pageCount || 'N/A'} pages
+                    </span>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div className="flex col-span-5 mt-4">
+                  <Label className="w-1/5 text-right">Notes</Label>
+                  <textarea
+                    className="w-4/5 border rounded p-2 text-xs resize-none"
+                    rows={4}
+                    value={formValues.notes || ''}
+                    onChange={(e) => handleChange('notes', e.target.value)}
+                    placeholder="Write your thoughts or summary..."
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter
