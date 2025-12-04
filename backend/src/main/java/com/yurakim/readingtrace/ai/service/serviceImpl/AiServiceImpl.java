@@ -87,5 +87,12 @@ public class AiServiceImpl implements AiService {
         chatRepository.save(chatRecord);
     }
 
+    @Override
+    public void softDeleteChatRecords(Long userId, Long bookId) {
+        List<ChatRecord> chatRecords = chatRepository.findAllByUserIdAndBookId(userId, bookId);
+        chatRecords.forEach(chatRecord -> chatRecord.setIsDeleted(true));
+        chatRepository.saveAll(chatRecords);
+    }
+
 
 }

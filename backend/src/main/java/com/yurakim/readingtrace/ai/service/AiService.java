@@ -11,5 +11,6 @@ public interface AiService {
     List<ChatRecordDto> getChatRecords(Long userId, Long bookId);
     void toggleChatRecordBookmark(Long userId, Long chatRecordId);
     void softDeleteChatRecord(Long userId, Long chatRecordId);
+    void softDeleteChatRecords(Long userId, Long bookId);
 
 }

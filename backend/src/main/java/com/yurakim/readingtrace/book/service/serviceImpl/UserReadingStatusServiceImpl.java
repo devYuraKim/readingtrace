@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.book.service.serviceImpl;
 
+import com.yurakim.readingtrace.ai.service.AiService;
 import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
 import com.yurakim.readingtrace.book.mapper.UserReadingStatusMapper;
@@ -23,6 +24,7 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     private final ShelfRepository shelfRepository;
     private final UserReadingStatusRepository userReadingStatusRepository;
     private final UserReadingStatusMapper userReadingStatusMapper;
+    private final AiService aiService;
 
     @Override
     @Transactional
@@ -107,6 +109,9 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
             existingShelf.setBookCount(existingShelf.getBookCount()-1);
             shelfRepository.save(existingShelf);
         }
+        //TODO: also delete notes and chats
+        aiService.softDeleteChatRecords(userId, bookId);
+
         userReadingStatusRepository.delete(existingUrs);
     }
 
