@@ -2,9 +2,11 @@ package com.yurakim.readingtrace.book.controller;
 
 import com.yurakim.readingtrace.book.dto.BookDto;
 import com.yurakim.readingtrace.book.dto.UserBookDto;
+import com.yurakim.readingtrace.book.dto.UserReadingProgressRequestDto;
 import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
 import com.yurakim.readingtrace.book.mapper.UserBookMapper;
 import com.yurakim.readingtrace.book.service.BookService;
+import com.yurakim.readingtrace.book.service.UserReadingProgressService;
 import com.yurakim.readingtrace.book.service.UserReadingStatusService;
 import com.yurakim.readingtrace.shared.constant.ApiPath;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.List;
 public class UserBookController {
 
     private final UserReadingStatusService userReadingStatusService;
+    private final UserReadingProgressService userReadingProgressService;
     private final UserBookMapper userBookMapper;
     private final BookService bookService;
 
@@ -89,6 +92,13 @@ public class UserBookController {
             return userBookMapper.combineDTOs(bookDto, ursDto);
         }).toList();
         return ResponseEntity.ok(userBookDtoList);
+    }
+
+    @PostMapping("/progress")
+    public ResponseEntity<Void> createUserReadingProgress(@PathVariable Long userId, @RequestBody UserReadingProgressRequestDto userReadingProgressRequestDto) {
+        userReadingProgressRequestDto.setUserId(userId);
+        userReadingProgressService.createUserReadingProgress(userReadingProgressRequestDto);
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -2,14 +2,12 @@ package com.yurakim.readingtrace.book.entity;
 
 import com.yurakim.readingtrace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @ToString(callSuper = true)
-@Getter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class UserReadingProgress extends BaseEntity {
 
     @Id
@@ -26,6 +24,6 @@ public class UserReadingProgress extends BaseEntity {
     private Long userReadingStatusId;
 
     @Column(nullable = false)
-    private Long currentPage;
+    private Integer currentPage;
 
 }

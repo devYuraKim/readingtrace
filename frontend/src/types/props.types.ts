@@ -22,3 +22,9 @@ export type GetSearchedBooksProps = {
 export type OnboardingStepProps = {
   setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+export type ReadingProgressPopoverProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  totalPages: number;
+};
