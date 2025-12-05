@@ -11,6 +11,7 @@ import AuthProvider from '@/components/Auth/AuthProvider';
 import OAuth2Callback from '@/components/Auth/OAuth2Callback';
 import UserProfileProvider from '@/components/Auth/UserProfileProvider';
 import ChatDetails from '@/components/Community/ChatDetails';
+import FriendDetails from '@/components/Community/FriendDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
               path="books/:bookId/notes"
               element={<UserBookNoteDetails />}
             />
+            <Route path="community/friends" element={<FriendDetails />} />
             <Route path="community/chats" element={<ChatDetails />} />
             <Route path="community/meetups" element={<MeetupDetails />} />
           </Route>
