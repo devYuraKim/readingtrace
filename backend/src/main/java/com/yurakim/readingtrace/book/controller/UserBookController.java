@@ -1,9 +1,6 @@
 package com.yurakim.readingtrace.book.controller;
 
-import com.yurakim.readingtrace.book.dto.BookDto;
-import com.yurakim.readingtrace.book.dto.UserBookDto;
-import com.yurakim.readingtrace.book.dto.UserReadingProgressRequestDto;
-import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
+import com.yurakim.readingtrace.book.dto.*;
 import com.yurakim.readingtrace.book.mapper.UserBookMapper;
 import com.yurakim.readingtrace.book.service.BookService;
 import com.yurakim.readingtrace.book.service.UserReadingProgressService;
@@ -100,5 +97,32 @@ public class UserBookController {
         userReadingProgressService.createUserReadingProgress(userReadingProgressRequestDto);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{bookId}/progress")
+    public ResponseEntity<List<UserReadingProgressResponseDto>> getUserReadingProgresses(@PathVariable Long userId, @PathVariable Long bookId) {
+       List<UserReadingProgressResponseDto> userReadingProgresses = userReadingProgressService.getUserReadingProgresses(userId, bookId);
+       return ResponseEntity.ok(userReadingProgresses);
+    }
+
+    @GetMapping("/current-progress")
+    public ResponseEntity<Integer> getUserReadingProgress(@PathVariable Long userId, @RequestParam Long bookId) {
+        Integer currentPage = userReadingProgressService.getUserReadingProgress(userId, bookId);
+        return ResponseEntity.ok(currentPage);
+    }
+
+    @PostMapping("/complete-progress")
+    public ResponseEntity<Void> completeUserReadingProgress(@PathVariable Long userId, @RequestBody UserReadingProgressRequestDto userReadingProgressRequestDto) {
+        userReadingProgressRequestDto.setUserId(userId);
+        userReadingProgressService.createUserReadingProgress(userReadingProgressRequestDto);
+        userReadingProgressService.completeUserReadingProgress(userReadingProgressRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{bookId}/progress")
+    public ResponseEntity<Void> deleteUserReadingProgress(@PathVariable Long userId, @PathVariable Long bookId, @RequestParam Long id) {
+        userReadingProgressService.deleteUserReadingProgress(id);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

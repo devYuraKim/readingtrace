@@ -11,6 +11,7 @@ import java.util.Set;
 public interface UserReadingStatusRepository extends JpaRepository<UserReadingStatus, Long>, JpaSpecificationExecutor<UserReadingStatus> {
 
     Optional<UserReadingStatus> findByUserIdAndBookId(Long userId, Long bookId);
+    Optional<UserReadingStatus> findById(Long userReadingStatusId);
     Optional<UserReadingStatus> findByUserIdAndShelfId(Long userId, Long shelfId);
     boolean existsByUserIdAndBookIdAndShelfId(Long userId, Long bookId, Long shelfId);
     Long countAllByUserIdAndStatus(Long userId, String status);

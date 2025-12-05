@@ -62,6 +62,11 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
         return ursDto;
     }
 
+    public UserReadingStatus getUserReadingStatus(Long userReadingStatusId){
+        UserReadingStatus userReadingStatus = userReadingStatusRepository.findById(userReadingStatusId).orElseThrow(()-> new RuntimeException(String.format("No UserReadingStatus for [UserReadingStatusId]: %d", userReadingStatusId)));
+        return userReadingStatus;
+    }
+
     @Override
     @Transactional
     public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto ursDto){

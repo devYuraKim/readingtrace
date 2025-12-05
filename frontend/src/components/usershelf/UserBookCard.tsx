@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { NotepadText, Sparkles } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import BookStartDialog from '../BookStartDialog/BookStartDialog';
+import { Popover, PopoverTrigger } from '../ui/popover';
 import { ReadingProgressPopover } from './ReadingProgressPopover';
 
 const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
@@ -99,55 +100,61 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
 
         <div className="h-full border-r-1 border-muted-foreground/10"> </div>
 
-        <div
-          className="flex flex-col h-full w-35 justify-between gap-y-2 shadow-md px-2.5 py-2 rounded-lg group bg-gray-100 text-xs text-black hover:ring-1 hover:ring-lime-100 hover:shadow-sky-100 hover:bg-white"
-          onClick={handleClickProgress}
-        >
-          <ReadingProgressPopover
-            open={isPopoverOpen}
-            onOpenChange={setIsPopoverOpen}
-            totalPages={userBook.pageCount}
-          />
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <div
+              className="flex flex-col h-full w-35 justify-between gap-y-2 shadow-md px-2.5 py-2 rounded-lg group bg-gray-100 text-xs text-black hover:ring-1 hover:ring-lime-100 hover:shadow-sky-100 hover:bg-white"
+              onClick={handleClickProgress}
+            >
+              <div className="flex flex-col items-end">
+                <span className="flex gap-2 mt-1 tracking-tight">
+                  123 of {userBook.pageCount} p (100%)
+                </span>
+              </div>
+              <div>
+                <div className="w-full group-hover:bg-gray-200/80 rounded-sm h-2 bg-white">
+                  <div className="w-[30%] bg-gray-600 rounded-sm h-2 group-hover:bg-gradient-to-r group-hover:to-lime-500 group-hover:from-sky-500"></div>
+                </div>
+              </div>
 
-          <div className="flex flex-col items-end">
-            <span className="flex gap-2 mt-1 tracking-tight">
-              123 of {userBook.pageCount} p (100%)
-            </span>
-          </div>
-          <div>
-            <div className="w-full group-hover:bg-gray-200/80 rounded-sm h-2 bg-white">
-              <div className="w-[30%] bg-gray-600 rounded-sm h-2 group-hover:bg-gradient-to-r group-hover:to-lime-500 group-hover:from-sky-500"></div>
-            </div>
-          </div>
+              <div className="text-xs">
+                <div>
+                  <span>Start: </span>
+                  <span className="tracking-tight">
+                    {userBook.startDate
+                      ? new Date(userBook.startDate).toLocaleString('en-GB', {
+                          year: '2-digit',
+                          month: 'short',
+                          day: '2-digit',
+                        })
+                      : '-'}
+                  </span>
+                </div>
 
-          <div className="text-xs">
-            <div>
-              <span>Start: </span>
-              <span className="tracking-tight">
-                {userBook.startDate
-                  ? new Date(userBook.startDate).toLocaleString('en-GB', {
-                      year: '2-digit',
-                      month: 'short',
-                      day: '2-digit',
-                    })
-                  : '-'}
-              </span>
+                <div>
+                  <span>End: </span>
+                  <span className="tracking-tight">
+                    {userBook.endDate
+                      ? new Date(userBook.endDate).toLocaleString('en-GB', {
+                          year: '2-digit',
+                          month: 'short',
+                          day: '2-digit',
+                        })
+                      : '-'}
+                  </span>
+                </div>
+              </div>
             </div>
-
-            <div>
-              <span>End: </span>
-              <span className="tracking-tight">
-                {userBook.endDate
-                  ? new Date(userBook.endDate).toLocaleString('en-GB', {
-                      year: '2-digit',
-                      month: 'short',
-                      day: '2-digit',
-                    })
-                  : '-'}
-              </span>
-            </div>
-          </div>
-        </div>
+          </PopoverTrigger>
+          {isPopoverOpen && (
+            <ReadingProgressPopover
+              onOpenChange={setIsPopoverOpen}
+              totalPages={userBook.pageCount}
+              bookId={userBook.bookId}
+              userReadingStatusId={userBook.userReadingStatusId}
+            />
+          )}
+        </Popover>
 
         <div className="flex flex-col items-center h-full text-xs text-black gap-y-3">
           <span
