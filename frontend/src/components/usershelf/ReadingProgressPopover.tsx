@@ -11,21 +11,12 @@ import { Input } from '../ui/input';
 export const ReadingProgressPopover = ({
   onOpenChange,
   totalPages,
+  currentPage,
   bookId,
   userReadingStatusId,
 }: ReadingProgressPopoverProps) => {
   const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?.userId);
-
-  const { data: currentPage, isPending } = useQuery({
-    queryKey: ['latest-progress', userId, bookId],
-    queryFn: async () => {
-      const res = await apiClient.get(
-        `/users/${userId}/books/current-progress?bookId=${bookId}`,
-      );
-      return res.data;
-    },
-  });
 
   const [mode, setMode] = useState<'page' | 'percent'>('page');
   const [page, setPage] = useState(currentPage);

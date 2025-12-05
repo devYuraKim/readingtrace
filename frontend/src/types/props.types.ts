@@ -27,6 +27,7 @@ export type ReadingProgressPopoverProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   totalPages: number;
+  currentPage: number;
   bookId: number;
   userReadingStatusId: number;
 };

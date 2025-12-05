@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { VisibilitySlug } from '@/constants/reading-status.constants';
+import { apiClient } from '@/queries/axios';
 import { useDeleteUserBook } from '@/queries/book-status.mutation';
 import { useGetUserBook } from '@/queries/book-status.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserBookCardProps } from '@/types/props.types';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { NotepadText, Sparkles } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import BookStartDialog from '../BookStartDialog/BookStartDialog';
@@ -25,6 +26,16 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
   const userId = useAuthStore((state) => state.user?.userId);
   const bookId = userBook.bookId;
   const deleteMutation = useDeleteUserBook(userId, bookId, shelfId, shelfSlug);
+
+  const { data: currentPage, isPending: isPendingCurrentPage } = useQuery({
+    queryKey: ['latest-progress', userId, bookId],
+    queryFn: async () => {
+      const res = await apiClient.get(
+        `/users/${userId}/books/current-progress?bookId=${bookId}`,
+      );
+      return res.data;
+    },
+  });
 
   const handleClickBookCard = () => {
     setDialogOpen(true);
@@ -108,12 +119,21 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
             >
               <div className="flex flex-col items-end">
                 <span className="flex gap-2 mt-1 tracking-tight">
-                  123 of {userBook.pageCount} p (100%)
+                  {currentPage ?? 0} of {userBook.pageCount} p (
+                  {userBook.pageCount && currentPage
+                    ? ((currentPage / userBook.pageCount) * 100).toFixed(1)
+                    : 0}
+                  %)
                 </span>
               </div>
               <div>
                 <div className="w-full group-hover:bg-gray-200/80 rounded-sm h-2 bg-white">
-                  <div className="w-[30%] bg-gray-600 rounded-sm h-2 group-hover:bg-gradient-to-r group-hover:to-lime-500 group-hover:from-sky-500"></div>
+                  <div
+                    className="bg-gray-600 rounded-sm h-2 group-hover:bg-gradient-to-r group-hover:to-lime-500 group-hover:from-sky-500"
+                    style={{
+                      width: `${userBook.pageCount && currentPage ? (currentPage / userBook.pageCount) * 100 : 0}%`,
+                    }}
+                  ></div>
                 </div>
               </div>
 
@@ -150,6 +170,7 @@ const UserBookCard = ({ data: userBook }: UserBookCardProps) => {
             <ReadingProgressPopover
               onOpenChange={setIsPopoverOpen}
               totalPages={userBook.pageCount}
+              currentPage={currentPage}
               bookId={userBook.bookId}
               userReadingStatusId={userBook.userReadingStatusId}
             />
