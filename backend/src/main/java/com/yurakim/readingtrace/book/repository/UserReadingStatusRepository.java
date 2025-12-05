@@ -15,6 +15,7 @@ public interface UserReadingStatusRepository extends JpaRepository<UserReadingSt
     Optional<UserReadingStatus> findByUserIdAndShelfId(Long userId, Long shelfId);
     boolean existsByUserIdAndBookIdAndShelfId(Long userId, Long bookId, Long shelfId);
     Long countAllByUserIdAndStatus(Long userId, String status);
+    Long countAllByUserId(Long userId);
 
     @Query("SELECT bookId FROM UserReadingStatus WHERE bookId IN :bookIds AND userId = :userId")
     Set<Long> findByUserIdAndBookIdsIn(Long userId, Set<Long> bookIds);

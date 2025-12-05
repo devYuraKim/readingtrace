@@ -41,12 +41,19 @@ public class UserShelfController {
     public ResponseEntity<List<DefaultShelfDto>> getDefaultShelves(@PathVariable Long userId){
 
         List<DefaultShelfDto> defaultShelfDtoList = List.of(DefaultShelfType.values()).stream().map((ds) -> {
+
+            Long bookCount;
+
             DefaultShelfDto dsDto = new DefaultShelfDto();
             dsDto.setUserId(userId);
             dsDto.setName(ds.getName());
             dsDto.setSlug(ds.getSlug());
             dsDto.setOrderIndex(Integer.valueOf(ds.getOrderIndex()));
-            Long bookCount = userReadingStatusRepository.countAllByUserIdAndStatus(userId, ds.getSlug());
+            if(ds.getSlug().toLowerCase().equals("all")) {
+                bookCount = userReadingStatusRepository.countAllByUserId(userId);
+            } else {
+                bookCount = userReadingStatusRepository.countAllByUserIdAndStatus(userId, ds.getSlug());
+            }
             dsDto.setBookCount(bookCount);
             return dsDto;
         }).toList();

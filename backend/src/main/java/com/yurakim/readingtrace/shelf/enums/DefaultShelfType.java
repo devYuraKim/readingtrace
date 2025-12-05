@@ -6,11 +6,12 @@ import lombok.Getter;
 public enum DefaultShelfType {
 
     //TODO: AVOID MAGIC STRING, set the name and the derive slug
-    ALREADY_READ("Already Read", "already-read", 1),
-    WANT_TO_READ("Want To Read", "want-to-read", 2),
-    CURRENTLY_READING("Currently Reading", "currently-reading", 3),
-    PAUSED_READING("Paused Reading", "paused-reading", 4),
-    NEVER_FINISHED("Never Finished", "never-finished", 5);
+    ALL("All", "all", 1),
+    ALREADY_READ("Already Read", "already-read", 2),
+    WANT_TO_READ("Want To Read", "want-to-read", 3),
+    CURRENTLY_READING("Currently Reading", "currently-reading", 4),
+    PAUSED_READING("Paused Reading", "paused-reading", 5),
+    NEVER_FINISHED("Never Finished", "never-finished", 6);
 
     private final String name;
     private final String slug;
