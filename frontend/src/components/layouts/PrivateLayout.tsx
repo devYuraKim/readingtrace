@@ -34,6 +34,7 @@ export const nav = [
   {
     parentTitle: 'Community',
     items: [
+      { title: 'Friend', url: '/users/userId/community/friends' },
       { title: 'Chat', url: '/users/userId/community/chats' },
       { title: 'Meetup', url: '/users/userId/community/meetups' },
     ],
@@ -54,7 +55,13 @@ export default function PrivateLayout() {
     defaultShelves: DefaultShelf[],
   ) => {
     // 1. Base nav
-    const baseNav = [...nav];
+    const baseNav = nav.map((section) => ({
+      ...section,
+      items: section.items?.map((item) => ({
+        ...item,
+        url: item.url.replace('userId', userId),
+      })),
+    }));
 
     // 2. Dynamic shelf data
     const customShelfItems = customShelves
