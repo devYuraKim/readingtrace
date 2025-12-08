@@ -19,10 +19,12 @@ export type UserProfile = {
 
 type AuthState = {
   isAuthChecked: boolean;
+  isUserProfileSet: boolean;
   user: User | null;
   userProfile: UserProfile | null;
   accessToken: string | null;
   setIsAuthChecked: () => void;
+  setIsUserProfileSet: () => void;
   setUserProfile: (userProfile: UserProfile | null) => void;
   setAuth: (
     user: User | null,
@@ -36,10 +38,12 @@ export const useAuthStore = create<AuthState>()(
   devtools(
     (set) => ({
       isAuthChecked: false,
+      isUserProfileSet: false,
       user: null,
       userProfile: null,
       accessToken: null,
       setIsAuthChecked: () => set({ isAuthChecked: true }),
+      setIsUserProfileSet: () => set({ isUserProfileSet: true }),
       setUserProfile: (userProfile) => set({ userProfile }),
       setAuth: (user, userProfile, token) =>
         set({ user, userProfile, accessToken: token }),

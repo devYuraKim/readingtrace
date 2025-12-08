@@ -88,12 +88,7 @@ export function LoginForm({
       };
 
       setAuth(user, userProfile, accessToken);
-      // TODO: implement protected routes
-      if (!userProfile.isOnboardingCompleted) {
-        navigate(`/users/${user.userId}/onboarding`);
-      } else {
-        navigate(`/users/${user.userId}`);
-      }
+      navigate(`/users/${user.userId}`);
     },
     onError: (error) => {
       toast.error(error.message);

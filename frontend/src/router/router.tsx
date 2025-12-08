@@ -40,10 +40,6 @@ const router = createBrowserRouter(
 
       <Route element={<AuthenticatedRoutes />}>
         <Route element={<UserProfileProvider />}>
-          <Route
-            path="/users/:userId/onboarding"
-            element={<OnboardingPage />}
-          />
           <Route path="/users/:userId" element={<PrivateLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="collection" element={<StartByBookCollection />} />
