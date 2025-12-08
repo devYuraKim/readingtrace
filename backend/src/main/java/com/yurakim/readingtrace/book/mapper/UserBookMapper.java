@@ -10,7 +10,7 @@ public class UserBookMapper {
 
     public BookDto extractBookDto(UserBookDto userBookDto){
         BookDto bookDto = new BookDto();
-        //bookDto.bookId = null
+        bookDto.setBookId(userBookDto.getBookId());
         bookDto.setExternalId(userBookDto.getExternalId());
         bookDto.setTitle(userBookDto.getTitle());
         bookDto.setAuthors(userBookDto.getAuthors());
@@ -30,23 +30,23 @@ public class UserBookMapper {
         return bookDto;
     }
 
-    public UserReadingStatusDto extractUserReadingStatusDto(UserBookDto userBookDto) {
-        UserReadingStatusDto ursDto =  new UserReadingStatusDto();
-        ursDto.setUserReadingStatusId(userBookDto.getUserReadingStatusId());
-        ursDto.setUserId(userBookDto.getUserId());
-        ursDto.setShelfId(userBookDto.getShelfId());
-        ursDto.setBookId(userBookDto.getBookId());
-        ursDto.setStatus(userBookDto.getStatus());
-        ursDto.setVisibility(userBookDto.getVisibility());
-        ursDto.setRating(userBookDto.getRating());
-        ursDto.setStartDate(userBookDto.getStartDate());
-        ursDto.setEndDate(userBookDto.getEndDate());
-        ursDto.setUserReadingStatusCreatedAt(ursDto.getUserReadingStatusCreatedAt());
-        ursDto.setUserReadingStatusUpdatedAt(ursDto.getUserReadingStatusUpdatedAt());
-        //TODO: check if metadata is needed
-        //ursDto.setUserReadingStatusMetadata(ursDto.getUserReadingStatusMetadata());
-        return ursDto;
-    }
+//    public UserReadingStatusDto extractUserReadingStatusDto(UserBookDto userBookDto) {
+//        UserReadingStatusDto ursDto =  new UserReadingStatusDto();
+//        ursDto.setUserReadingStatusId(userBookDto.getUserReadingStatusId());
+//        ursDto.setUserId(userBookDto.getUserId());
+//        ursDto.setShelfId(userBookDto.getShelfId());
+//        ursDto.setBookId(userBookDto.getBookId());
+//        ursDto.setStatus(userBookDto.getStatus());
+//        ursDto.setVisibility(userBookDto.getVisibility());
+//        ursDto.setRating(userBookDto.getRating());
+//        ursDto.setStartDate(userBookDto.getStartDate());
+//        ursDto.setEndDate(userBookDto.getEndDate());
+//        ursDto.setUserReadingStatusCreatedAt(ursDto.getUserReadingStatusCreatedAt());
+//        ursDto.setUserReadingStatusUpdatedAt(ursDto.getUserReadingStatusUpdatedAt());
+//        //TODO: check if metadata is needed
+//        //ursDto.setUserReadingStatusMetadata(ursDto.getUserReadingStatusMetadata());
+//        return ursDto;
+//    }
 
     public UserBookDto combineDTOs(BookDto bookDto, UserReadingStatusDto ursDto){
 

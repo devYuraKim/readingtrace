@@ -12,7 +12,7 @@ public class UserReadingStatusDto {
     private Long userReadingStatusId;
     private Long userId;
     private Long shelfId;
-    private Long bookId;
+    private BookDto bookDto;
     private String status;
     private String visibility;
     private Integer rating;

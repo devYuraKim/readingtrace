@@ -2,10 +2,14 @@ package com.yurakim.readingtrace.book.mapper;
 
 import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
 @Component
 public class UserReadingStatusMapper {
+
+    private final BookMapper bookMapper;
 
     public UserReadingStatus mapToEntity(UserReadingStatusDto ursDto) {
         UserReadingStatus urs = new UserReadingStatus();
@@ -43,7 +47,7 @@ public class UserReadingStatusMapper {
         ursDto.setUserReadingStatusId(urs.getId());
         ursDto.setUserId(urs.getUserId());
         ursDto.setShelfId(urs.getShelfId());
-//        ursDto.setBookId(urs.getBookId());
+        ursDto.setBookDto(bookMapper.mapToDto(urs.getBook()));
         ursDto.setStatus(urs.getStatus());
         ursDto.setVisibility(urs.getVisibility());
         ursDto.setRating(urs.getRating());

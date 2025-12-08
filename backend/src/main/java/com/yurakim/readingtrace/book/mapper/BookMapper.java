@@ -30,7 +30,6 @@ public class BookMapper {
 
     public Book mapToEntity (BookDto bookDto) {
         Book book = new Book();
-        book.setId(bookDto.getBookId());
         book.setExternalId(bookDto.getExternalId());
         book.setTitle(bookDto.getTitle());
         book.setAuthors(bookDto.getAuthors());

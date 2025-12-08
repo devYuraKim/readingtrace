@@ -2,8 +2,10 @@ package com.yurakim.readingtrace.book.service.serviceImpl;
 
 import com.yurakim.readingtrace.ai.service.AiService;
 import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
+import com.yurakim.readingtrace.book.entity.Book;
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
 import com.yurakim.readingtrace.book.mapper.UserReadingStatusMapper;
+import com.yurakim.readingtrace.book.repository.BookRepository;
 import com.yurakim.readingtrace.book.repository.UserReadingStatusRepository;
 import com.yurakim.readingtrace.book.service.UserReadingStatusService;
 import com.yurakim.readingtrace.book.spec.UserReadingStatusSpecs;
@@ -25,12 +27,25 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     private final UserReadingStatusRepository userReadingStatusRepository;
     private final UserReadingStatusMapper userReadingStatusMapper;
     private final AiService aiService;
+    private final BookRepository bookRepository;
 
     @Override
     @Transactional
     public void createUserReadingStatus(UserReadingStatusDto ursDto) {
         if(null == ursDto.getStatus()) throw new RuntimeException("FAILED TO CREATE: status cannot be null");
-        UserReadingStatus urs = userReadingStatusMapper.mapToEntity(ursDto);
+
+        UserReadingStatus urs = new UserReadingStatus();
+        urs.setId(ursDto.getUserReadingStatusId());
+        urs.setUserId(ursDto.getUserId());
+        urs.setShelfId(ursDto.getShelfId());
+        Book book = bookRepository.findById(ursDto.getBookDto().getBookId()).orElseThrow(()->new RuntimeException("No book found with id: " + ursDto.getBookDto().getBookId()));
+        urs.setBook(book);
+        urs.setStatus(ursDto.getStatus());
+        urs.setVisibility(ursDto.getVisibility());
+        urs.setRating(ursDto.getRating());
+        urs.setStartDate(ursDto.getStartDate());
+        urs.setEndDate(ursDto.getEndDate());
+
         //check if shelfId exists or not
         Long shelfId = urs.getShelfId();
         if(null != shelfId){
@@ -71,7 +86,7 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
     @Transactional
     public UserReadingStatusDto updateUserReadingStatus(UserReadingStatusDto ursDto){
         Long userId = ursDto.getUserId();
-        Long bookId = ursDto.getBookId();
+        Long bookId = ursDto.getBookDto().getBookId();
         //check if original record exists
         UserReadingStatus existingUrs = userReadingStatusRepository.findByUserIdAndBookId(userId, bookId)
                 .orElseThrow(()-> new RuntimeException(String.format("FAILED TO UPDATE: UserReadingStatus for [UserId: %d] and [BookId: %d] not found", userId, bookId)));

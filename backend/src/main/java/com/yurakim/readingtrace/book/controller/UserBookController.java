@@ -23,20 +23,29 @@ public class UserBookController {
     private final BookService bookService;
 
     @PostMapping
-    public ResponseEntity<UserBookDto> createUserBook(@PathVariable Long userId, @RequestBody UserBookDto userBookDto) {
+    public ResponseEntity<UserReadingStatusDto> createUserReadingStatus(@PathVariable Long userId, @RequestBody UserBookDto userBookDto) {
         //Separate BookDto fields from UserBookDto
         BookDto bookDto = userBookMapper.extractBookDto(userBookDto);
-        //TODO: check if need to return BookDto, because this method's return type is 'VOID'
         BookDto resultBookDto = bookService.createOrGetBook(bookDto);
         //Set UserId(let URL path variable be single source of truth)
         userBookDto.setUserId(userId);
         //Separate UserReadingStatus from UserBookDto and set BookId(let resultBookDto be single source of truth)
-        UserReadingStatusDto ursDto = userBookMapper.extractUserReadingStatusDto(userBookDto);
-        ursDto.setBookId(resultBookDto.getBookId());
+
+        UserReadingStatusDto ursDto =  new UserReadingStatusDto();
+        ursDto.setUserReadingStatusId(userBookDto.getUserReadingStatusId());
+        ursDto.setUserId(userBookDto.getUserId());
+        ursDto.setShelfId(userBookDto.getShelfId());
+        ursDto.setBookDto(resultBookDto);
+        ursDto.setStatus(userBookDto.getStatus());
+        ursDto.setVisibility(userBookDto.getVisibility());
+        ursDto.setRating(userBookDto.getRating());
+        ursDto.setStartDate(userBookDto.getStartDate());
+        ursDto.setEndDate(userBookDto.getEndDate());
+        ursDto.setUserReadingStatusCreatedAt(ursDto.getUserReadingStatusCreatedAt());
+        ursDto.setUserReadingStatusUpdatedAt(ursDto.getUserReadingStatusUpdatedAt());
         userReadingStatusService.createUserReadingStatus(ursDto);
 
-        UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(resultBookDto, ursDto);
-        return ResponseEntity.ok().body(compositeUserBookDto);
+        return ResponseEntity.ok().body(ursDto);
     }
 
     @GetMapping("/{bookId}")
@@ -49,19 +58,30 @@ public class UserBookController {
 
     //TODO: resolve changing userReadingStatusId issue
     @PutMapping("/{bookId}")
-    public ResponseEntity<UserBookDto> updateUserBook(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
+    public ResponseEntity<UserReadingStatusDto> updateUserReadingStatus(@PathVariable Long userId, @PathVariable Long bookId, @RequestBody UserBookDto userBookDto){
         //Separate Book from UserBookDto
         BookDto bookDto = userBookMapper.extractBookDto(userBookDto);
         //Set userId and bookId with PathVariable as the single source of truth
         userBookDto.setUserId(userId);
         userBookDto.setBookId(bookId);
         //Separate UserReadingStatus from UserBookDto
-        UserReadingStatusDto ursDto = userBookMapper.extractUserReadingStatusDto(userBookDto);
+        UserReadingStatusDto ursDto =  new UserReadingStatusDto();
+        ursDto.setUserReadingStatusId(userBookDto.getUserReadingStatusId());
+        ursDto.setUserId(userBookDto.getUserId());
+        ursDto.setShelfId(userBookDto.getShelfId());
+        ursDto.setBookDto(bookDto);
+        ursDto.setStatus(userBookDto.getStatus());
+        ursDto.setVisibility(userBookDto.getVisibility());
+        ursDto.setRating(userBookDto.getRating());
+        ursDto.setStartDate(userBookDto.getStartDate());
+        ursDto.setEndDate(userBookDto.getEndDate());
+        ursDto.setUserReadingStatusCreatedAt(ursDto.getUserReadingStatusCreatedAt());
+        ursDto.setUserReadingStatusUpdatedAt(ursDto.getUserReadingStatusUpdatedAt());
+        userReadingStatusService.createUserReadingStatus(ursDto);
+
         //Update UserReadingStatus
         UserReadingStatusDto updatedURSDto = userReadingStatusService.updateUserReadingStatus(ursDto);
-        //Combine Book and UserReadingStatus to return UserBook
-        UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(bookDto, updatedURSDto);
-        return ResponseEntity.ok(compositeUserBookDto);
+        return ResponseEntity.ok(updatedURSDto);
     }
 
     @DeleteMapping("/{bookId}")
@@ -90,7 +110,7 @@ public class UserBookController {
         }
         //TODO: separate this logic to Service layer
         List<UserBookDto> userBookDtoList = ursDtoList.stream().map(ursDto -> {
-            BookDto bookDto = bookService.getBookById(ursDto.getBookId());
+            BookDto bookDto = bookService.getBookById(ursDto.getBookDto().getBookId());
             return userBookMapper.combineDTOs(bookDto, ursDto);
         }).toList();
         return ResponseEntity.ok(userBookDtoList);
