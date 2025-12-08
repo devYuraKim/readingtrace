@@ -40,10 +40,10 @@ public class UserReadingStatusServiceImpl implements UserReadingStatusService {
             ));
             //check if the book already exists in the shelf
             boolean exists = userReadingStatusRepository.existsByUserIdAndBookIdAndShelfId(
-                    urs.getUserId(), urs.getBookId(), shelf.getId()
+                    urs.getUserId(), urs.getBook().getId(), shelf.getId()
             );
             if (exists) throw new RuntimeException(
-                    String.format("FAILED TO CREATE: Book with [BookId: %d] already exists in shelf [ShelfId: %d]", urs.getBookId(), urs.getShelfId())
+                    String.format("FAILED TO CREATE: Book with [BookId: %d] already exists in shelf [ShelfId: %d]", urs.getBook().getId(), urs.getShelfId())
             );
             //if all checks cleared, increase bookCount by 1 and save in the shelf
             shelf.setBookCount(shelf.getBookCount()+1);

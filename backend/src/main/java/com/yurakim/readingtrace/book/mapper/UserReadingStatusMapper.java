@@ -12,7 +12,7 @@ public class UserReadingStatusMapper {
         urs.setId(ursDto.getUserReadingStatusId());
         urs.setUserId(ursDto.getUserId());
         urs.setShelfId(ursDto.getShelfId());
-        urs.setBookId(ursDto.getBookId());
+//        urs.setBookId(ursDto.getBookId());
         urs.setStatus(ursDto.getStatus());
         urs.setVisibility(ursDto.getVisibility());
         urs.setRating(ursDto.getRating());
@@ -27,7 +27,7 @@ public class UserReadingStatusMapper {
         urs.setId(ursDto.getUserReadingStatusId());
         urs.setUserId(ursDto.getUserId());
         urs.setShelfId(ursDto.getShelfId());
-        urs.setBookId(ursDto.getBookId());
+//        urs.setBookId(ursDto.getBookId());
         urs.setStatus(ursDto.getStatus());
         urs.setVisibility(ursDto.getVisibility());
         urs.setRating(ursDto.getRating());
@@ -43,7 +43,7 @@ public class UserReadingStatusMapper {
         ursDto.setUserReadingStatusId(urs.getId());
         ursDto.setUserId(urs.getUserId());
         ursDto.setShelfId(urs.getShelfId());
-        ursDto.setBookId(urs.getBookId());
+//        ursDto.setBookId(urs.getBookId());
         ursDto.setStatus(urs.getStatus());
         ursDto.setVisibility(urs.getVisibility());
         ursDto.setRating(urs.getRating());

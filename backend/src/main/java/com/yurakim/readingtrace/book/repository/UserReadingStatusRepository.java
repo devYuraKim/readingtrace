@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,7 +18,9 @@ public interface UserReadingStatusRepository extends JpaRepository<UserReadingSt
     Long countAllByUserIdAndStatus(Long userId, String status);
     Long countAllByUserId(Long userId);
 
-    @Query("SELECT bookId FROM UserReadingStatus WHERE bookId IN :bookIds AND userId = :userId")
+    List<UserReadingStatus> findAllByUserIdIn(Set<Long> userIds);
+
+    @Query("SELECT rs.book.id FROM UserReadingStatus rs WHERE rs.userId = :userId AND rs.book.id IN :bookIds")
     Set<Long> findByUserIdAndBookIdsIn(Long userId, Set<Long> bookIds);
 
 }

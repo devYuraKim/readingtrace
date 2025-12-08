@@ -1,5 +1,7 @@
 package com.yurakim.readingtrace.user.service.serviceImpl;
 
+import com.yurakim.readingtrace.book.entity.UserReadingStatus;
+import com.yurakim.readingtrace.book.repository.UserReadingStatusRepository;
 import com.yurakim.readingtrace.user.dto.UserProfileResponseDto;
 import com.yurakim.readingtrace.user.entity.Friend;
 import com.yurakim.readingtrace.user.entity.UserProfile;
@@ -19,6 +21,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
    private final UserProfileRepository userProfileRepository;
     private final FriendRepository friendRepository;
+    private final UserReadingStatusRepository userReadingStatusRepository;
 
     @Override
    public UserProfile getUserProfileByUserId(Long userId){
@@ -27,11 +30,18 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public List<UserProfileResponseDto> getAllUserProfilesExceptUserId(Long userId) {
-
+       //1.Get UserProfiles
        List<UserProfile> profiles = userProfileRepository.findAllByUserIdNot(userId);
-       Set<Long> profileUserIds = profiles.stream().map(profile -> profile.getUser().getId()).collect(Collectors.toSet());
-       Set<Friend> friends = friendRepository.findByFollowingUserIdAndFollowedUserIdIn(userId, profileUserIds);
-       Set<Long> friendUserIds = friends.stream().map(friend -> friend.getFollowedUser().getId()).collect(Collectors.toSet());
+       Set<Long> userIdsFromProfiles = profiles.stream().map(profile -> profile.getUser().getId()).collect(Collectors.toSet());
+
+       //2.Get UserReadingStatus and separate them by 'public' and 'friends'
+       List<UserReadingStatus> userReadingStatuses = userReadingStatusRepository.findAllByUserIdIn(userIdsFromProfiles);
+       List<UserReadingStatus> publicUserReadingStatuses = userReadingStatuses.stream().filter(status -> status.getVisibility().equals("public")).collect(Collectors.toList());
+       List<UserReadingStatus> friendsUserReadingStatuses = userReadingStatuses.stream().filter(status -> !status.getVisibility().equals("private")).collect(Collectors.toList());
+;
+
+       Set<Friend> friends = friendRepository.findByFollowingUserIdAndFollowedUserIdIn(userId, userIdsFromProfiles);
+       Set<Long> userIdsFromFriends = friends.stream().map(friend -> friend.getFollowedUser().getId()).collect(Collectors.toSet());
 
        return userProfileRepository.findAllByUserIdNot(userId).stream().map(userProfile -> {
             UserProfileResponseDto dto = new UserProfileResponseDto();
@@ -44,7 +54,17 @@ public class UserProfileServiceImpl implements UserProfileService {
             dto.setReadingGoalTimeframe(userProfile.getReadingGoalTimeframe());
             dto.setFavoredGenres(userProfile.getFavoredGenres());
             dto.setIsOnboardingCompleted(userProfile.getIsOnboardingCompleted());
-            dto.setIsFriend(friendUserIds.contains(userProfile.getUser().getId()));
+            boolean isFriend = userIdsFromFriends.contains(userProfile.getUser().getId());
+            dto.setIsFriend(isFriend);
+            if(isFriend) {
+                Set<UserReadingStatus> friendsUserReadingStatus = friendsUserReadingStatuses.stream().filter(status -> status.getUserId().equals(userProfile.getUser().getId())).collect(Collectors.toSet());
+                dto.setBookIds(friendsUserReadingStatus.stream().map(status -> status.getBook().getId()).collect(Collectors.toSet()));
+
+            }
+            else{
+                Set<UserReadingStatus> publicUserReadingStatus = publicUserReadingStatuses.stream().filter(status -> status.getUserId().equals(userProfile.getUser().getId())).collect(Collectors.toSet());
+                dto.setBookIds(publicUserReadingStatus.stream().map(status -> status.getBook().getId()).collect(Collectors.toSet()));
+            }
             return dto;
        }).toList();
     }

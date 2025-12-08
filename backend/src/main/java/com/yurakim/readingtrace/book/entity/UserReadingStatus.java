@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "bookId"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "book_id"}))
 @Entity
 public class UserReadingStatus extends BaseEntity {
 
@@ -21,8 +21,10 @@ public class UserReadingStatus extends BaseEntity {
     
     private Long shelfId;
 
-    @Column(nullable = false)
-    private Long bookId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
 
     @Column(nullable = false)
     private String status;

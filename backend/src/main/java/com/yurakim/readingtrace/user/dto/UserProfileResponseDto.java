@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -19,5 +21,5 @@ public class UserProfileResponseDto {
     private String favoredGenres;
     private Boolean isOnboardingCompleted;
     private Boolean isFriend;
-
+    private Set<Long> bookIds;
 }
