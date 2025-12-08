@@ -1,9 +1,10 @@
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { UserRoundPlus } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserRoundMinus, UserRoundPlus } from 'lucide-react';
 
 const FriendDetails = () => {
+  const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?.userId);
   const { data: profiles, isPending } = useQuery({
     queryKey: ['userProfilesExceptUserId', userId],
@@ -20,6 +21,11 @@ const FriendDetails = () => {
         `/users/${userId}/friends/${followedUserId}`,
       );
       return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['userProfilesExceptUserId', userId],
+      });
     },
   });
 
@@ -46,7 +52,7 @@ const FriendDetails = () => {
               className="p-2 cursor-pointer hover:bg-amber-200"
               onClick={() => toggleFollow(profile.userId)}
             >
-              <UserRoundPlus />
+              {profile.isFriend ? <UserRoundMinus /> : <UserRoundPlus />}
             </div>
           </div>
         ))}

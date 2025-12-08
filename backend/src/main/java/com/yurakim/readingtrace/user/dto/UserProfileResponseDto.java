@@ -18,5 +18,6 @@ public class UserProfileResponseDto {
     private String readingGoalTimeframe;
     private String favoredGenres;
     private Boolean isOnboardingCompleted;
+    private Boolean isFriend;
 
 }
