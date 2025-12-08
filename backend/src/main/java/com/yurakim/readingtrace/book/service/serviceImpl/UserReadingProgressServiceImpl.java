@@ -50,8 +50,8 @@ public class UserReadingProgressServiceImpl implements UserReadingProgressServic
 
     @Override
     public Integer getUserReadingProgress(Long userId, Long bookId) {
-        UserReadingProgress userReadingProgress = userReadingProgressRepository.findTopByUserIdAndBookIdOrderByCreatedAtDesc(userId, bookId).orElseThrow(()->new RuntimeException("No reading progress found with bookId: " + bookId + " and userId: " + userId));
-        return userReadingProgress.getCurrentPage();
+        UserReadingProgress userReadingProgress = userReadingProgressRepository.findTopByUserIdAndBookIdOrderByCreatedAtDesc(userId, bookId).orElse(null);
+        return userReadingProgress != null ? userReadingProgress.getCurrentPage() : 0;
     }
 
     @Override
