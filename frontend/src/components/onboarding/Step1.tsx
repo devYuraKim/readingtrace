@@ -3,7 +3,7 @@ import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OnboardingStepProps } from '@/types/props.types';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Camera, CircleCheck, CircleX } from 'lucide-react';
+import { Camera, CircleCheck, CircleUserRound, CircleX } from 'lucide-react';
 import { z } from 'zod';
 import {
   InputGroup,
@@ -122,12 +122,14 @@ const Step1 = ({ setCanProceed }: OnboardingStepProps) => {
       <div
         className={`m-auto relative w-1/2 h-50 rounded-sm ${imageUrl ? '' : 'bg-[#f5f5f5]'}`}
       >
-        {imageUrl && (
+        {imageUrl ? (
           <img
             src={imageUrl}
             alt="profile_image"
             className="w-full h-full rounded-sm object-cover"
           />
+        ) : (
+          <CircleUserRound className="w-full h-full stroke-stone-200 p-5" />
         )}
         <Camera
           className="absolute bottom-0 right-0 m-2 p-1 rounded-sm bg-white/30 cursor-pointer hover:scale-120 transition-transform"

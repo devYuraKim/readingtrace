@@ -6,17 +6,14 @@ import com.yurakim.readingtrace.shared.constant.UploadType;
 import com.yurakim.readingtrace.shared.service.S3Service;
 import com.yurakim.readingtrace.user.dto.UserProfileRequestDto;
 import com.yurakim.readingtrace.user.dto.UserProfileResponseDto;
-import com.yurakim.readingtrace.user.entity.User;
 import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.UserProfileRepository;
-import com.yurakim.readingtrace.user.repository.UserRepository;
 import com.yurakim.readingtrace.user.service.UserProfileService;
 import com.yurakim.readingtrace.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +26,6 @@ public class UserController {
 
     private final UserService userService;
     private final UserProfileRepository userProfileRepository;
-    private final UserRepository userRepository;
     private final UserProfileService userProfileService;
     @Lazy
     private final S3Service s3Service;
@@ -59,15 +55,17 @@ public class UserController {
 
     @PostMapping("/{userId}/onboarding")
     public ResponseEntity<Void> createUserProfile(@PathVariable Long userId, @RequestBody UserProfileRequestDto userProfileRequestDto) {
-        userProfileRequestDto.setUserId(userId);
 
-        //TODO: repository 사용하면 error handling까지 해야 하니까 service를 사용
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        UserProfile userProfile = new UserProfile();
-        userProfile.setUser(user);
+        UserProfile userProfile = userProfileService.getUserProfileByUserId(userId);
+
         userProfile.setNickname(userProfileRequestDto.getNickname());
         //TODO: profile image temp에서 확정 파일로 이동하는 로직 필요
-        userProfile.setProfileImageUrl(s3Service.moveTempToPermanent(user.getId(), userProfileRequestDto.getProfileImageUrl()));
+        if(userProfileRequestDto.getProfileImageUrl().isBlank()) {
+            userProfile.setProfileImageUrl("https://readingtrace-bucket.s3.ap-northeast-2.amazonaws.com/user/profile/final/default.png");
+        }
+        else {
+            userProfile.setProfileImageUrl(s3Service.moveTempToPermanent(userId, userProfileRequestDto.getProfileImageUrl()));
+        }
         userProfile.setReadingGoalCount(userProfileRequestDto.getReadingGoalCount());
         userProfile.setReadingGoalUnit(userProfileRequestDto.getReadingGoalUnit());
         userProfile.setReadingGoalTimeframe(userProfileRequestDto.getReadingGoalTimeframe());
