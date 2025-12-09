@@ -13,6 +13,7 @@ import UserProfileProvider from '@/components/Auth/UserProfileProvider';
 import ChatDetails from '@/components/Community/ChatDetails';
 import FriendDetails from '@/components/Community/FriendDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
+import WebSocketProvider from '@/components/Community/WebSocketProvider';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import PrivateLayout from '@/components/layouts/PrivateLayout';
 import PublicLayout from '@/components/layouts/PublicLayout';
@@ -39,24 +40,26 @@ const router = createBrowserRouter(
       </Route>
 
       <Route element={<AuthenticatedRoutes />}>
-        <Route element={<UserProfileProvider />}>
-          <Route path="/users/:userId" element={<PrivateLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="collection" element={<StartByBookCollection />} />
-            <Route path="search" element={<StartByBookSearch />} />
-            <Route path="supportChat" element={<SupportChat />} />
-            <Route path="books" element={<UserShelfDetails />} />
-            <Route
-              path="books/:bookId/chats"
-              element={<UserBookChatDetails />}
-            />
-            <Route
-              path="books/:bookId/notes"
-              element={<UserBookNoteDetails />}
-            />
-            <Route path="community/friends" element={<FriendDetails />} />
-            <Route path="community/chats" element={<ChatDetails />} />
-            <Route path="community/meetups" element={<MeetupDetails />} />
+        <Route element={<WebSocketProvider />}>
+          <Route element={<UserProfileProvider />}>
+            <Route path="/users/:userId" element={<PrivateLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="collection" element={<StartByBookCollection />} />
+              <Route path="search" element={<StartByBookSearch />} />
+              <Route path="supportChat" element={<SupportChat />} />
+              <Route path="books" element={<UserShelfDetails />} />
+              <Route
+                path="books/:bookId/chats"
+                element={<UserBookChatDetails />}
+              />
+              <Route
+                path="books/:bookId/notes"
+                element={<UserBookNoteDetails />}
+              />
+              <Route path="community/friends" element={<FriendDetails />} />
+              <Route path="community/chats" element={<ChatDetails />} />
+              <Route path="community/meetups" element={<MeetupDetails />} />
+            </Route>
           </Route>
         </Route>
       </Route>
