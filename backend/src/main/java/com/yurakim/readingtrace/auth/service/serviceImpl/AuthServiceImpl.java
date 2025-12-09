@@ -11,6 +11,7 @@ import com.yurakim.readingtrace.auth.service.JwtService;
 import com.yurakim.readingtrace.shared.util.EmailService;
 import com.yurakim.readingtrace.user.entity.Role;
 import com.yurakim.readingtrace.user.entity.User;
+import com.yurakim.readingtrace.user.entity.UserProfile;
 import com.yurakim.readingtrace.user.repository.RoleRepository;
 import com.yurakim.readingtrace.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -131,9 +132,9 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(roles);
 
         // TODO: decide if UserProfile setting should be handled somewhere else
-        // UserProfile userProfile = new UserProfile();
-        // userProfile.setUser(user);
-        // user.setUserProfile(userProfile);
+         UserProfile userProfile = new UserProfile();
+         userProfile.setUser(user);
+         user.setUserProfile(userProfile);
 
         userRepository.save(user);
         return "User registered";
