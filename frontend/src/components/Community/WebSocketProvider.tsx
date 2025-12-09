@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useWebSocketStore } from '@/store/useWebSocketStore';
 import { Client } from '@stomp/stompjs';
 import { Outlet } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const WebSocketProvider = () => {
-  const [stompClient, setStompClient] = useState<Client | null>(null);
+  const stompClient = useWebSocketStore((state) => state.stompClient);
+  const setStompClient = useWebSocketStore((state) => state.setStompClient);
 
   const getBrokerURL = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -32,7 +34,7 @@ const WebSocketProvider = () => {
       client.activate();
       setStompClient(client);
     }
-  }, [stompClient, accessToken]);
+  }, [stompClient, accessToken, setStompClient]);
 
   return <Outlet />;
 };

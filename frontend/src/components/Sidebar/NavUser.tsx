@@ -1,5 +1,6 @@
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useWebSocketStore } from '@/store/useWebSocketStore';
 import { useMutation } from '@tanstack/react-query';
 import {
   BadgeCheck,
@@ -32,6 +33,7 @@ export function NavUser({ profileImageUrl, nickname }) {
   const navigate = useNavigate();
 
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const stompClient = useWebSocketStore((state) => state.stompClient);
   const userId = useAuthStore((state) => state.user?.userId);
 
   const { mutate } = useMutation({
@@ -48,6 +50,7 @@ export function NavUser({ profileImageUrl, nickname }) {
   const handleClickLogout = () => {
     clearAuth();
     mutate();
+    stompClient?.deactivate();
   };
 
   const handleClickAvatar = () => {
