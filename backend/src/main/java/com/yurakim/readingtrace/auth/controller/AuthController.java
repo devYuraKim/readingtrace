@@ -63,6 +63,11 @@ public class AuthController {
             return ResponseEntity.ok().header(JWT.JWT_HEADER, JWT.JWT_PREFIX + accessToken).body(user);
         }
 
+        @PostMapping("/logout")
+        public ResponseEntity<Void> logoutUser(){
+        return ResponseEntity.ok().build();
+        }
+
         @PostMapping("/refresh")
         public ResponseEntity<Void> refreshToken(@CookieValue(JWT.REFRESH_TOKEN_COOKIE_NAME) String refreshToken, HttpServletResponse response){
             if (refreshToken == null) {

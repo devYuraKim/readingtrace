@@ -1,4 +1,6 @@
+import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useMutation } from '@tanstack/react-query';
 import {
   BadgeCheck,
   Bell,
@@ -32,8 +34,20 @@ export function NavUser({ profileImageUrl, nickname }) {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const userId = useAuthStore((state) => state.user?.userId);
 
+  const { mutate } = useMutation({
+    mutationKey: ['logout', userId],
+    mutationFn: async () => {
+      const res = apiClient.post('/auth/logout');
+      return (await res).data;
+    },
+    onSuccess: () => {
+      navigate('/login');
+    },
+  });
+
   const handleClickLogout = () => {
     clearAuth();
+    mutate();
   };
 
   const handleClickAvatar = () => {

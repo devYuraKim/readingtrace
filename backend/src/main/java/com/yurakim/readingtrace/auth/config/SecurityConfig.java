@@ -115,7 +115,8 @@ public class SecurityConfig {
                         })
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
-                .deleteCookies("JSESSIONID"));
+                .deleteCookies("JSESSIONID")
+                .deleteCookies("REFRESH-TOKEN"));
 
         //TODO: remove filter listing
         //check enabled filters
