@@ -3,6 +3,7 @@ package com.yurakim.readingtrace.user.service.serviceImpl;
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
 import com.yurakim.readingtrace.book.mapper.UserReadingStatusMapper;
 import com.yurakim.readingtrace.book.repository.UserReadingStatusRepository;
+import com.yurakim.readingtrace.user.dto.ChatProfileDto;
 import com.yurakim.readingtrace.user.dto.UserProfileResponseDto;
 import com.yurakim.readingtrace.user.entity.Friend;
 import com.yurakim.readingtrace.user.entity.UserProfile;
@@ -69,6 +70,18 @@ public class UserProfileServiceImpl implements UserProfileService {
             }
             return dto;
        }).toList();
+    }
+
+    @Override
+    public List<ChatProfileDto> getAllChatProfilesByIds(Set<Long> userIds) {
+        List<UserProfile> userProfiles = userProfileRepository.findByUserIdIn(userIds);
+        return userProfiles.stream().map(userProfile -> {
+            ChatProfileDto dto = new ChatProfileDto();
+            dto.setUserId(userProfile.getUser().getId());
+            dto.setNickname(userProfile.getNickname());
+            dto.setProfileImageUrl(userProfile.getProfileImageUrl());
+            return dto;
+        }).toList();
     }
 
 
