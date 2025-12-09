@@ -52,7 +52,33 @@ const FriendDetails = () => {
               className="p-2 cursor-pointer hover:bg-amber-200"
               onClick={() => toggleFollow(profile.userId)}
             >
-              {profile.isFriend ? <UserRoundMinus /> : <UserRoundPlus />}
+              {profile.isFriend ? (
+                <div className="flex">
+                  <UserRoundMinus /> unfriend
+                </div>
+              ) : (
+                <div className="flex">
+                  <UserRoundPlus /> friend
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              {profile.userReadingStatusDto.length !== 0 &&
+                profile.userReadingStatusDto.map((status) => (
+                  <>
+                    <div key={status.userReadingStatusId}>
+                      <img
+                        src={status.bookDto.imageLinks}
+                        className="w-15 h-full"
+                      />
+                    </div>
+                    <div>
+                      <span>{status.bookDto.title}</span>
+                      <span>{status.status}</span>
+                    </div>
+                  </>
+                ))}
             </div>
           </div>
         ))}
