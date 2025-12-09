@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.book.repository;
 
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,7 @@ public interface UserReadingStatusRepository extends JpaRepository<UserReadingSt
     Long countAllByUserIdAndStatus(Long userId, String status);
     Long countAllByUserId(Long userId);
 
+    @EntityGraph(attributePaths = {"book"})
     List<UserReadingStatus> findAllByUserIdIn(Set<Long> userIds);
 
     @Query("SELECT rs.book.id FROM UserReadingStatus rs WHERE rs.userId = :userId AND rs.book.id IN :bookIds")

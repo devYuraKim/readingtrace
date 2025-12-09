@@ -1,6 +1,7 @@
 package com.yurakim.readingtrace.user.service.serviceImpl;
 
 import com.yurakim.readingtrace.book.entity.UserReadingStatus;
+import com.yurakim.readingtrace.book.mapper.UserReadingStatusMapper;
 import com.yurakim.readingtrace.book.repository.UserReadingStatusRepository;
 import com.yurakim.readingtrace.user.dto.UserProfileResponseDto;
 import com.yurakim.readingtrace.user.entity.Friend;
@@ -22,6 +23,7 @@ public class UserProfileServiceImpl implements UserProfileService {
    private final UserProfileRepository userProfileRepository;
     private final FriendRepository friendRepository;
     private final UserReadingStatusRepository userReadingStatusRepository;
+    private final UserReadingStatusMapper userReadingStatusMapper;
 
     @Override
    public UserProfile getUserProfileByUserId(Long userId){
@@ -58,12 +60,12 @@ public class UserProfileServiceImpl implements UserProfileService {
             dto.setIsFriend(isFriend);
             if(isFriend) {
                 Set<UserReadingStatus> friendsUserReadingStatus = friendsUserReadingStatuses.stream().filter(status -> status.getUserId().equals(userProfile.getUser().getId())).collect(Collectors.toSet());
-                dto.setBookIds(friendsUserReadingStatus.stream().map(status -> status.getBook().getId()).collect(Collectors.toSet()));
+                dto.setUserReadingStatusDto(friendsUserReadingStatus.stream().map(status -> userReadingStatusMapper.mapToDto(status)).collect(Collectors.toSet()));
 
             }
             else{
                 Set<UserReadingStatus> publicUserReadingStatus = publicUserReadingStatuses.stream().filter(status -> status.getUserId().equals(userProfile.getUser().getId())).collect(Collectors.toSet());
-                dto.setBookIds(publicUserReadingStatus.stream().map(status -> status.getBook().getId()).collect(Collectors.toSet()));
+                dto.setUserReadingStatusDto(publicUserReadingStatus.stream().map(status -> userReadingStatusMapper.mapToDto(status)).collect(Collectors.toSet()));
             }
             return dto;
        }).toList();

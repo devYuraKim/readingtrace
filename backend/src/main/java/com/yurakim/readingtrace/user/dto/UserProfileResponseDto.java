@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.user.dto;
 
+import com.yurakim.readingtrace.book.dto.UserReadingStatusDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,5 +22,6 @@ public class UserProfileResponseDto {
     private String favoredGenres;
     private Boolean isOnboardingCompleted;
     private Boolean isFriend;
-    private Set<Long> bookIds;
+    private Set<UserReadingStatusDto> userReadingStatusDto;
+
 }
