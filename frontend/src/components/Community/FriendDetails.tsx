@@ -1,11 +1,14 @@
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUserPresenceStore } from '@/store/useUserPresenceStore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserRoundMinus, UserRoundPlus } from 'lucide-react';
 
 const FriendDetails = () => {
   const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?.userId);
+  const onlineMap = useUserPresenceStore((state) => state.onlineMap);
+
   const { data: profiles, isPending } = useQuery({
     queryKey: ['userProfilesExceptUserId', userId],
     queryFn: async () => {
@@ -48,6 +51,7 @@ const FriendDetails = () => {
               className="rounded-full w-10 h-10"
             />
             <div>{profile.nickname}</div>
+            {onlineMap[profile.userId] ? '● online' : '○ offline'}
             <div
               className="p-2 cursor-pointer hover:bg-amber-200"
               onClick={() => toggleFollow(profile.userId)}
