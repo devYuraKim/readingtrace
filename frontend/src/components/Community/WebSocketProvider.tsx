@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUserPresenceStore } from '@/store/useUserPresenceStore';
 import { useWebSocketStore } from '@/store/useWebSocketStore';
 import { Client } from '@stomp/stompjs';
 import { Outlet } from 'react-router-dom';
@@ -25,10 +26,16 @@ const WebSocketProvider = () => {
       const client = new Client({
         brokerURL: getBrokerURL(),
         connectHeaders: {
-          Authorization: `Bearer ${getBearerToken(accessToken ?? '')}`,
+          Authorization: `${getBearerToken(accessToken ?? '')}`,
         },
         onConnect: () => {
           toast.success('Established WebSocket Connection');
+
+          client.subscribe('/topic/presence', (message) => {
+            const presence = JSON.parse(message.body);
+            console.log(presence);
+            useUserPresenceStore.getState().updatePresence(presence);
+          });
         },
       });
       client.activate();
