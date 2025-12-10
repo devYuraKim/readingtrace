@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -48,6 +49,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+//                accessor.setLeaveMutable(true);
+
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                     List<String> authHeaders = accessor.getNativeHeader(JWT.JWT_HEADER);
                     //TODO: implement JWT token validation for STOMP connections
@@ -55,6 +58,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
                         try {
                             String token = authHeaders.get(0).substring(JWT.JWT_PREFIX.length());
                             Authentication authentication = jwtService.validateAccessToken(token);
+                            System.out.println(String.format("KILL ME: %S", authentication));
                             accessor.setUser(authentication);
                             SecurityContextHolder.getContext().setAuthentication(authentication);
                         } catch (JwtException e) {
@@ -63,7 +67,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
                         }
                     }
                 }
-                return message;
+                return MessageBuilder
+                        .createMessage(message.getPayload(), accessor.getMessageHeaders());
             }
         });
     }
