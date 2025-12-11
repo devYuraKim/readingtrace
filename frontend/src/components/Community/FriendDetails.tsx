@@ -1,3 +1,4 @@
+import { Fragment } from 'react/jsx-runtime';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUserPresenceStore } from '@/store/useUserPresenceStore';
@@ -70,7 +71,7 @@ const FriendDetails = () => {
             <div className="flex gap-2">
               {profile.userReadingStatusDto.length !== 0 &&
                 profile.userReadingStatusDto.map((status) => (
-                  <>
+                  <Fragment key={status.userReadingStatusId}>
                     <div key={status.userReadingStatusId}>
                       <img
                         src={status.bookDto.imageLinks}
@@ -81,7 +82,7 @@ const FriendDetails = () => {
                       <span>{status.bookDto.title}</span>
                       <span>{status.status}</span>
                     </div>
-                  </>
+                  </Fragment>
                 ))}
             </div>
           </div>
