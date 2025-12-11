@@ -1,5 +1,6 @@
 package com.yurakim.readingtrace.chat.listener;
 
+import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.chat.service.PresenceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,25 +38,44 @@ public class StompEventListener {
         System.out.println(String.format("PLEASE WORK %s", accessor));
         Authentication auth = (Authentication) accessor.getUser();
 
+        if (auth == null) {
+            System.out.println("AUTH IS NULL");
+            return;
+        }
+
         System.out.println(String.format("WHAT IS AUTH: %s", auth));
 
-        if(auth != null){
+        Object principal = auth.getPrincipal();
+
+        if(principal != null && principal instanceof UserDetailsImpl userDetails) {
+
             String email = auth.getName();
             System.out.println(String.format("WHAT USER ID: %s", email));
+
+            Long userId = userDetails.getId();
+            System.out.println("USER ID = " + userId);
+
             String sessionId = accessor.getSessionId();
+            System.out.println("SESSION ID = " + sessionId);
 
-//            sessionUserMap.put(sessionId, email);
-//            presenceService.userOnline(userId);
-
-//            broadcastPresence();
+            sessionUserMap.put(sessionId, userId);
+            presenceService.userOnline(userId);
 
         }
     }
 
+    @EventListener
+    public void handleSessionSubscribeEvent(SessionSubscribeEvent event) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+
+        if ("/topic/presence".equals(accessor.getDestination())) {
+            broadcastPresence();
+        }
+    }
+
     private void broadcastPresence() {
-        Set<Long> onlineUsers = presenceService.getOnlineUsers();
-        System.out.println(">>> Broadcasting presence: " + onlineUsers);
-        messagingTemplate.convertAndSend("/topic/presence", onlineUsers);
+        Set<Long> onlineUserIds = presenceService.getOnlineUserIds();
+        messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
     }
 
 //    @EventListener

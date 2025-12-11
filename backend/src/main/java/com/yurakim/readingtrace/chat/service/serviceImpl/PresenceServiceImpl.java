@@ -14,21 +14,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PresenceServiceImpl implements PresenceService {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final Set<Long> onlineUsers = ConcurrentHashMap.newKeySet();
+    private final Set<Long> onlineUserIds = ConcurrentHashMap.newKeySet();
 
 
     public void userOnline(Long userId) {
+        onlineUserIds.add(userId);
         messagingTemplate.convertAndSend("/topic/presence",
                 new PresenceEventDto(userId, "ONLINE"));
     }
 
     public void userOffline(Long userId) {
+        onlineUserIds.remove(userId);
         messagingTemplate.convertAndSend("/topic/presence",
                 new PresenceEventDto(userId, "OFFLINE"));
     }
 
-    public Set<Long> getOnlineUsers() {
-        return onlineUsers;
+    public Set<Long> getOnlineUserIds() {
+        return onlineUserIds;
     }
 
 }

@@ -8,5 +8,5 @@ public interface PresenceService {
 
     void userOffline(Long userId);
 
-    Set<Long> getOnlineUsers();
+    Set<Long> getOnlineUserIds();
 }
