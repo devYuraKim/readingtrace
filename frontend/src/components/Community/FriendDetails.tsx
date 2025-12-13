@@ -8,7 +8,8 @@ import { UserRoundMinus, UserRoundPlus } from 'lucide-react';
 const FriendDetails = () => {
   const queryClient = useQueryClient();
   const userId = useAuthStore((state) => state.user?.userId);
-  const onlineMap = useUserPresenceStore((state) => state.onlineMap);
+
+  const onlineUserIds = useUserPresenceStore((state) => state.onlineUserIds);
 
   const { data: profiles, isPending } = useQuery({
     queryKey: ['userProfilesExceptUserId', userId],
@@ -52,7 +53,7 @@ const FriendDetails = () => {
               className="rounded-full w-10 h-10"
             />
             <div>{profile.nickname}</div>
-            {onlineMap[profile.userId] ? '● online' : '○ offline'}
+            {onlineUserIds.includes(profile.userId) ? '● online' : '○ offline'}
             <div
               className="p-2 cursor-pointer hover:bg-amber-200"
               onClick={() => toggleFollow(profile.userId)}

@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 const WebSocketProvider = () => {
   const stompClient = useWebSocketStore((state) => state.stompClient);
   const setStompClient = useWebSocketStore((state) => state.setStompClient);
+  const setOnlineUserIds = useUserPresenceStore(
+    (state) => state.setOnlineUserIds,
+  );
 
   const getBrokerURL = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -32,16 +35,15 @@ const WebSocketProvider = () => {
           toast.success('Established WebSocket Connection');
 
           client.subscribe('/topic/presence', (message) => {
-            const presence = JSON.parse(message.body);
-            console.log(presence);
-            useUserPresenceStore.getState().updatePresence(presence);
+            const onlineUserIds = JSON.parse(message.body);
+            setOnlineUserIds(onlineUserIds);
           });
         },
       });
       client.activate();
       setStompClient(client);
     }
-  }, [stompClient, accessToken, setStompClient]);
+  }, [stompClient, accessToken, setStompClient, setOnlineUserIds]);
 
   return <Outlet />;
 };

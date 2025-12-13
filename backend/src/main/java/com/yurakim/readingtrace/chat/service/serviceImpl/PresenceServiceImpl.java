@@ -1,6 +1,5 @@
 package com.yurakim.readingtrace.chat.service.serviceImpl;
 
-import com.yurakim.readingtrace.chat.dto.PresenceEventDto;
 import com.yurakim.readingtrace.chat.service.PresenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,18 +18,12 @@ public class PresenceServiceImpl implements PresenceService {
 
     public void userOnline(Long userId) {
         onlineUserIds.add(userId);
-        messagingTemplate.convertAndSend("/topic/presence",
-                new PresenceEventDto(userId, "ONLINE"));
+        messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
     }
 
     public void userOffline(Long userId) {
         onlineUserIds.remove(userId);
-        messagingTemplate.convertAndSend("/topic/presence",
-                new PresenceEventDto(userId, "OFFLINE"));
-    }
-
-    public Set<Long> getOnlineUserIds() {
-        return onlineUserIds;
+        messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
     }
 
 }

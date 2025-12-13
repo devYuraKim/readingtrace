@@ -34,48 +34,44 @@ public class StompEventListener {
     @EventListener
     public void handleSessionConnected(SessionConnectedEvent event){
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-
         System.out.println(String.format("PLEASE WORK %s", accessor));
         Authentication auth = (Authentication) accessor.getUser();
-
-        if (auth == null) {
-            System.out.println("AUTH IS NULL");
-            return;
-        }
-
+        if (auth == null) { System.out.println("AUTH IS NULL"); return;}
         System.out.println(String.format("WHAT IS AUTH: %s", auth));
-
         Object principal = auth.getPrincipal();
-
         if(principal != null && principal instanceof UserDetailsImpl userDetails) {
-
             String email = auth.getName();
-            System.out.println(String.format("WHAT USER ID: %s", email));
-
+//            System.out.println(String.format("WHAT USER ID: %s", email));
             Long userId = userDetails.getId();
-            System.out.println("USER ID = " + userId);
-
+//            System.out.println("USER ID = " + userId);
             String sessionId = accessor.getSessionId();
-            System.out.println("SESSION ID = " + sessionId);
-
+//            System.out.println("SESSION ID = " + sessionId);
             sessionUserMap.put(sessionId, userId);
             presenceService.userOnline(userId);
-
         }
     }
 
     @EventListener
     public void handleSessionSubscribeEvent(SessionSubscribeEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-
+        String sessionId = accessor.getSessionId();
+        Long userId = sessionUserMap.get(sessionId);
+        //TODO: return ALL logged in user information, not single user
         if ("/topic/presence".equals(accessor.getDestination())) {
-            broadcastPresence();
+            presenceService.userOnline(userId);
         }
     }
 
-    private void broadcastPresence() {
-        Set<Long> onlineUserIds = presenceService.getOnlineUserIds();
-        messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
+    @EventListener
+    public void handleDisconnect(SessionDisconnectEvent event) {
+        System.out.println("DISCONNECT EVENT FIRED");
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = accessor.getSessionId();
+        Long userId = sessionUserMap.remove(sessionId);
+        if (userId != null) {
+            presenceService.userOffline(userId);
+            System.out.println("OFFLINE: " + userId);
+        }
     }
 
 //    @EventListener
