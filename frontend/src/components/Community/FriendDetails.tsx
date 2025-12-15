@@ -2,6 +2,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUserPresenceStore } from '@/store/useUserPresenceStore';
+import { useWebSocketStore } from '@/store/useWebSocketStore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserRoundMinus, UserRoundPlus } from 'lucide-react';
 
@@ -10,6 +11,7 @@ const FriendDetails = () => {
   const userId = useAuthStore((state) => state.user?.userId);
 
   const onlineUserIds = useUserPresenceStore((state) => state.onlineUserIds);
+  const client = useWebSocketStore((state) => state.stompClient);
 
   const { data: profiles, isPending } = useQuery({
     queryKey: ['userProfilesExceptUserId', userId],
@@ -38,6 +40,21 @@ const FriendDetails = () => {
     mutate(followedUserId);
   };
 
+  const handleUserClick = (profileUserId: number) => {
+    console.log('profile user id: ' + profileUserId);
+    console.log('logged in user id: ' + userId);
+
+    //for sending direct messages
+    client?.publish({
+      destination: '/app/dm',
+      body: JSON.stringify({
+        senderId: userId,
+        receiverId: profileUserId,
+        message: 'DIRECT MESSAGE TEST',
+      }),
+    });
+  };
+
   return (
     <div>
       FriendDetails
@@ -47,12 +64,17 @@ const FriendDetails = () => {
             key={profile.userId}
             className="flex items-center gap-2 border-1 p-2"
           >
-            <img
-              src={profile.profileImageUrl}
-              alt={profile.nickname}
-              className="rounded-full w-10 h-10"
-            />
-            <div>{profile.nickname}</div>
+            <div
+              className="flex items-center w-50 gap-2 border-red-300 border-1 truncate cursor-pointer"
+              onClick={() => handleUserClick(profile.userId)}
+            >
+              <img
+                src={profile.profileImageUrl}
+                alt={profile.nickname}
+                className="rounded-full w-10 h-10"
+              />
+              <div>{profile.nickname}</div>
+            </div>
             {onlineUserIds.includes(profile.userId) ? '● online' : '○ offline'}
             <div
               className="p-2 cursor-pointer hover:bg-amber-200"

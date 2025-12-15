@@ -1,18 +1,21 @@
 package com.yurakim.readingtrace.chat.controller;
 
 import com.yurakim.readingtrace.chat.dto.ChatMessageDto;
+import com.yurakim.readingtrace.chat.dto.DirectMessageDto;
 import com.yurakim.readingtrace.chat.listener.StompEventListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +31,30 @@ public class StompController {
     private final TaskScheduler taskScheduler;
     private final SimpMessagingTemplate simpleMessagingTemplate;
     private final StompEventListener stompEventListener;
+
+    @MessageMapping("/dm")
+    public void handleDirectMessage(@Payload DirectMessageDto dm, Principal principal) {
+
+        //Let principal's userId be the single source of truth
+        Long senderId = Long.valueOf(principal.getName());
+        if(!dm.getSenderId().equals(senderId)) {}
+        Long receiverId = dm.getReceiverId();
+
+//        if (!userService.existsById(receiverId)) {
+//            throw new IllegalArgumentException("Receiver does not exist");
+//        }
+
+//        if (receiverId.equals(senderId)) {
+//            throw new IllegalArgumentException("Cannot DM yourself");
+//        }
+
+
+        simpleMessagingTemplate.convertAndSendToUser(
+                receiverId.toString(),
+                "/queue/dm",
+                dm
+        );
+    }
 
     @MessageMapping("/support.sendMessage")
     @SendTo("/topic/support")
