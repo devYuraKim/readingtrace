@@ -1,14 +1,11 @@
 package com.yurakim.readingtrace.chat.listener;
 
-import com.yurakim.readingtrace.auth.security.UserDetailsImpl;
 import com.yurakim.readingtrace.chat.service.PresenceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -26,57 +23,36 @@ public class StompEventListener {
 
     private final ConcurrentHashMap<String, Long> sessionUserMap = new ConcurrentHashMap<>();
     private final PresenceService presenceService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     private final ConcurrentHashMap<String, String> sessionMap = new ConcurrentHashMap<>();
     public Set<String> getSessions() {
         return sessionMap.keySet();
     }
 
-    //SessionConnected에서는 message 보내도 subscribe 되기 이전이라 유실되므로 메시지 전달은 subscribe 이후에 진행
+    //SessionConnected에서는 onlineUserIds를 message로 보내도 subscribe 되기 이전이라 유실되므로 해당 message 전달은 subscribe 이후에 진행
     @EventListener
     public void handleSessionConnected(SessionConnectedEvent event){
-//        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-//        Authentication auth = (Authentication) accessor.getUser();
-//        Object principal = auth.getPrincipal();
-//        if(principal instanceof UserDetailsImpl userDetails) {
-//            String email = auth.getName();
-//            Long userId = userDetails.getId();
-//            String sessionId = accessor.getSessionId();
-//            sessionUserMap.put(sessionId, userId);
-//            presenceService.userOnline(userId);
-//        }
-
         SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
         Principal principal = accessor.getUser();
-        System.out.println("CONNECTED PRINCIPAL: " + principal.toString());
-        if (principal == null) System.out.println("CONNECTED: PRINCIPAL IS NULL!!!!!");
-        if (principal instanceof UsernamePasswordAuthenticationToken auth) {
-            System.out.println("CONNECTED CLASS OF auth VARIABLE: " + auth.getClass());
-            Object p = auth.getPrincipal();
-            System.out.println("CONNECTED CLASS of p VARIABLE: " + p.getClass());
-            if (p instanceof UserDetailsImpl userDetails) {
-                Long userId = userDetails.getId();
-                String sessionId = accessor.getSessionId();
-                System.out.println("CONNECTED userId = " + userId);
-                System.out.println("CONNECTED sessionId = " + sessionId);
-                sessionUserMap.put(sessionId, userId);
-                System.out.println("CONNECTED SESSION USER MAP: " + sessionUserMap);
-            }
-        }
+        Long userId = Long.valueOf(principal.getName());
+        String sessionId = accessor.getSessionId();
+        sessionUserMap.put(sessionId, userId);
+        System.out.println("CONNECTED SESSION USER MAP: " + sessionUserMap);
+
+        //StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        //Authentication auth = (Authentication) accessor.getUser();
+        //Object principal = auth.getPrincipal();
+        //if(principal instanceof UserDetailsImpl userDetails) {
+        //    String email = auth.getName();
+        //    Long userId = userDetails.getId();
+        //    String sessionId = accessor.getSessionId();
+        //    sessionUserMap.put(sessionId, userId);
+        //    presenceService.userOnline(userId);
+        //}
     }
 
     @EventListener
     public void handleSessionSubscribeEvent(SessionSubscribeEvent event) {
-//        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-//        Authentication auth = (Authentication) accessor.getUser();
-//        if (auth == null) System.out.println("SUBSCRIBE: AUTH IS NULL");
-//        String sessionId = accessor.getSessionId();
-//        Long userId = sessionUserMap.get(sessionId);
-//        if ("/topic/presence".equals(accessor.getDestination())) {
-//            presenceService.userOnline(userId);
-//        }
-
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = accessor.getSessionId();
         Long userId = sessionUserMap.get(sessionId);
@@ -84,17 +60,10 @@ public class StompEventListener {
             System.out.println("DESTINATION: " + accessor.getDestination());
             if (userId != null) presenceService.addOnlineUserId(userId);
         }
-
-//        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
-//        Principal principal = accessor.getUser();
-//        if (principal == null) System.out.println("SUBSCRIBE: PRINCIPAL IS NULL!!!!!");
-//        if (principal instanceof UsernamePasswordAuthenticationToken auth) {
-//            Object p = auth.getPrincipal();
-//            if (p instanceof UserDetailsImpl userDetails) {
-//                Long userId = userDetails.getId();
-//                if ("/topic/presence".equals(accessor.getDestination())) presenceService.addOnlineUserId(userId);
-//            }
-//        }
+        //SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
+        //Principal principal = accessor.getUser();
+        //Long userId = Long.valueOf(principal.getName());
+        //if ("/topic/presence".equals(accessor.getDestination())) presenceService.addOnlineUserId(userId);
     }
 
     @EventListener
