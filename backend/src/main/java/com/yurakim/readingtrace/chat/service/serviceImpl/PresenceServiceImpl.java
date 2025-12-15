@@ -15,13 +15,12 @@ public class PresenceServiceImpl implements PresenceService {
     private final SimpMessagingTemplate messagingTemplate;
     private final Set<Long> onlineUserIds = ConcurrentHashMap.newKeySet();
 
-
-    public void userOnline(Long userId) {
+    public void addOnlineUserId(Long userId) {
         onlineUserIds.add(userId);
         messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
     }
 
-    public void userOffline(Long userId) {
+    public void removeOnlineUserId(Long userId) {
         onlineUserIds.remove(userId);
         messagingTemplate.convertAndSend("/topic/presence", onlineUserIds);
     }

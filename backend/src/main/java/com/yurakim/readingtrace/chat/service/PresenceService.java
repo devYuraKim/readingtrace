@@ -2,8 +2,8 @@ package com.yurakim.readingtrace.chat.service;
 
 public interface PresenceService {
 
-    void userOnline(Long userId);
+    void addOnlineUserId(Long userId);
 
-    void userOffline(Long userId);
+    void removeOnlineUserId(Long userId);
 
 }
