@@ -95,7 +95,9 @@ public class JwtServiceImpl implements JwtService {
             UserDetailsImpl userDetails = new UserDetailsImpl(userId, email, null, AuthorityUtils.createAuthorityList(roles));
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         }catch(JwtException e){
-            throw new JwtException("Invalid access token received", e);
+            System.out.println("JWT FAILURE TYPE: " + e.getClass().getName());
+            System.out.println("JWT FAILURE MESSAGE: " + e.getMessage());
+            throw e;
         }
     }
 
