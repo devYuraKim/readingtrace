@@ -3,6 +3,7 @@ package com.yurakim.readingtrace.chat.controller;
 import com.yurakim.readingtrace.chat.dto.ChatMessageDto;
 import com.yurakim.readingtrace.chat.dto.DirectMessageDto;
 import com.yurakim.readingtrace.chat.listener.StompEventListener;
+import com.yurakim.readingtrace.chat.service.DirectMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -32,12 +33,17 @@ public class StompController {
     private final SimpMessagingTemplate simpleMessagingTemplate;
     private final StompEventListener stompEventListener;
 
+    private final DirectMessageService directMessageService;
+
     @MessageMapping("/dm")
     public void handleDirectMessage(@Payload DirectMessageDto dm, Principal principal) {
 
         //Let principal's userId be the single source of truth
         Long senderId = Long.valueOf(principal.getName());
-        if(!dm.getSenderId().equals(senderId)) {}
+        if(!dm.getSenderId().equals(senderId)) {
+            System.out.println("");
+        };
+        dm.setSenderId(senderId);
         Long receiverId = dm.getReceiverId();
 
 //        if (!userService.existsById(receiverId)) {
@@ -48,6 +54,7 @@ public class StompController {
 //            throw new IllegalArgumentException("Cannot DM yourself");
 //        }
 
+        directMessageService.saveDirectMessage(dm);
 
         simpleMessagingTemplate.convertAndSendToUser(
                 receiverId.toString(),
