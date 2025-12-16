@@ -38,11 +38,6 @@ const WebSocketProvider = () => {
             const onlineUserIds = JSON.parse(message.body);
             setOnlineUserIds(onlineUserIds);
           });
-
-          client.subscribe('/user/queue/dm', (message) => {
-            const dm = JSON.parse(message.body);
-            console.log('DM received:', dm);
-          });
         },
       });
       client.activate();

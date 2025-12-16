@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -5,6 +6,7 @@ import { useUserPresenceStore } from '@/store/useUserPresenceStore';
 import { useWebSocketStore } from '@/store/useWebSocketStore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserRoundMinus, UserRoundPlus } from 'lucide-react';
+import DirectMessage from './DirectMessage';
 
 const FriendDetails = () => {
   const queryClient = useQueryClient();
@@ -12,6 +14,9 @@ const FriendDetails = () => {
 
   const onlineUserIds = useUserPresenceStore((state) => state.onlineUserIds);
   const client = useWebSocketStore((state) => state.stompClient);
+
+  const [isDmOpen, setIsDmOpen] = useState(false);
+  const [profileUserId, setProfileUserId] = useState(0);
 
   const { data: profiles, isPending } = useQuery({
     queryKey: ['userProfilesExceptUserId', userId],
@@ -41,23 +46,14 @@ const FriendDetails = () => {
   };
 
   const handleUserClick = (profileUserId: number) => {
-    console.log('profile user id: ' + profileUserId);
-    console.log('logged in user id: ' + userId);
-
-    //for sending direct messages
-    client?.publish({
-      destination: '/app/dm',
-      body: JSON.stringify({
-        senderId: userId,
-        receiverId: profileUserId,
-        message: 'DIRECT MESSAGE TEST',
-      }),
-    });
+    setProfileUserId(profileUserId);
+    setIsDmOpen(true);
   };
 
   return (
     <div>
       FriendDetails
+      {isDmOpen && <DirectMessage receiverId={profileUserId} />}
       {!isPending &&
         profiles.map((profile) => (
           <div
