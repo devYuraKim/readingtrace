@@ -14,18 +14,35 @@ const DirectMessage = () => {
   const queryClient = useQueryClient();
 
   const [searchParams] = useSearchParams();
-
   const [message, setMessage] = useState('');
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
 
+  // NEW
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
+  // Observe whether bottom is visible
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'auto' });
+    if (!containerRef.current || !bottomRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsAtBottom(entry.isIntersecting);
+      },
+      {
+        root: containerRef.current,
+        threshold: 1.0,
+      },
+    );
+
+    observer.observe(bottomRef.current);
+    return () => observer.disconnect();
   }, []);
 
+  // WebSocket subscription
   useEffect(() => {
     if (!stompClient) return;
 
@@ -41,9 +58,7 @@ const DirectMessage = () => {
       );
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [stompClient, userId, receiverId, queryClient]);
 
   const { data: dms, isPending } = useQuery({
@@ -54,8 +69,29 @@ const DirectMessage = () => {
     },
   });
 
+  // Auto-scroll ONLY if user is already at bottom
+  useEffect(() => {
+    if (!dms?.length) return;
+
+    if (isAtBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [dms, isAtBottom]);
+
+  // Mark as read ONLY when bottom is visible
+  useEffect(() => {
+    if (!isAtBottom || !dms?.length) return;
+
+    const latest = dms[dms.length - 1];
+
+    apiClient.post(`/users/${userId}/dms/read`, {
+      senderId: receiverId,
+      receiverId: userId,
+      lastReadAt: latest.createdAt,
+    });
+  }, [isAtBottom, dms, receiverId, userId]);
+
   const handleClickSend = () => {
-    alert('button clicked');
     if (message.trim().length === 0) {
       toast.error('Message needed');
       return;
@@ -65,8 +101,8 @@ const DirectMessage = () => {
       destination: '/app/dm',
       body: JSON.stringify({
         senderId: userId,
-        receiverId: receiverId,
-        message: message,
+        receiverId,
+        message,
       }),
     });
 
@@ -75,28 +111,35 @@ const DirectMessage = () => {
 
   return (
     <div>
-      DirectMessage
-      {!isPending &&
-        dms?.map((dm) => (
-          <div key={dm.id} className="mb-2">
-            <div
-              className={`flex w-full ${
-                dm.senderId === userId ? 'justify-end' : 'justify-start'
-              }`}
-            >
+      {/* SCROLL CONTAINER */}
+      <div
+        ref={containerRef}
+        className="h-[500px] overflow-y-auto mt-3 scrollbar-hide"
+      >
+        {!isPending &&
+          dms?.map((dm) => (
+            <div key={dm.id} className="mb-2">
               <div
-                className={`inline-block max-w-[60%] px-3 py-1 rounded-lg mx-3 text-sm ${dm.senderId === userId ? 'bg-green-50' : 'bg-gray-50'}`}
+                className={`flex w-full ${
+                  dm.senderId === userId ? 'justify-end' : 'justify-start'
+                }`}
               >
-                {dm.message}
+                <div
+                  className={`inline-block max-w-[60%] px-3 py-1 rounded-lg mx-5 text-sm ${
+                    dm.senderId === userId ? 'bg-green-50' : 'bg-gray-50'
+                  }`}
+                >
+                  {dm.message}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      <div ref={bottomRef} />
-      <div className="flex mt-10 mb-5 gap-3 mx-3">
+          ))}
+        {/* BOTTOM SENTINEL */}
+        <div ref={bottomRef} />
+      </div>
+      <div className="flex mt-5 gap-3 mx-3">
         <Input value={message} onChange={(e) => setMessage(e.target.value)} />
         <Button
-          className="cursor-pointer"
           onClick={handleClickSend}
           disabled={message.trim().length === 0}
         >
