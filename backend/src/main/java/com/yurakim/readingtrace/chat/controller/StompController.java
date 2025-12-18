@@ -61,6 +61,12 @@ public class StompController {
                 "/queue/dm",
                 dm
         );
+
+        simpleMessagingTemplate.convertAndSendToUser(
+                senderId.toString(),
+                "/queue/dm",
+                dm
+        );
     }
 
     @MessageMapping("/support.sendMessage")

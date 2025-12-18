@@ -4,9 +4,11 @@ import com.yurakim.readingtrace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
+@Getter
 @Entity
 public class DirectMessage extends BaseEntity {
 

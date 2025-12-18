@@ -1,6 +1,5 @@
 import Landing from '@/pages/Landing';
 import LoginPage from '@/pages/LoginPage';
-import OnboardingPage from '@/pages/OnboardingPage';
 import SignupPage from '@/pages/SignupPage';
 import {
   createBrowserRouter,
@@ -11,6 +10,7 @@ import AuthProvider from '@/components/Auth/AuthProvider';
 import OAuth2Callback from '@/components/Auth/OAuth2Callback';
 import UserProfileProvider from '@/components/Auth/UserProfileProvider';
 import ChatDetails from '@/components/Community/ChatDetails';
+import DirectMessage from '@/components/Community/DirectMessage';
 import FriendDetails from '@/components/Community/FriendDetails';
 import MeetupDetails from '@/components/Community/MeetupDetails';
 import WebSocketProvider from '@/components/Community/WebSocketProvider';
@@ -57,6 +57,7 @@ const router = createBrowserRouter(
                 element={<UserBookNoteDetails />}
               />
               <Route path="community/friends" element={<FriendDetails />} />
+              <Route path="community/dm" element={<DirectMessage />} />
               <Route path="community/chats" element={<ChatDetails />} />
               <Route path="community/meetups" element={<MeetupDetails />} />
             </Route>
