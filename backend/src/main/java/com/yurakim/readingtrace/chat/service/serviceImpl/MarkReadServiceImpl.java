@@ -14,13 +14,14 @@ public class MarkReadServiceImpl implements MarkReadService {
     private final MarkReadRepository markReadRepository;
 
     @Override
-    public void saveMarkRead(MarkReadDto markReadDto) {
+    public MarkReadDto saveMarkRead(MarkReadDto markReadDto) {
         markReadRepository.save(MarkRead.builder()
                 .senderId(markReadDto.getSenderId())
                 .receiverId(markReadDto.getReceiverId())
                 .lastReadAt(markReadDto.getLastReadAt())
                 .build()
         );
+        return markReadDto;
     }
     
 }

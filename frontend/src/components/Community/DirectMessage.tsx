@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useWebSocketStore } from '@/store/useWebSocketStore';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Send } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -15,6 +15,7 @@ const DirectMessage = () => {
 
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState('');
+  const [lastReadAt, setLastReadAt] = useState('');
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
@@ -78,18 +79,32 @@ const DirectMessage = () => {
     }
   }, [dms, isAtBottom]);
 
-  // Mark as read ONLY when bottom is visible
+  const { mutateAsync } = useMutation({
+    mutationKey: ['saveLastReadAt', userId, receiverId],
+    mutationFn: async () => {
+      const latest = dms[dms.length - 1];
+      const res = await apiClient.post(`/users/${userId}/dms/read`, {
+        senderId: receiverId,
+        receiverId: userId,
+        lastReadAt: latest.createdAt,
+      });
+      return res.data;
+    },
+  });
+
   useEffect(() => {
     if (!isAtBottom || !dms?.length) return;
 
-    const latest = dms[dms.length - 1];
-
-    apiClient.post(`/users/${userId}/dms/read`, {
-      senderId: receiverId,
-      receiverId: userId,
-      lastReadAt: latest.createdAt,
-    });
-  }, [isAtBottom, dms, receiverId, userId]);
+    const markAsRead = async () => {
+      try {
+        const response = await mutateAsync();
+        setLastReadAt(response.lastReadAt);
+      } catch (err) {
+        console.error('Failed to save lastReadAt', err);
+      }
+    };
+    markAsRead();
+  }, [isAtBottom, dms, mutateAsync]);
 
   const handleClickSend = () => {
     if (message.trim().length === 0) {
@@ -131,6 +146,11 @@ const DirectMessage = () => {
                 >
                   {dm.message}
                 </div>
+                {dm.createdAt <= lastReadAt ? (
+                  <div>READ</div>
+                ) : (
+                  <div>UNREAD</div>
+                )}
               </div>
             </div>
           ))}

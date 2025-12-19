@@ -27,10 +27,10 @@ public class DirectMessageController {
     }
 
     @PostMapping("/read")
-    public ResponseEntity<Void> markRead(@PathVariable("userId") Long senderId, @RequestBody MarkReadDto markReadDto) {
+    public ResponseEntity<MarkReadDto> markRead(@PathVariable("userId") Long senderId, @RequestBody MarkReadDto markReadDto) {
         markReadDto.setSenderId(senderId);
-        markReadService.saveMarkRead(markReadDto);
-        return ResponseEntity.ok().build();
+        MarkReadDto responseMarkReadDto = markReadService.saveMarkRead(markReadDto);
+        return ResponseEntity.ok(responseMarkReadDto);
     }
 
 }
