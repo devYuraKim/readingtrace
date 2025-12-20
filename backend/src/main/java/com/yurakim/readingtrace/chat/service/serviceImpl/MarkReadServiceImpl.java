@@ -16,9 +16,9 @@ public class MarkReadServiceImpl implements MarkReadService {
     @Override
     public MarkReadDto saveMarkRead(MarkReadDto markReadDto) {
         markReadRepository.save(MarkRead.builder()
-                .senderId(markReadDto.getSenderId())
-                .receiverId(markReadDto.getReceiverId())
-                .lastReadAt(markReadDto.getLastReadAt())
+                .scrolledUserId(markReadDto.getScrolledUserId())
+                .notifiedUserId(markReadDto.getNotifiedUserId())
+                .scrolledAt(markReadDto.getScrolledAt())
                 .build()
         );
         return markReadDto;

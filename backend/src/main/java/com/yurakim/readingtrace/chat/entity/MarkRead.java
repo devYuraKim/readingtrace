@@ -17,18 +17,18 @@ public class MarkRead {
     private Long id;
 
     @Column(nullable = false)
-    private Long senderId;
+    private Long scrolledUserId;
 
     @Column(nullable = false)
-    private Long receiverId;
+    private Long notifiedUserId;
 
-    private LocalDateTime lastReadAt;
+    private LocalDateTime scrolledAt;
 
     @Builder
-    public MarkRead(Long senderId, Long receiverId, LocalDateTime lastReadAt) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.lastReadAt = lastReadAt;
+    public MarkRead(Long scrolledUserId, Long notifiedUserId, LocalDateTime scrolledAt) {
+        this.scrolledUserId = scrolledUserId;
+        this.notifiedUserId = notifiedUserId;
+        this.scrolledAt = scrolledAt;
     }
 
 }

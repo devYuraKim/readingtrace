@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MarkReadDto {
 
-    Long senderId;
-    Long receiverId;
-    LocalDateTime lastReadAt;
+    Long scrolledUserId;
+    Long notifiedUserId;
+    LocalDateTime scrolledAt;
 
 }

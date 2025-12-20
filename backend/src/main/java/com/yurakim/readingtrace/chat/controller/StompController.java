@@ -2,8 +2,10 @@ package com.yurakim.readingtrace.chat.controller;
 
 import com.yurakim.readingtrace.chat.dto.ChatMessageDto;
 import com.yurakim.readingtrace.chat.dto.DirectMessageDto;
+import com.yurakim.readingtrace.chat.dto.MarkReadDto;
 import com.yurakim.readingtrace.chat.listener.StompEventListener;
 import com.yurakim.readingtrace.chat.service.DirectMessageService;
+import com.yurakim.readingtrace.chat.service.MarkReadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -34,6 +36,7 @@ public class StompController {
     private final StompEventListener stompEventListener;
 
     private final DirectMessageService directMessageService;
+    private final MarkReadService markReadService;
 
     @MessageMapping("/dm")
     public void handleDirectMessage(@Payload DirectMessageDto dm, Principal principal) {
@@ -66,6 +69,18 @@ public class StompController {
                 senderId.toString(),
                 "/queue/dm",
                 dm
+        );
+    }
+
+    @MessageMapping("/dm/read")
+    public void updateLastReadAt(MarkReadDto markReadDto, Principal principal) {
+        Long scrolledUserId = Long.valueOf(principal.getName());
+        markReadDto.setScrolledUserId(scrolledUserId);
+        markReadService.saveMarkRead(markReadDto);
+        simpleMessagingTemplate.convertAndSendToUser(
+                markReadDto.getNotifiedUserId().toString(),
+                "/queue/read",
+                markReadDto
         );
     }
 

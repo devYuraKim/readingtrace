@@ -27,8 +27,8 @@ public class DirectMessageController {
     }
 
     @PostMapping("/read")
-    public ResponseEntity<MarkReadDto> markRead(@PathVariable("userId") Long senderId, @RequestBody MarkReadDto markReadDto) {
-        markReadDto.setSenderId(senderId);
+    public ResponseEntity<MarkReadDto> markRead(@PathVariable("userId") Long scrolledUserId, @RequestBody MarkReadDto markReadDto) {
+        markReadDto.setScrolledUserId(scrolledUserId);
         MarkReadDto responseMarkReadDto = markReadService.saveMarkRead(markReadDto);
         return ResponseEntity.ok(responseMarkReadDto);
     }

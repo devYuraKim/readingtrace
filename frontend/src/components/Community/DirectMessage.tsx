@@ -15,7 +15,6 @@ const DirectMessage = () => {
 
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState('');
-  const [lastReadAt, setLastReadAt] = useState('');
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
@@ -24,6 +23,20 @@ const DirectMessage = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(false);
+
+  const [isPageActive, setIsPageActive] = useState(true);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPageActive(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Observe whether bottom is visible
   useEffect(() => {
@@ -53,14 +66,45 @@ const DirectMessage = () => {
       queryClient.setQueryData(
         ['dms', userId, receiverId],
         (old: any[] | undefined) => {
-          if (!old) return [dm];
-          return [...old, dm];
+          if (!old) return [{ ...dm, read: dm.read || false }]; // first message
+          return [
+            ...old.map((m) => ({ ...m, read: m.read || false })), // existing messages
+            { ...dm, read: dm.read || false }, // append new message with read
+          ];
         },
       );
     });
 
     return () => subscription.unsubscribe();
   }, [stompClient, userId, receiverId, queryClient]);
+
+  // WebSocket subscription for read receipts
+  useEffect(() => {
+    if (!stompClient) return;
+
+    const subscription = stompClient.subscribe(
+      '/user/queue/read',
+      (message) => {
+        const readReceipt = JSON.parse(message.body);
+
+        queryClient.setQueryData(
+          ['dms', userId, receiverId],
+          (old: any[] | undefined) => {
+            if (!old) return [];
+            return old.map((dm) =>
+              dm.senderId === userId &&
+              new Date(dm.createdAt).getTime() <=
+                new Date(readReceipt.scrolledAt).getTime()
+                ? { ...dm, read: true }
+                : dm,
+            );
+          },
+        );
+      },
+    );
+
+    return () => subscription.unsubscribe();
+  }, [stompClient, receiverId, userId, queryClient]);
 
   const { data: dms, isPending } = useQuery({
     queryKey: ['dms', userId, receiverId],
@@ -84,27 +128,73 @@ const DirectMessage = () => {
     mutationFn: async () => {
       const latest = dms[dms.length - 1];
       const res = await apiClient.post(`/users/${userId}/dms/read`, {
-        senderId: receiverId,
-        receiverId: userId,
-        lastReadAt: latest.createdAt,
+        scrolledUserId: userId,
+        notifiedUserId: receiverId,
+        scrolledAt: latest.createdAt,
       });
       return res.data;
     },
   });
 
   useEffect(() => {
-    if (!isAtBottom || !dms?.length) return;
+    if (!isAtBottom || !dms?.length || !isPageActive) return;
 
-    const markAsRead = async () => {
-      try {
-        const response = await mutateAsync();
-        setLastReadAt(response.lastReadAt);
-      } catch (err) {
-        console.error('Failed to save lastReadAt', err);
-      }
-    };
-    markAsRead();
+    const now = new Date();
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const localDateTimeString =
+      now.getFullYear() +
+      '-' +
+      pad(now.getMonth() + 1) +
+      '-' +
+      pad(now.getDate()) +
+      'T' +
+      pad(now.getHours()) +
+      ':' +
+      pad(now.getMinutes()) +
+      ':' +
+      pad(now.getSeconds());
+
+    console.log(localDateTimeString);
+
+    stompClient?.publish({
+      destination: '/app/dm/read',
+      body: JSON.stringify({
+        scrolledUserId: userId,
+        notifiedUserId: receiverId,
+        scrolledAt: localDateTimeString,
+      }),
+    });
+
+    // const markAsRead = async () => {
+    //   try {
+    //     const response = await mutateAsync();
+    //     setLastReadAt(response.lastReadAt);
+    //   } catch (err) {
+    //     console.error('Failed to save lastReadAt', err);
+    //   }
+    // };
+    // markAsRead();
   }, [isAtBottom, dms, mutateAsync]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      if (!dms?.length) return;
+      const latest = dms[dms.length - 1];
+      stompClient?.publish({
+        destination: '/app/dm/read',
+        body: JSON.stringify({
+          scrolledUserId: userId,
+          notifiedUserId: receiverId,
+          scrolledAt: latest.createdAt,
+        }),
+      });
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [dms]);
 
   const handleClickSend = () => {
     if (message.trim().length === 0) {
@@ -135,22 +225,24 @@ const DirectMessage = () => {
           dms?.map((dm) => (
             <div key={dm.id} className="mb-2">
               <div
-                className={`flex w-full ${
+                className={`flex w-full items-center gap-2 ${
                   dm.senderId === userId ? 'justify-end' : 'justify-start'
                 }`}
               >
+                {dm.senderId === userId && (
+                  <div className="text-xs text-gray-400">
+                    {dm.read ? '' : 'unread'}
+                  </div>
+                )}
                 <div
-                  className={`inline-block max-w-[60%] px-3 py-1 rounded-lg mx-5 text-sm ${
-                    dm.senderId === userId ? 'bg-green-50' : 'bg-gray-50'
+                  className={`inline-block max-w-[60%] px-3 py-1 rounded-xl text-sm shadow-sm ${
+                    dm.senderId === userId
+                      ? 'bg-green-50 rounded-br-none'
+                      : 'bg-gray-50 rounded-bl-none'
                   }`}
                 >
                   {dm.message}
                 </div>
-                {dm.createdAt <= lastReadAt ? (
-                  <div>READ</div>
-                ) : (
-                  <div>UNREAD</div>
-                )}
               </div>
             </div>
           ))}
