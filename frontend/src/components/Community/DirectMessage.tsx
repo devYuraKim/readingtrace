@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useWebSocketStore } from '@/store/useWebSocketStore';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Send } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -10,22 +10,22 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
 const DirectMessage = () => {
+  const [searchParams] = useSearchParams();
+
   const stompClient = useWebSocketStore((state) => state.stompClient);
   const queryClient = useQueryClient();
 
-  const [searchParams] = useSearchParams();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
   const [message, setMessage] = useState('');
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isPageActive, setIsPageActive] = useState(true);
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
 
-  // NEW
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-
-  const [isPageActive, setIsPageActive] = useState(true);
-
+  // ========== PAGE VISIBILITY ==========
   useEffect(() => {
     const handleVisibilityChange = () => {
       setIsPageActive(!document.hidden);
@@ -38,7 +38,7 @@ const DirectMessage = () => {
     };
   }, []);
 
-  // Observe whether bottom is visible
+  // ========== BOTTOM OBSERVER ==========
   useEffect(() => {
     if (!containerRef.current || !bottomRef.current) return;
 
@@ -56,7 +56,7 @@ const DirectMessage = () => {
     return () => observer.disconnect();
   }, []);
 
-  // WebSocket subscription
+  // ========== WEB SOCKET SUBSCRIPTION FOR DM RECEPTION ==========
   useEffect(() => {
     if (!stompClient) return;
 
@@ -78,14 +78,14 @@ const DirectMessage = () => {
     return () => subscription.unsubscribe();
   }, [stompClient, userId, receiverId, queryClient]);
 
-  // WebSocket subscription for read receipts
+  // ========== WEB SOCKET SUBSCRIPTION FOR LAST ROLLED AT RECEPTION ==========
   useEffect(() => {
     if (!stompClient) return;
 
     const subscription = stompClient.subscribe(
       '/user/queue/read',
       (message) => {
-        const readReceipt = JSON.parse(message.body);
+        const markReadDto = JSON.parse(message.body);
 
         queryClient.setQueryData(
           ['dms', userId, receiverId],
@@ -94,7 +94,7 @@ const DirectMessage = () => {
             return old.map((dm) =>
               dm.senderId === userId &&
               new Date(dm.createdAt).getTime() <=
-                new Date(readReceipt.scrolledAt).getTime()
+                new Date(markReadDto.scrolledAt).getTime()
                 ? { ...dm, read: true }
                 : dm,
             );
@@ -102,10 +102,10 @@ const DirectMessage = () => {
         );
       },
     );
-
     return () => subscription.unsubscribe();
   }, [stompClient, receiverId, userId, queryClient]);
 
+  // ========== FETCH PAST DMS ==========
   const { data: dms, isPending } = useQuery({
     queryKey: ['dms', userId, receiverId],
     queryFn: async () => {
@@ -114,7 +114,7 @@ const DirectMessage = () => {
     },
   });
 
-  // Auto-scroll ONLY if user is already at bottom
+  // ========== AUTO SCROLL ==========
   useEffect(() => {
     if (!dms?.length) return;
 
@@ -123,24 +123,11 @@ const DirectMessage = () => {
     }
   }, [dms, isAtBottom]);
 
-  const { mutateAsync } = useMutation({
-    mutationKey: ['saveLastReadAt', userId, receiverId],
-    mutationFn: async () => {
-      const latest = dms[dms.length - 1];
-      const res = await apiClient.post(`/users/${userId}/dms/read`, {
-        scrolledUserId: userId,
-        notifiedUserId: receiverId,
-        scrolledAt: latest.createdAt,
-      });
-      return res.data;
-    },
-  });
-
+  // ========== SAVE LAST SCROLLED AT ON SCROLL REACHING THE BOTTOM ==========
   useEffect(() => {
     if (!isAtBottom || !dms?.length || !isPageActive) return;
 
     const now = new Date();
-
     const pad = (n: number) => n.toString().padStart(2, '0');
 
     const localDateTimeString =
@@ -156,8 +143,6 @@ const DirectMessage = () => {
       ':' +
       pad(now.getSeconds());
 
-    console.log(localDateTimeString);
-
     stompClient?.publish({
       destination: '/app/dm/read',
       body: JSON.stringify({
@@ -166,18 +151,9 @@ const DirectMessage = () => {
         scrolledAt: localDateTimeString,
       }),
     });
+  }, [isAtBottom, dms, isPageActive, userId, receiverId, stompClient]);
 
-    // const markAsRead = async () => {
-    //   try {
-    //     const response = await mutateAsync();
-    //     setLastReadAt(response.lastReadAt);
-    //   } catch (err) {
-    //     console.error('Failed to save lastReadAt', err);
-    //   }
-    // };
-    // markAsRead();
-  }, [isAtBottom, dms, mutateAsync]);
-
+  // ?????
   useEffect(() => {
     const handleFocus = () => {
       if (!dms?.length) return;
@@ -196,6 +172,7 @@ const DirectMessage = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [dms]);
 
+  // ========== SEND DM ==========
   const handleClickSend = () => {
     if (message.trim().length === 0) {
       toast.error('Message needed');
