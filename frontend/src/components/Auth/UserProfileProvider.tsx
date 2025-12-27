@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import OnboardingPage from '@/pages/OnboardingPage';
 import { apiClient } from '@/queries/axios';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -8,32 +8,39 @@ import { Spinner } from '../ui/spinner';
 const UserProfileProvider = () => {
   const user = useAuthStore((state) => state.user);
   const userProfile = useAuthStore((state) => state.userProfile);
-  const isUserProfileSet = useAuthStore((state) => state.isUserProfileSet);
   const setUserProfile = useAuthStore((state) => state.setUserProfile);
-  const SetIsUserProfileSet = useAuthStore(
-    (state) => state.setIsUserProfileSet,
-  );
+
+  const [isUserProfileLoading, setIsUserProfileLoading] = useState(true);
 
   useEffect(() => {
     if (user && !userProfile) {
+      setIsUserProfileLoading(true);
       apiClient
         .get(`/users/${user.userId}/profile`)
         .then((res) => {
           setUserProfile(res.data);
-          SetIsUserProfileSet();
         })
         .catch((err) => {
           console.error('Failed to load user profile', err);
-        });
+        })
+        .finally(() => setIsUserProfileLoading(false));
+    } else {
+      setIsUserProfileLoading(false);
     }
-  }, [user, userProfile, setUserProfile, SetIsUserProfileSet]);
+  }, [user, userProfile, setUserProfile]);
 
-  if (!isUserProfileSet) return <Spinner />;
+  if (isUserProfileLoading)
+    return (
+      <>
+        UserProfileProvider
+        <Spinner />
+      </>
+    );
 
-  if (isUserProfileSet && !userProfile?.isOnboardingCompleted)
+  if (userProfile && !userProfile.isOnboardingCompleted)
     return <OnboardingPage />;
 
-  if (isUserProfileSet && userProfile?.isOnboardingCompleted) return <Outlet />;
+  return <Outlet />;
 };
 
 export default UserProfileProvider;
