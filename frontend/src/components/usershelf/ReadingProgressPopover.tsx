@@ -5,6 +5,7 @@ import { ReadingProgressPopoverProps } from '@/types/props.types';
 import { PopoverContent } from '@radix-ui/react-popover';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MoveLeft, PercentCircle, StickyNote, Trophy, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
@@ -39,6 +40,20 @@ export const ReadingProgressPopover = ({
   };
 
   const handleClickUpdate = () => {
+    if (page > totalPages) {
+      toast.error('Your current page cannot exceed total pages!');
+      setPage(totalPages);
+      setPercent(100);
+      return;
+    }
+
+    if (page <= 0) {
+      toast.error('Your current pages cannot be less than 0');
+      setPage(1);
+      setPercent(Number(((1 / totalPages) * 100).toFixed(1)));
+      return;
+    }
+
     apiClient.post(`/users/${userId}/books/progress`, {
       userId: userId,
       bookId: bookId,
