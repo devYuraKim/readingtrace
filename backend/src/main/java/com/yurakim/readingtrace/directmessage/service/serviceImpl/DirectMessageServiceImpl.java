@@ -41,18 +41,4 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         directMessageRepository.save(directMessage);
     }
 
-    @Override
-    public List<DirectMessageDto> getAllDirectMessages(Long senderId, Long receiverId) {
-        List<DirectMessage> directMessages = directMessageRepository.findConversationBetweenUsers(senderId, receiverId);
-        return directMessages.stream().map(dm -> {
-            return DirectMessageDto.builder()
-                    .dmId(dm.getId())
-                    .message(dm.getMessage())
-                    .senderId(dm.getSenderId())
-                    .receiverId(dm.getReceiverId())
-                    .createdAt(dm.getCreatedAt())
-                    .build();
-        }).toList();
-    }
-
 }

@@ -9,6 +9,4 @@ public interface DirectMessageService {
 
     void saveDirectMessage(DirectMessageDto directMessageDto);
 
-    List<DirectMessageDto> getAllDirectMessages(Long senderId, Long receiverId);
-
 }

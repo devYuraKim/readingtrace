@@ -29,13 +29,6 @@ public class DirectMessageController {
         return ResponseEntity.ok(directMessageDtos);
     }
 
-    //TODO: create DirectMessageRequest Dto
-//    @GetMapping
-//    public ResponseEntity<List<DirectMessageDto>> getAllDirectMessages(@PathVariable("userId") Long senderId, @RequestParam("to") Long receiverId) {
-//        List<DirectMessageDto> directMessageDtos = directMessageService.getAllDirectMessages(senderId, receiverId);
-//        return ResponseEntity.ok(directMessageDtos);
-//    }
-
     @PostMapping("/read")
     public ResponseEntity<MarkReadDto> markRead(@PathVariable("userId") Long scrolledUserId, @RequestBody MarkReadDto markReadDto) {
         markReadDto.setScrolledUserId(scrolledUserId);
