@@ -31,6 +31,7 @@ const DirectMessage = () => {
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [isPageActive, setIsPageActive] = useState(true);
   const [hasLoadedInitial, setHasLoadedInitial] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
@@ -43,6 +44,7 @@ const DirectMessage = () => {
   const { data: newPage, isPending } = useQuery<DirectMessageDto[], Error>({
     queryKey: ['dms', userId, receiverId, offset],
     queryFn: async () => {
+      if (!hasMore) return [];
       const res = await apiClient.get<DirectMessageDto[]>(
         `/users/${userId}/dms?to=${receiverId}&limit=${LIMIT}&offset=${offset}`,
       );
@@ -81,6 +83,10 @@ const DirectMessage = () => {
         });
       });
     }
+
+    if (newPage.length < LIMIT) {
+      setHasMore(false);
+    }
   }, [newPage, hasLoadedInitial]);
 
   // ========== PAGE VISIBILITY ==========
@@ -111,7 +117,7 @@ const DirectMessage = () => {
 
   // ========== TOP OBSERVER ==========
   const handleScroll = () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !hasMore) return;
     if (containerRef.current.scrollTop === 0) {
       setOffset((prev) => prev + LIMIT);
     }
@@ -232,6 +238,15 @@ const DirectMessage = () => {
       >
         {/* TOP SENTINEL */}
         <div ref={topRef} />
+        {!hasMore && (
+          <div className="flex items-center mb-5 text-gray-500 text-xs">
+            <hr className="flex-grow border-t border-gray-200" />
+            <span className="px-4 py-2 rounded-full bg-gray-100">
+              Start of messages
+            </span>
+            <hr className="flex-grow border-t border-gray-200" />
+          </div>
+        )}
         {!isPending &&
           messages.map((dm) => (
             <div key={dm.id} className="mb-2">
@@ -246,10 +261,10 @@ const DirectMessage = () => {
                   </div>
                 )}
                 <div
-                  className={`inline-block max-w-[60%] px-3 py-1 rounded-xl text-sm shadow-sm ${
+                  className={`inline-block max-w-[60%] my-1.5 px-3 py-1 rounded-xl text-sm shadow-sm ${
                     dm.senderId === userId
-                      ? 'bg-green-50 rounded-br-none'
-                      : 'bg-gray-50 rounded-bl-none'
+                      ? 'bg-green-50 rounded-br-none mr-6'
+                      : 'bg-gray-50 rounded-bl-none ml-3'
                   }`}
                 >
                   {dm.message}
