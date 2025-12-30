@@ -19,12 +19,22 @@ public class DirectMessageController {
     private final DirectMessageService directMessageService;
     private final MarkReadService markReadService;
 
-    //TODO: create DirectMessageRequest Dto
     @GetMapping
-    public ResponseEntity<List<DirectMessageDto>> getAllDirectMessages(@PathVariable("userId") Long senderId, @RequestParam("to") Long receiverId) {
-        List<DirectMessageDto> directMessageDtos = directMessageService.getAllDirectMessages(senderId, receiverId);
+    public ResponseEntity<List<DirectMessageDto>> getChunkedDirectMessages(
+            @PathVariable("userId") Long senderId,
+            @RequestParam("to") Long receiverId,
+            @RequestParam(defaultValue = "50") int limit,
+            @RequestParam(defaultValue = "0") int offset){
+        List<DirectMessageDto> directMessageDtos = directMessageService.getChunkedDirectMessages(senderId, receiverId, limit, offset);
         return ResponseEntity.ok(directMessageDtos);
     }
+
+    //TODO: create DirectMessageRequest Dto
+//    @GetMapping
+//    public ResponseEntity<List<DirectMessageDto>> getAllDirectMessages(@PathVariable("userId") Long senderId, @RequestParam("to") Long receiverId) {
+//        List<DirectMessageDto> directMessageDtos = directMessageService.getAllDirectMessages(senderId, receiverId);
+//        return ResponseEntity.ok(directMessageDtos);
+//    }
 
     @PostMapping("/read")
     public ResponseEntity<MarkReadDto> markRead(@PathVariable("userId") Long scrolledUserId, @RequestBody MarkReadDto markReadDto) {

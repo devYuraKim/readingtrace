@@ -25,6 +25,20 @@ const DirectMessage = () => {
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
 
+  const limit = 50;
+  let offset = 0;
+
+  // ========== FETCH PAST DMS ==========
+  const { data: dms, isPending } = useQuery({
+    queryKey: ['dms', userId, receiverId],
+    queryFn: async () => {
+      const res = await apiClient.get(
+        `/users/${userId}/dms?to=${receiverId}&limit=${limit}&offset=${offset}`,
+      );
+      return res.data;
+    },
+  });
+
   // ========== PAGE VISIBILITY ==========
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -104,15 +118,6 @@ const DirectMessage = () => {
     );
     return () => subscription.unsubscribe();
   }, [stompClient, receiverId, userId, queryClient]);
-
-  // ========== FETCH PAST DMS ==========
-  const { data: dms, isPending } = useQuery({
-    queryKey: ['dms', userId, receiverId],
-    queryFn: async () => {
-      const res = await apiClient.get(`/users/${userId}/dms?to=${receiverId}`);
-      return res.data;
-    },
-  });
 
   // ========== AUTO SCROLL ==========
   useEffect(() => {

@@ -5,6 +5,9 @@ import com.yurakim.readingtrace.directmessage.entity.DirectMessage;
 import com.yurakim.readingtrace.directmessage.repository.DirectMessageRepository;
 import com.yurakim.readingtrace.directmessage.service.DirectMessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -13,6 +16,19 @@ import java.util.List;
 public class DirectMessageServiceImpl implements DirectMessageService {
 
     private final DirectMessageRepository directMessageRepository;
+
+    @Override
+    public List<DirectMessageDto> getChunkedDirectMessages(Long senderId, Long receiverId, int limit, int offset) {
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by("createdAt").ascending());
+        List<DirectMessage> directMessages = directMessageRepository.findChunkedConversationBetweenUsers(senderId, receiverId, pageable);
+        return directMessages.stream().map(dm -> DirectMessageDto.builder()
+                .dmId(dm.getId())
+                .message(dm.getMessage())
+                .senderId(dm.getSenderId())
+                .receiverId(dm.getReceiverId())
+                .createdAt(dm.getCreatedAt())
+                .build()).toList();
+    }
 
     @Override
     public void saveDirectMessage(DirectMessageDto directMessageDto) {
