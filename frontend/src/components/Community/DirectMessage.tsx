@@ -9,6 +9,14 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
+type DirectMessageDto = {
+  dmId: number;
+  senderId: number;
+  receiverId: number;
+  message: string;
+  createdAt: string;
+};
+
 const DirectMessage = () => {
   const [searchParams] = useSearchParams();
 
@@ -17,39 +25,70 @@ const DirectMessage = () => {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const topRef = useRef<HTMLDivElement | null>(null);
 
   const [message, setMessage] = useState('');
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [isPageActive, setIsPageActive] = useState(true);
+  const [hasLoadedInitial, setHasLoadedInitial] = useState(false);
 
   const userId = useAuthStore((state) => state.user?.userId);
   const receiverId = Number(searchParams.get('to'));
 
-  const limit = 50;
-  let offset = 0;
+  const LIMIT = 50;
+  const [offset, setOffset] = useState(0);
+  const [messages, setMessages] = useState<DirectMessageDto[]>([]);
 
   // ========== FETCH PAST DMS ==========
-  const { data: dms, isPending } = useQuery({
-    queryKey: ['dms', userId, receiverId],
+  const { data: newPage, isPending } = useQuery<DirectMessageDto[], Error>({
+    queryKey: ['dms', userId, receiverId, offset],
     queryFn: async () => {
-      const res = await apiClient.get(
-        `/users/${userId}/dms?to=${receiverId}&limit=${limit}&offset=${offset}`,
+      const res = await apiClient.get<DirectMessageDto[]>(
+        `/users/${userId}/dms?to=${receiverId}&limit=${LIMIT}&offset=${offset}`,
       );
       return res.data;
     },
+    placeholderData: messages,
   });
+
+  // Prepend older messages whenever a new page arrives
+  useEffect(() => {
+    if (!newPage?.length || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    if (!hasLoadedInitial) {
+      // First load → scroll to bottom
+      setMessages(newPage);
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
+      setHasLoadedInitial(true);
+    } else {
+      // Prepending older messages
+      const scrollHeightBefore = container.scrollHeight;
+
+      setMessages((prev) => {
+        const existingIds = new Set(prev.map((m) => m.dmId));
+        const filteredNew = newPage.filter((m) => !existingIds.has(m.dmId));
+        return [...filteredNew, ...prev];
+      });
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const scrollHeightAfter = container.scrollHeight;
+          container.scrollTop += scrollHeightAfter - scrollHeightBefore;
+        });
+      });
+    }
+  }, [newPage, hasLoadedInitial]);
 
   // ========== PAGE VISIBILITY ==========
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      setIsPageActive(!document.hidden);
-    };
-
+    const handleVisibilityChange = () => setIsPageActive(!document.hidden);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
+    return () =>
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, []);
 
   // ========== BOTTOM OBSERVER ==========
@@ -70,21 +109,34 @@ const DirectMessage = () => {
     return () => observer.disconnect();
   }, []);
 
-  // ========== WEB SOCKET SUBSCRIPTION FOR DM RECEPTION ==========
+  // ========== TOP OBSERVER ==========
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    if (containerRef.current.scrollTop === 0) {
+      setOffset((prev) => prev + LIMIT);
+    }
+  };
+
+  useEffect(() => {
+    containerRef.current?.addEventListener('scroll', handleScroll);
+    return () =>
+      containerRef.current?.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // ========== WEBSOCKET SUBSCRIPTION FOR NEW DMS ==========
   useEffect(() => {
     if (!stompClient) return;
 
     const subscription = stompClient.subscribe('/user/queue/dm', (message) => {
-      const dm = JSON.parse(message.body);
+      const dm: DirectMessageDto = JSON.parse(message.body);
 
-      queryClient.setQueryData(
+      setMessages((prev) => [...prev, dm]);
+
+      queryClient.setQueryData<DirectMessageDto[]>(
         ['dms', userId, receiverId],
-        (old: any[] | undefined) => {
-          if (!old) return [{ ...dm, read: dm.read || false }]; // first message
-          return [
-            ...old.map((m) => ({ ...m, read: m.read || false })), // existing messages
-            { ...dm, read: dm.read || false }, // append new message with read
-          ];
+        (old) => {
+          if (!old) return [dm];
+          return [...old, dm];
         },
       );
     });
@@ -92,7 +144,7 @@ const DirectMessage = () => {
     return () => subscription.unsubscribe();
   }, [stompClient, userId, receiverId, queryClient]);
 
-  // ========== WEB SOCKET SUBSCRIPTION FOR LAST ROLLED AT RECEPTION ==========
+  // ========== WEBSOCKET SUBSCRIPTION FOR READ STATUS ==========
   useEffect(() => {
     if (!stompClient) return;
 
@@ -101,36 +153,30 @@ const DirectMessage = () => {
       (message) => {
         const markReadDto = JSON.parse(message.body);
 
-        queryClient.setQueryData(
-          ['dms', userId, receiverId],
-          (old: any[] | undefined) => {
-            if (!old) return [];
-            return old.map((dm) =>
-              dm.senderId === userId &&
-              new Date(dm.createdAt).getTime() <=
-                new Date(markReadDto.scrolledAt).getTime()
-                ? { ...dm, read: true }
-                : dm,
-            );
-          },
+        setMessages((prev) =>
+          prev.map((dm) =>
+            dm.senderId === userId &&
+            new Date(dm.createdAt).getTime() <=
+              new Date(markReadDto.scrolledAt).getTime()
+              ? { ...dm, read: true }
+              : dm,
+          ),
         );
       },
     );
+
     return () => subscription.unsubscribe();
-  }, [stompClient, receiverId, userId, queryClient]);
+  }, [stompClient, userId]);
 
   // ========== AUTO SCROLL ==========
   useEffect(() => {
-    if (!dms?.length) return;
-
-    if (isAtBottom) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [dms, isAtBottom]);
+    if (!messages.length) return;
+    if (isAtBottom) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isAtBottom]);
 
   // ========== SAVE LAST SCROLLED AT ON SCROLL REACHING THE BOTTOM ==========
   useEffect(() => {
-    if (!isAtBottom || !dms?.length || !isPageActive) return;
+    if (!isAtBottom || !messages.length || !isPageActive) return;
 
     const now = new Date();
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -156,30 +202,11 @@ const DirectMessage = () => {
         scrolledAt: localDateTimeString,
       }),
     });
-  }, [isAtBottom, dms, isPageActive, userId, receiverId, stompClient]);
-
-  // ?????
-  useEffect(() => {
-    const handleFocus = () => {
-      if (!dms?.length) return;
-      const latest = dms[dms.length - 1];
-      stompClient?.publish({
-        destination: '/app/dm/read',
-        body: JSON.stringify({
-          scrolledUserId: userId,
-          notifiedUserId: receiverId,
-          scrolledAt: latest.createdAt,
-        }),
-      });
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [dms]);
+  }, [isAtBottom, messages, isPageActive, userId, receiverId, stompClient]);
 
   // ========== SEND DM ==========
   const handleClickSend = () => {
-    if (message.trim().length === 0) {
+    if (!message.trim()) {
       toast.error('Message needed');
       return;
     }
@@ -203,8 +230,10 @@ const DirectMessage = () => {
         ref={containerRef}
         className="h-[500px] overflow-y-auto mt-3 scrollbar-hide"
       >
+        {/* TOP SENTINEL */}
+        <div ref={topRef} />
         {!isPending &&
-          dms?.map((dm) => (
+          messages.map((dm) => (
             <div key={dm.id} className="mb-2">
               <div
                 className={`flex w-full items-center gap-2 ${
