@@ -227,13 +227,13 @@ const DirectMessage = () => {
     });
 
     setMessage('');
-  };
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: 'smooth',
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      });
     });
-  }, [messages.length]);
+  };
 
   return (
     <div>
