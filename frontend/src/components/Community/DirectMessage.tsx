@@ -7,7 +7,7 @@ import { Send } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 
 type DirectMessageDto = {
   dmId: number;
@@ -282,7 +282,17 @@ const DirectMessage = () => {
         <div ref={bottomRef} />
       </div>
       <div className="flex mt-5 gap-3 mx-3">
-        <Input value={message} onChange={(e) => setMessage(e.target.value)} />
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="resize-none overflow-y-auto p-3 !min-h-[1rem] !max-h-[6rem]"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleClickSend();
+            }
+          }}
+        />
         <Button
           onClick={handleClickSend}
           disabled={message.trim().length === 0}
