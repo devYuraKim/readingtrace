@@ -8,7 +8,8 @@ public interface BookService {
 
     BookDto createOrGetBook(BookDto bookDto);
     BookDto getBookById(Long bookId);
-    
+    BookDto getBookByExternalId(String externalId);
+
     GoogleBooksSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage);
 
     Flux<BookDto> reactiveSearchBook(String searchType, String searchWord);

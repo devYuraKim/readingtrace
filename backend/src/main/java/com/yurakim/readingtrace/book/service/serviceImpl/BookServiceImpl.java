@@ -59,6 +59,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public BookDto getBookByExternalId(String externalId) {
+        Book book = bookRepository.findByExternalId(externalId).orElseThrow(()->new RuntimeException("No book found with ExternalId: " + externalId));
+        return bookMapper.mapToDto(book);
+    }
+
+    @Override
     public GoogleBooksSearchResultDto searchBook(String searchType, String searchWord, int startIndex, int booksPerPage) {
         String trimmedSerchWord = searchWord.trim().replaceAll("\\s+", " ");
         String searchPrefix = switch (searchType) {

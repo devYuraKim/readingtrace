@@ -1,6 +1,9 @@
 import React from 'react';
+import { apiClient } from '@/queries/axios';
 import { useGetSearchedBooks } from '@/queries/book.query';
+import { useAuthStore } from '@/store/useAuthStore';
 import { BookDto } from '@/types/book.types';
+import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -40,6 +43,8 @@ const StartByBookSearch = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selectedBook, setSelectedBook] = React.useState<BookDto>();
 
+  const userId = useAuthStore((state) => state.user?.userId);
+
   const {
     data: results,
     isPending,
@@ -73,13 +78,33 @@ const StartByBookSearch = () => {
   const startPage = Math.max(1, page - Math.floor(maxVisibleButtons / 2));
   const endPage = Math.min(startPage + maxVisibleButtons - 1, totalPages);
 
+  const { data: addedBookData, isPending: isPendingAddedBook } = useQuery({
+    queryKey: [selectedBook, selectedBook?.isAdded],
+    queryFn: async () => {
+      const res = await apiClient.get(
+        `/users/${userId}/books/book?externalId=${selectedBook?.externalId}`,
+      );
+      return res.data;
+    },
+    enabled: !!selectedBook?.isAdded,
+  });
+
   return (
     <div className="relative flex flex-1 flex-col items-center justify-start mt-10">
-      {selectedBook && (
+      {selectedBook && !selectedBook.isAdded && (
         <BookStartDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           book={selectedBook}
+        />
+      )}
+
+      {selectedBook && selectedBook.isAdded && !isPendingAddedBook && (
+        <BookStartDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          book={selectedBook}
+          initialData={addedBookData}
         />
       )}
 

@@ -9,7 +9,9 @@ export const useGetUserBook = (
   return useQuery<UserBookDto>({
     queryKey: ['userBook', userId, bookId],
     queryFn: async () => {
-      const res = await apiClient.get(`/users/${userId}/books/${bookId}`);
+      const res = await apiClient.get(
+        `/users/${userId}/books/book?bookId=${bookId}`,
+      );
       return res.data;
     },
     enabled: !!userId && !!bookId,

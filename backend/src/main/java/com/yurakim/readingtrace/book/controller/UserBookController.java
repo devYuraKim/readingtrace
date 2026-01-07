@@ -48,10 +48,25 @@ public class UserBookController {
         return ResponseEntity.ok().body(ursDto);
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<UserBookDto> getUserBook(@PathVariable Long userId, @PathVariable Long bookId) {
-        BookDto bookDto = bookService.getBookById(bookId);
-        UserReadingStatusDto ursDto= userReadingStatusService.getUserReadingStatus(userId, bookId);
+    // from PathVariable to RequestParam ?bookId={bookId} or ?externalId={externalId}
+    @GetMapping("/book")
+    public ResponseEntity<UserBookDto> getUserBook(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long bookId,
+            @RequestParam(required = false) String externalId) {
+        BookDto bookDto = null;
+        UserReadingStatusDto ursDto = null;
+        //1. bookId comes in,
+        if(bookId!=null) {
+            bookDto = bookService.getBookById(bookId);
+            ursDto = userReadingStatusService.getUserReadingStatus(userId, bookId);
+        }
+        // 2. externalId comes in,
+        if(externalId!=null) {
+            bookDto = bookService.getBookByExternalId(externalId);
+            ursDto = userReadingStatusService.getUserReadingStatus(userId, bookDto.getBookId());
+        }
+        //TODO: check for nulls
         UserBookDto compositeUserBookDto = userBookMapper.combineDTOs(bookDto, ursDto);
         return ResponseEntity.ok().body(compositeUserBookDto);
     }
