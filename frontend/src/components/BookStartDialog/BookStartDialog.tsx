@@ -41,10 +41,13 @@ const BookStartDialog = ({
   const userId = useAuthStore.getState().user?.userId;
 
   const createMutation = useCreateUserBook(userId);
-  const updateMutation = useUpdateUserBook(userId, book.bookId);
+  const updateMutation = useUpdateUserBook(
+    userId,
+    book.bookId || initialData?.bookId,
+  );
   const deleteMutation = useDeleteUserBook(
     userId,
-    book.bookId,
+    book.bookId || initialData?.bookId,
     null,
     null,
     () => {
@@ -120,7 +123,7 @@ const BookStartDialog = ({
       startDate: formValues.startDate,
       endDate: formValues.endDate,
       // Book
-      bookId: book.bookId,
+      bookId: book.bookId || initialData?.bookId,
       externalId: book.externalId,
       title: book.title,
       authors: book.authors,
