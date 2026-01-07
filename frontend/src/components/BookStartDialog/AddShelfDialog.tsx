@@ -1,9 +1,9 @@
-import { apiClient } from '@/queries/axios';
+import { useAddNewShelf } from '@/queries/shelf.mutation';
+import { shelfNameSchema } from '@/schemas/shelf.schemas';
 import { useAuthStore } from '@/store/useAuthStore';
+import { AddShelfDialogProps } from '@/types/props.types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import z from 'zod';
 import { Button } from '../ui/button';
 import {
@@ -15,19 +15,6 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { Input } from '../ui/input';
-
-type AddShelfDialogProps = {
-  isAddOpen: boolean;
-  setIsAddOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const shelfNameSchema = z.object({
-  shelfName: z
-    .string()
-    .trim()
-    .min(1, 'Bookshelf name cannot be empty')
-    .transform((val) => val.replace(/\s+/g, ' ')),
-});
 
 type ShelfNameFormValues = z.infer<typeof shelfNameSchema>;
 
@@ -41,32 +28,14 @@ function AddShelfDialog({ isAddOpen, setIsAddOpen }: AddShelfDialogProps) {
     resolver: zodResolver(shelfNameSchema),
   });
 
+  const userId = useAuthStore((state) => state.user?.userId);
+  const { mutate } = useAddNewShelf(userId);
+
   const onSubmit = (data: ShelfNameFormValues) => {
-    addNewShelfMutation.mutate(data.shelfName);
+    mutate(data.shelfName);
     setIsAddOpen(false);
     reset();
   };
-
-  const userId = useAuthStore.getState().user?.userId;
-  const queryClient = useQueryClient();
-
-  const addNewShelfMutation = useMutation({
-    mutationFn: async (shelfName: string) => {
-      const res = await apiClient.post(`users/${userId}/shelves`, {
-        shelfName: shelfName,
-      });
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success('Shelf added successfully');
-      queryClient.invalidateQueries({
-        queryKey: ['customShelves', userId],
-      });
-    },
-    onError: (_error, shelfName) => {
-      toast.error(`Failed to add shelf ${shelfName}`);
-    },
-  });
 
   return (
     <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>

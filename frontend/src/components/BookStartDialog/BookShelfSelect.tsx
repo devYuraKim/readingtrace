@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCustomShelves } from '@/queries/useCustomShelves';
+import { useCustomShelves } from '@/queries/shelf.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Plus } from 'lucide-react';
 import {

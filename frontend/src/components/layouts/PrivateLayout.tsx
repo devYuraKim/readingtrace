@@ -1,6 +1,5 @@
 import { Fragment } from 'react/jsx-runtime';
-import { useCustomShelves } from '@/queries/useCustomShelves';
-import { useDefaultShelves } from '@/queries/useDefaultShelves';
+import { useCustomShelves, useDefaultShelves } from '@/queries/shelf.query';
 import { useAuthStore } from '@/store/useAuthStore';
 import { CustomShelf, DefaultShelf } from '@/types/shelf.types';
 import { Outlet, useLocation } from 'react-router-dom';

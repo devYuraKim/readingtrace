@@ -31,3 +31,8 @@ export type ReadingProgressPopoverProps = {
   bookId: number;
   userReadingStatusId: number;
 };
+
+export type AddShelfDialogProps = {
+  isAddOpen: boolean;
+  setIsAddOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
