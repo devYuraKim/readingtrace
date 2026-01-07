@@ -88,6 +88,9 @@ export const useDeleteUserBook = (
       queryClient.invalidateQueries({
         queryKey: ['bookSearch'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['userShelf'],
+      });
 
       toast.success('Book deleted successfully!');
       onSuccessCallback?.();
