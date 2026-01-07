@@ -168,12 +168,20 @@ const StartByBookSearch = () => {
             {results.books.map((book) => (
               <div key={book.externalId}>
                 {book.isAdded && (
-                  <div className="absolute m-1 bg-green-700  shadow-md rounded-full border-1 border-white text-white text-[0.5rem] px-2 py-1">
-                    ADDED
+                  <div className="absolute m-3 z-10 bg-gradient-to-br from-cyan-300 via-blue-500 to-indigo-600 shadow-[0_0_10px_rgba(59,130,246,0.8)] border-[1.5px] border-white/90 rounded-sm text-white text-[10px] font-bold px-2 py-0.5 flex items-center justify-center backdrop-blur-sm">
+                    <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)] cursor-default">
+                      ADDED
+                    </span>
                   </div>
                 )}
                 <div
-                  className="p-5 shadow-md rounded-sm flex flex-row gap-4 hover:bg-muted-foreground/10 hover:cursor-pointer hover:shadow-xl w-full h-33"
+                  className={`p-5 rounded-sm flex flex-row gap-4 transition-all duration-300 w-full h-33 cursor-pointer 
+                    ${
+                      book.isAdded
+                        ? 'bg-white border border-blue-300 shadow-md hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:bg-blue-50/50 hover:border-blue-400'
+                        : 'shadow-md border border-transparent hover:bg-muted-foreground/10 hover:shadow-xl'
+                    }
+                  `}
                   onClick={() => {
                     setSelectedBook(book);
                     setDialogOpen(true);
