@@ -3,7 +3,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { apiClient } from './axios';
 
-export const useCreateUserBook = (userId: number | undefined) => {
+export const useCreateUserBook = (
+  userId: number | undefined,
+  onSuccessCallback?: () => void,
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: ReadingStatusFormValues) => {
@@ -12,7 +15,6 @@ export const useCreateUserBook = (userId: number | undefined) => {
       });
     },
     onSuccess: () => {
-      toast.success('Book added successfully');
       queryClient.invalidateQueries({
         queryKey: ['userBook', userId],
       });
@@ -22,6 +24,12 @@ export const useCreateUserBook = (userId: number | undefined) => {
       queryClient.invalidateQueries({
         queryKey: ['defaultShelves', userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['bookSearch'],
+      });
+
+      toast.success('Book added successfully');
+      onSuccessCallback?.();
     },
     onError: () => {
       toast.error('Failed to add book');
@@ -76,6 +84,9 @@ export const useDeleteUserBook = (
       });
       queryClient.invalidateQueries({
         queryKey: ['defaultShelves', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['bookSearch'],
       });
 
       toast.success('Book deleted successfully!');

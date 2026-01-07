@@ -40,7 +40,9 @@ const BookStartDialog = ({
 
   const userId = useAuthStore.getState().user?.userId;
 
-  const createMutation = useCreateUserBook(userId);
+  const createMutation = useCreateUserBook(userId, () =>
+    handleOpenChange(false),
+  );
   const updateMutation = useUpdateUserBook(
     userId,
     (book.bookId || initialData?.bookId) ?? null,
