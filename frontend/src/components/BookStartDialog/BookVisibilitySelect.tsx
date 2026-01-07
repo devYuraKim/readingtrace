@@ -12,7 +12,7 @@ import {
 } from '../ui/select';
 
 interface BookVisibilitySelectProps {
-  value: string | null;
+  value: string | null | undefined;
   onChange: (value: string) => void;
   className?: string;
 }

@@ -43,7 +43,7 @@ const BookStartDialog = ({
   const createMutation = useCreateUserBook(userId);
   const updateMutation = useUpdateUserBook(
     userId,
-    book.bookId || initialData?.bookId,
+    (book.bookId || initialData?.bookId) ?? null,
   );
   const deleteMutation = useDeleteUserBook(
     userId,
@@ -227,6 +227,7 @@ const BookStartDialog = ({
                   <BookStatusSelect
                     className="w-3/5 text-xs"
                     value={formValues.status}
+                    //TODO: check schema 'null' and 'undefined' setup
                     onChange={(value: string) => handleChange('status', value)}
                   />
                 </div>
@@ -236,6 +237,7 @@ const BookStartDialog = ({
                   <BookVisibilitySelect
                     className="w-3/5 text-xs"
                     value={formValues.visibility}
+                    //TODO: check schema 'null' and 'undefined' setup
                     onChange={(value: string) =>
                       handleChange('visibility', value)
                     }

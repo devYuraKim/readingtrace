@@ -6,24 +6,28 @@ import z from 'zod';
 
 export const readingStatusFormSchema = z.object({
   userReadingStatusId: z.number().nullish(),
-  status: z.enum(
-    [
-      StatusSlug.ALREADY_READ,
-      StatusSlug.WANT_TO_READ,
-      StatusSlug.CURRENTLY_READING,
-      StatusSlug.PAUSED_READING,
-      StatusSlug.NEVER_FINISHED,
-    ],
-    {
-      message: 'Please select a reading status.',
-    },
-  ),
-  visibility: z.enum(
-    [VisibilitySlug.PUBLIC, VisibilitySlug.FRIENDS, VisibilitySlug.PRIVATE],
-    {
-      message: 'Please select a visibility option.',
-    },
-  ),
+  status: z
+    .enum(
+      [
+        StatusSlug.ALREADY_READ,
+        StatusSlug.WANT_TO_READ,
+        StatusSlug.CURRENTLY_READING,
+        StatusSlug.PAUSED_READING,
+        StatusSlug.NEVER_FINISHED,
+      ],
+      {
+        message: 'Please select a reading status.',
+      },
+    )
+    .nullish(),
+  visibility: z
+    .enum(
+      [VisibilitySlug.PUBLIC, VisibilitySlug.FRIENDS, VisibilitySlug.PRIVATE],
+      {
+        message: 'Please select a visibility option.',
+      },
+    )
+    .nullish(),
   rating: z
     .number({ message: 'Please provide a rating.' })
     .min(0)
