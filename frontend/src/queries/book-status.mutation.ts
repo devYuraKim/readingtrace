@@ -40,6 +40,7 @@ export const useCreateUserBook = (
 export const useUpdateUserBook = (
   userId: number | undefined,
   bookId: number | null,
+  onSuccessCallback?: () => void,
 ) => {
   const queryClient = useQueryClient();
 
@@ -56,7 +57,11 @@ export const useUpdateUserBook = (
       queryClient.invalidateQueries({
         queryKey: ['defaultShelves', userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['userShelf'],
+      });
       toast.success('Book updated successfully!');
+      onSuccessCallback?.();
     },
     onError: () => {
       toast.error('Failed to update book');

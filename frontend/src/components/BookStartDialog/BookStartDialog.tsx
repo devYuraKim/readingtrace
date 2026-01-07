@@ -46,6 +46,9 @@ const BookStartDialog = ({
   const updateMutation = useUpdateUserBook(
     userId,
     (book.bookId || initialData?.bookId) ?? null,
+    () => {
+      handleOpenChange(false);
+    },
   );
   const deleteMutation = useDeleteUserBook(
     userId,
