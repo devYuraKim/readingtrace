@@ -4,3 +4,15 @@ services:
     ports:
       - '6333:6333'
       - '6334:6334'
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: readingtrace
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
