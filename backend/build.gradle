@@ -61,7 +61,9 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.38.6')
     implementation 'software.amazon.awssdk:s3'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-
+    implementation 'org.springframework.ai:spring-ai-rag:1.1.2'
+    implementation 'org.springframework.ai:spring-ai-advisors-vector-store:1.1.2'
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-qdrant:1.1.2'
 }
 
 dependencyManagement {

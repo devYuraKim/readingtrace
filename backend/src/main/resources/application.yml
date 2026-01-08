@@ -54,6 +54,17 @@ spring:
         chat:
           options:
             model: gemini-2.0-flash
+    vectorstore:
+      qdrant:
+        initialize-schema: true
+        host: localhost
+        port: 6334
+        collection-name: readingtrace
+
+  docker:
+    compose:
+      stop:
+        command: down
 
 #TODO: choose either configuration or class definition
 #  security:
