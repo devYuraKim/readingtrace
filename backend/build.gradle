@@ -60,6 +60,8 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
     implementation platform('software.amazon.awssdk:bom:2.38.6')
     implementation 'software.amazon.awssdk:s3'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
 }
 
 dependencyManagement {
