@@ -54,13 +54,26 @@ export const ReadingProgressPopover = ({
       return;
     }
 
-    apiClient.post(`/users/${userId}/books/progress`, {
-      userId: userId,
-      bookId: bookId,
-      userReadingStatusId: userReadingStatusId,
-      currentPage: page,
-    });
+    updateProgress();
   };
+
+  const { mutate: updateProgress } = useMutation({
+    mutationKey: ['addLogData', userId, bookId],
+    mutationFn: async () => {
+      const res = await apiClient.post(`/users/${userId}/books/progress`, {
+        userId: userId,
+        bookId: bookId,
+        userReadingStatusId: userReadingStatusId,
+        currentPage: page,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['latest-progress', userId, bookId],
+      });
+    },
+  });
 
   const handleClickLog = () => {
     setLog((prev) => !prev);
