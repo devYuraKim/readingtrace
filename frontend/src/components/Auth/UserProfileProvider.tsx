@@ -37,7 +37,8 @@ const UserProfileProvider = () => {
       </>
     );
 
-  if (userProfile && !userProfile.isOnboardingCompleted)
+  //TODO: check if adding !userProfile case is valid
+  if (!userProfile || (userProfile && !userProfile.isOnboardingCompleted))
     return <OnboardingPage />;
 
   return <Outlet />;
