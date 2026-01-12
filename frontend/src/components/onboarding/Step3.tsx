@@ -73,7 +73,7 @@ const Step3 = () => {
           localStorage.removeItem(key);
         }
       });
-      navigate(`/users/${userId}`);
+      window.location.href = `/users/${userId}`; // full refresh
     },
     onError: () => {
       alert('error');
