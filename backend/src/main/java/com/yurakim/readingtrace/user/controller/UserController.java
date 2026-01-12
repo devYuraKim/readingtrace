@@ -60,7 +60,7 @@ public class UserController {
 
         userProfile.setNickname(userProfileRequestDto.getNickname());
         //TODO: profile image temp에서 확정 파일로 이동하는 로직 필요
-        if(userProfileRequestDto.getProfileImageUrl().isBlank()) {
+        if(userProfileRequestDto.getProfileImageUrl()==null) {
             userProfile.setProfileImageUrl("https://readingtrace-bucket.s3.ap-northeast-2.amazonaws.com/user/profile/final/default.png");
         }
         else {
