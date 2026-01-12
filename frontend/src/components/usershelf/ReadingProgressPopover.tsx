@@ -104,13 +104,18 @@ export const ReadingProgressPopover = ({
   });
 
   const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPage(Number(e.target.value));
-    setPercent(
-      Number(((Number(e.target.value) / totalPages) * 100).toFixed(1)),
-    );
+    if (currentPage >= Number(e.target.value)) {
+      toast.error('new log cannot be same or smaller than the latest value');
+    } else {
+      setPage(Number(e.target.value));
+      setPercent(
+        Number(((Number(e.target.value) / totalPages) * 100).toFixed(1)),
+      );
+    }
   };
 
   const handlePercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //TODO: handle percentage changes
     setPercent(Number(e.target.value));
     setPage(Number(((Number(e.target.value) / 100) * totalPages).toFixed(0)));
   };
