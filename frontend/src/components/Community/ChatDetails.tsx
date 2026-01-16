@@ -4,6 +4,8 @@ import { Button } from '../ui/button';
 const ChatDetails = () => {
   const videoRef = useRef(null);
 
+  let peerConnection = null;
+
   const handleClickJoin = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -16,9 +18,15 @@ const ChatDetails = () => {
         videoElement.srcObject = stream;
         videoElement.play();
       }
+
+      await createPeerConnection();
     } catch (err) {
       console.error('Error accessing camera:', err);
     }
+  };
+
+  const createPeerConnection = () => {
+    peerConnection = new RTCPeerConnection();
   };
 
   return (
@@ -31,7 +39,14 @@ const ChatDetails = () => {
       >
         JOIN
       </Button>
-      <video ref={videoRef} width="400" height="300" autoPlay muted />
+      <video
+        ref={videoRef}
+        width="400"
+        height="300"
+        autoPlay
+        muted
+        style={{ transform: 'scaleX(-1)' }}
+      />
     </div>
   );
 };
