@@ -2,31 +2,56 @@ import { useRef } from 'react';
 import { Button } from '../ui/button';
 
 const ChatDetails = () => {
-  const videoRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  let peerConnection = null;
+  let localStream: MediaStream;
+  let peerConnection: RTCPeerConnection;
+
+  let peerConfiguration: RTCConfiguration = {
+    iceServers: [
+      {
+        urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'],
+      },
+    ],
+  };
 
   const handleClickJoin = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
+      localStream = stream;
 
-      // Now you can use the stream, e.g., attach it to a video element
-      const videoElement = document.querySelector('video');
+      const videoElement = videoRef.current;
       if (videoElement) {
         videoElement.srcObject = stream;
         videoElement.play();
       }
 
-      await createPeerConnection();
+      createPeerConnection();
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      console.log('creating offer');
+      console.log(offer);
     } catch (err) {
       console.error('Error accessing camera:', err);
     }
   };
 
   const createPeerConnection = () => {
-    peerConnection = new RTCPeerConnection();
+    peerConnection = new RTCPeerConnection(peerConfiguration);
+
+    if (localStream) {
+      localStream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, localStream);
+      });
+    }
+
+    peerConnection.addEventListener('icecandidate', (e) => {
+      console.log('ice candidates');
+      console.log(e);
+    });
   };
 
   return (
