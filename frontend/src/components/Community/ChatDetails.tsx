@@ -17,6 +17,7 @@ const ChatDetails = () => {
 
   const handleClickJoin = async () => {
     try {
+      // trigger getUserMedia request
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
@@ -28,26 +29,40 @@ const ChatDetails = () => {
         videoElement.play();
       }
 
-      createPeerConnection();
-
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      console.log('creating offer');
-      console.log(offer);
+      createPeerConnection(); //add tracks
+      console.log('peer connection');
+      console.log(peerConnection);
     } catch (err) {
       console.error('Error accessing camera:', err);
     }
   };
 
+  const handleNegotiationNeededEvent = async () => {
+    // create an offer and add offer to peerConnection
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    console.log('creating offer');
+    console.log(offer);
+  };
+
   const createPeerConnection = () => {
     peerConnection = new RTCPeerConnection(peerConfiguration);
 
+    //add an event listener to indicate when we should start the signaling process
+    peerConnection.addEventListener(
+      'negotiationneeded',
+      handleNegotiationNeededEvent,
+    );
+
+    // add type of media/data we wish to send&receive
+    // add tracks to peerConnection object
     if (localStream) {
       localStream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStream);
       });
     }
 
+    // listen for ice candidates
     peerConnection.addEventListener('icecandidate', (e) => {
       console.log('ice candidates');
       console.log(e);
