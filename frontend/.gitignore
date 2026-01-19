@@ -28,3 +28,7 @@ src/**/*.js.map
 *.njsproj
 *.sln
 *.sw?
+
+# SSL certs
+*.pem
+*.key

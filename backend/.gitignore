@@ -39,3 +39,7 @@ out/
 ### secrets ###
 application-secret.yml
 application-prod-secret.yml
+
+### SSL certs ###
+*.pem
+*.key
