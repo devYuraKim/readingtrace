@@ -1,5 +1,9 @@
 server:
   port: ${SERVER_PORT:8080}
+  ssl:
+    enabled: true
+    certificate: classpath:localhost+1.pem
+    certificate-private-key: classpath:localhost+1-key.pem
   error:
     include-stacktrace: ${ERROR_STACKTRACE:always}
     include-message: ${ERROR_MESSAGE:always}
@@ -115,7 +119,7 @@ jwt:
   refresh-expiration-days: 7
 
 frontend:
-  url: http://localhost:5173
+  url: https://localhost:5173
 cors:
   allowed-origins: ${frontend.url}
 
