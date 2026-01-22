@@ -228,6 +228,10 @@ const DirectMessage = () => {
 
     setMessage('');
 
+    queryClient.invalidateQueries({
+      queryKey: ['dms', userId, receiverId, offset],
+    });
+
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

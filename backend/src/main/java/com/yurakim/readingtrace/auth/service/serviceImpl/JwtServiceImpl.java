@@ -221,6 +221,7 @@ public class JwtServiceImpl implements JwtService {
         String userEmail = this.getSubject(oldRefreshToken);
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
         //4. generate new refresh token and revoke old one
+        //TODO: check reasons for generating new fresh token
         String newRawRefreshToken = this.generateRefreshToken(user, originalExpiry);
         String hashedRefreshToken = Sha256Hashing.generateSHA256Hash(newRawRefreshToken);
         RefreshToken newRefreshTokenRecord = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
